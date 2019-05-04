@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Add
 - Configuration YAML is more readable, through the description texts. [see](https://github.com/OXIDprojects/oxrun/blob/master/tests/Oxrun/Helper/testData/translated_config.yml#L9)
+- The directory where the Oxid eShop is located can be determined with the environment variable `OXID_SHOP_DIR`. Ideal for Docker Images.
+- oxrun finds the bootstrap file if you are in the installation directory of the oxid eshop.
+- When calling the absolute path, e.g. `/var/www/html/vendor/bin/oxrun`, bootstrap is also found. This undoes the --shopDir option. Ideal for cronjobs or continuous integration.
 
 ### Changed
 
@@ -15,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `--oxmodule=module:myModule` and `--oxmodule=myModule` are same.
 - Rename command `misc:generate:yaml:multiset` to `misc:generate:yaml:config` to better distinguish 
   between `yaml:modules` and `yaml:multiset`.
+- To find ony many ways the oxid eshop code.
   
 ### Deprecated
   
