@@ -51,7 +51,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
      */
     protected function getVirtualBootstrap()
     {
-        return $this->getVfsStreamUrl() . '/bootstrap.php';
+        return $this->getVfsStreamUrl();
     }
 
     protected function tearDown()

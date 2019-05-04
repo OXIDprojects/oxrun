@@ -33,7 +33,8 @@ class GenerateYamlModuleCommandTest extends TestCase
 
         //Arrange
         $shopDir['oxrun_config']['dev.yml'] = Yaml::dump(['blacklist' => ['1' => ['a','b','c']], 'whitelist' => ['2' => ['BleibtA']]]);
-        $app->checkBootstrapOxidInclude($this->fillShopDir($shopDir)->getVirtualBootstrap());
+        $app->setShopDir($this->fillShopDir($shopDir)->getVirtualBootstrap());
+
 
         $moduleList = $this->prophesize(ModuleList::class);
         $moduleList->getActiveModuleInfo()->willReturn(['ModuleA' => null, 'ModuleB' => null, 'ModuleC' => null]);
@@ -75,7 +76,7 @@ class GenerateYamlModuleCommandTest extends TestCase
 
         //Arrange
         $shopDir['oxrun_config']['dev.yaml'] = Yaml::dump(['blacklist' => ['1' => ['a','b','c']], 'whitelist' => ['2' => ['BleibtA']]]);
-        $app->checkBootstrapOxidInclude($this->fillShopDir($shopDir)->getVirtualBootstrap());
+        $app->setShopDir($this->fillShopDir($shopDir)->getVirtualBootstrap());
 
         $moduleList = $this->prophesize(ModuleList::class);
         $moduleList->getDisabledModules()->willReturn(['ModuleA', 'ModuleB']);

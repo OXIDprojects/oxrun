@@ -143,7 +143,7 @@ class Application extends BaseApplication
     {
         $bootstrapFinder = new BootstrapFinder($this->autoloader);
         if ($bootstrapFinder->isFound()) {
-            $this->shopDir = $bootstrapFinder->getShopDir();
+            $this->setShopDir($bootstrapFinder->getShopDir());
             return true;
         }
         return false;
@@ -170,6 +170,14 @@ class Application extends BaseApplication
     public function getShopDir()
     {
         return $this->shopDir;
+    }
+
+    /**
+     * @param string $shopDir
+     */
+    public function setShopDir($shopDir)
+    {
+        $this->shopDir = $shopDir;
     }
 
     /**
