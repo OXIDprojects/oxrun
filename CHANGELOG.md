@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `--oxmodule=module:myModule` and `--oxmodule=myModule` are same.
 - Rename command `misc:generate:yaml:multiset` to `misc:generate:yaml:config` to better distinguish 
   between `yaml:modules` and `yaml:multiset`.
-- To find ony many ways the oxid eshop code.
+- Find now several ways to find the oxid eshop directory.
   
 ### Deprecated
   
