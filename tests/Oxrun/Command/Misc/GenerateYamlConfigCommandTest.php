@@ -55,8 +55,7 @@ class GenerateYamlConfigCommandTest extends TestCase
 
         $dev_yml = ['config' => ['1' => ['varA' => 'besteht']]];
         $shopDir = ['oxrun_config' => ['dev.yaml' => Yaml::dump($dev_yml)]];
-        $app->checkBootstrapOxidInclude($this->fillShopDir($shopDir)->getVirtualBootstrap());
-
+        $app->setShopDir($this->fillShopDir($shopDir)->getVirtualBootstrap());
 
         $command = $app->find('misc:generate:yaml:config');
 
@@ -84,11 +83,10 @@ class GenerateYamlConfigCommandTest extends TestCase
     {
         $app = new Application();
         $app->add(new EnableAdapter(new GenerateYamlConfigCommand()));
+        $app->setShopDir($this->fillShopDir([])->getVirtualBootstrap());
 
         Registry::getConfig()->saveShopConfVar('str', 'unitModuleB', 'abcd1', 1, 'module:unitTest');
         Registry::getConfig()->saveShopConfVar('str', 'unitModuleW', 'cdef1', 1, 'module:unitNext');
-
-        $app->checkBootstrapOxidInclude($this->fillShopDir([])->getVirtualBootstrap());
 
         $command = $app->find('misc:generate:yaml:config');
 
@@ -123,11 +121,11 @@ class GenerateYamlConfigCommandTest extends TestCase
     {
         $app = new Application();
         $app->add(new EnableAdapter(new GenerateYamlConfigCommand()));
+        $app->setShopDir($this->fillShopDir([])->getVirtualBootstrap());
 
         Registry::getConfig()->saveShopConfVar('str', 'unitSecondShopName', 'Mars', 2, 'module:unitMars');
         Registry::getConfig()->saveShopConfVar('str', 'unitEgal',           'none', 2, 'module:unitMars');
 
-        $app->checkBootstrapOxidInclude($this->fillShopDir([])->getVirtualBootstrap());
 
         $command = $app->find('misc:generate:yaml:config');
 
@@ -159,11 +157,12 @@ class GenerateYamlConfigCommandTest extends TestCase
     {
         $app = new Application();
         $app->add(new EnableAdapter(new GenerateYamlConfigCommand()));
+        $app->setShopDir($this->fillShopDir([])->getVirtualBootstrap());
+
 
         Registry::getConfig()->saveShopConfVar('str', 'unitModuleB', 'abcd1', 1, 'module:myModuleName');
         Registry::getConfig()->saveShopConfVar('str', 'unitModuleZ', 'abcd2', 1, 'module:myModuleOption');
 
-        $app->checkBootstrapOxidInclude($this->fillShopDir([])->getVirtualBootstrap());
 
         $command = $app->find('misc:generate:yaml:config');
 
@@ -201,6 +200,7 @@ class GenerateYamlConfigCommandTest extends TestCase
         }
 
         DatabaseProvider::getDb()->execute('DELETE FROM `oxconfig` WHERE `OXVARNAME` LIKE "unit%"');
+
         parent::tearDown();
     }
 }
