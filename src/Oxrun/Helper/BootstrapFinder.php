@@ -17,22 +17,9 @@ use Symfony\Component\Console\Input\ArgvInput;
 class BootstrapFinder
 {
     /**
-     * @var \Composer\Autoload\ClassLoader
-     */
-    private $autoloader;
-
-    /**
      * @var string
      */
     private $shopDir;
-
-    /**
-     * @inheritDoc
-     */
-    public function __construct($autoloader)
-    {
-        $this->autoloader = $autoloader;
-    }
 
     /**
      * @return bool
@@ -147,12 +134,6 @@ class BootstrapFinder
         }
 
         include_once $oxBootstrap;
-
-        // If we've an autoloader we must re-register it to avoid conflicts with a composer autoloader from shop
-        if (null !== $this->autoloader) {
-            $this->autoloader->unregister();
-            $this->autoloader->register(true);
-        }
 
         return true;
     }
