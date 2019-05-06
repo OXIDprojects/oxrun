@@ -25,7 +25,7 @@ class OxrunErrorHandling
         $error = error_get_last();
         if (in_array($error['type'], $handledErrorTypes)) {
             $consoleOutput = new ConsoleOutput();
-            $consoleOutput->writeln("<error>$error</error>");
+            $consoleOutput->writeln("<error>{$error['message']}</error>");
             exit(2);
         }
     }
@@ -34,7 +34,21 @@ class OxrunErrorHandling
     {
         $consoleOutput = new ConsoleOutput();
 
-        if (basename($exception->getFile()) == basename(ContainerCollection::getContainerPath())) {
+        self::isContainerErrorRecreate($exception->getFile());
+
+        $consoleOutput->writeln("<error>$exception</error>");
+        exit(2);
+    }
+
+    /**
+     * Try to recreate container is a fatal error in OxrunCommands.php
+     *
+     * @param $exception
+     * @param $exit_code
+     */
+    protected static function isContainerErrorRecreate($filename)
+    {
+        if (basename($filename) == basename(ContainerCollection::getContainerPath())) {
             ContainerCollection::destroyCompiledContainer();
 
             if (getenv('AUTORESTART') != 1) {
@@ -42,8 +56,5 @@ class OxrunErrorHandling
                 exit($exit_code);
             }
         }
-
-        $consoleOutput->writeln("<error>$exception</error>");
-        exit(2);
     }
 }

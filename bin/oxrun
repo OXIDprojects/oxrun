@@ -24,6 +24,7 @@ $autoloader = require_once $OXRUN_VENDOR_PATH . 'autoload.php';
 $application = new \Oxrun\Application($autoloader, 'oxrun', '@package_version@');
 
 register_shutdown_function([OxrunErrorHandling::class, 'shutdown']);
+set_exception_handler([OxrunErrorHandling::class, 'handleUncaughtException']);
 
 try {
     $commandFinder = (new CommandFinder())
