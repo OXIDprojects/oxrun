@@ -35,7 +35,7 @@ class ContainerCollection implements CommandCollection
     /**
      * @var string
      */
-    private $template = '';
+    private static $template = '';
 
     /**
      * @var bool
@@ -74,9 +74,7 @@ class ContainerCollection implements CommandCollection
         if ($this->isFoundShopDir) {
             $this->shopDir = $application->getShopDir();
             $this->oxrunconfDir = $application->getOxrunConfigPath();
-            $this->template = $this->shopDir . '/../vendor/oxidprojects';
-        } else {
-            $this->template = sys_get_temp_dir();
+            static::$template = $this->shopDir . '/../vendor/oxidprojects';
         }
 
         /** @var DICollection $commandContainer */
@@ -90,13 +88,13 @@ class ContainerCollection implements CommandCollection
      */
     protected function getContainer()
     {
-        $containerCache = new ConfigCache($this->getContainerPath(), true);
+        $containerCache = new ConfigCache(static::getContainerPath(), true);
         if (!$containerCache->isFresh()) {
             $this->buildContainer($containerCache);
         }
 
         if (!in_array('oxidprojects\OxrunCommands', get_declared_classes())) {
-            include $this->getContainerPath();
+            include static::getContainerPath();
         }
 
         return new \oxidprojects\OxrunCommands();
@@ -129,9 +127,21 @@ class ContainerCollection implements CommandCollection
     /**
      * @return string
      */
-    protected function getContainerPath()
+    public static function getContainerPath()
     {
-        return $this->template . '/OxrunCommands.php';
+        if (static::$template == '') {
+            static::$template = sys_get_temp_dir();
+        }
+
+        return static::$template . '/OxrunCommands.php';
+    }
+
+    /**
+     * @return void
+     */
+    public static function destroyCompiledContainer()
+    {
+        @unlink(static::getContainerPath());
     }
 
     /**

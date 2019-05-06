@@ -6,9 +6,9 @@ use Composer\Autoload\ClassLoader;
 use Oxrun\Command\Custom;
 use Oxrun\Helper\BootstrapFinder;
 use Oxrun\Helper\DatabaseConnection;
+use Oxrun\Helper\OxrunErrorHandling;
 use Symfony\Component\Console\Application as BaseApplication;
 use Symfony\Component\Console\Command\HelpCommand;
-use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -113,7 +113,6 @@ class Application extends BaseApplication
         return parent::doRun($input, $output);
     }
 
-
     /**
      * Oxid bootstrap.php is loaded.
      *
@@ -141,9 +140,10 @@ class Application extends BaseApplication
      */
     protected function findBootstrapFile()
     {
-        $bootstrapFinder = new BootstrapFinder($this->autoloader);
+        $bootstrapFinder = new BootstrapFinder();
         if ($bootstrapFinder->isFound()) {
             $this->setShopDir($bootstrapFinder->getShopDir());
+            $this->preparations();
             return true;
         }
         return false;
@@ -314,5 +314,20 @@ class Application extends BaseApplication
         }
 
         $this->oxid_version = \OxidEsales\Eshop\Core\ShopVersion::getVersion();
+    }
+
+    /**
+     * - If we've an autoloader we must re-register it to avoid conflicts with a composer autoloader from shop
+     * - Disable OXID Logging errors.
+     */
+    protected function preparations()
+    {
+        if (null !== $this->autoloader) {
+            $this->autoloader->unregister();
+            $this->autoloader->register(true);
+        }
+
+        restore_exception_handler();
+        set_exception_handler([OxrunErrorHandling::class, 'handleUncaughtException']);
     }
 }

@@ -10,9 +10,11 @@ namespace Oxrun\Tests\Helper;
 
 use Oxrun\Helper\BootstrapFinder;
 use PHPUnit\Framework\TestCase;
-use Prophecy\Argument;
-use Prophecy\Prophecy\MethodProphecy;
 
+/**
+ * Class BootstrapFinderTest
+ * @package Oxrun\Tests\Helper
+ */
 class BootstrapFinderTest extends TestCase
 {
     protected static $preSave = ['argv' => [], 'currentWorkingDirectory'  => __DIR__];
@@ -33,7 +35,7 @@ class BootstrapFinderTest extends TestCase
     {
         //Arrange
         $_SERVER['argv'] = ['', '--shopDir', $url];
-        $bootstrapFinder = new BootstrapFinder(null);
+        $bootstrapFinder = new BootstrapFinder();
 
         //Act
         $actual = $bootstrapFinder->isFound();
@@ -56,7 +58,7 @@ class BootstrapFinderTest extends TestCase
     {
         //Arrange
         $_SERVER['argv'] = ['', '--shopDir', '/irgendow'];
-        $bootstrapFinder = new BootstrapFinder(null);
+        $bootstrapFinder = new BootstrapFinder();
 
         //Act
         $actual = $bootstrapFinder->isFound();
@@ -72,7 +74,7 @@ class BootstrapFinderTest extends TestCase
     {
         //Arrange
         chdir($path);
-        $bootstrapFinder = new BootstrapFinder(null);
+        $bootstrapFinder = new BootstrapFinder();
 
         //Act
         $actual = $bootstrapFinder->isFound();
@@ -100,7 +102,7 @@ class BootstrapFinderTest extends TestCase
         //Arrange
         putenv('OXID_SHOP_DIR='.$path);
 
-        $bootstrapFinder = new BootstrapFinder(null);
+        $bootstrapFinder = new BootstrapFinder();
 
         //Act
         $actual = $bootstrapFinder->isFound();
@@ -115,7 +117,7 @@ class BootstrapFinderTest extends TestCase
     {
         //Arrange
         chdir(__DIR__ . "/testData/eShopDir/wrongSource");
-        $bootstrapFinder = new BootstrapFinder(null);
+        $bootstrapFinder = new BootstrapFinder();
 
         //Act
         $actual = $bootstrapFinder->isFound();
@@ -125,21 +127,12 @@ class BootstrapFinderTest extends TestCase
         $this->assertFalse(defined('WRONG_BOOTSTRAP_IS_LOADED'));
     }
 
-    public function testReloadAutoloader()
-    {
-        //Arrange
-        chdir(__DIR__ . '/testData/eShopDir/source');
-        $autoloader = $this->prophesize(\Composer\Autoload\ClassLoader::class);
-        $bootstrapFinder = new BootstrapFinder($autoloader->reveal());
-
-        //Act
-        $bootstrapFinder->isFound();
-
-        //Assert
-        $autoloader->unregister()->shouldHaveBeenCalled();
-        $autoloader->register(Argument::is(true))->shouldHaveBeenCalled();
-    }
-
+    /**
+     * This test must take place under real conditions.
+     * Therefore the original class will be copied into the vendor/ directory and executed.
+     *
+     * @covers \Oxrun\Helper\BootstrapFinder::findAsOxidPackage
+     */
     public function testOxrunIsPackageIntoOxidCompose()
     {
         //Arrange
@@ -148,7 +141,7 @@ class BootstrapFinderTest extends TestCase
         file_put_contents(__DIR__.'/testData/eShopDir/vendor/oxidprojects/oxrun/src/Oxrun/Helper/BootstrapFinder.php', $bootstrapFinderPHP);
         include_once __DIR__.'/testData/eShopDir/vendor/oxidprojects/oxrun/src/Oxrun/Helper/BootstrapFinder.php';
 
-        $bootstrapFinder = new \Oxrun\Test\Mock\Helper\BootstrapFinder(null);
+        $bootstrapFinder = new \Oxrun\Test\Mock\Helper\BootstrapFinder();
 
         //Act
         $actual = $bootstrapFinder->isFound();
