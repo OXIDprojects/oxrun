@@ -47,6 +47,56 @@ To use oxrun just execute `php oxrun.phar` or `oxrun` (see above).
 
 Execute oxrun inside your OXID eShop base directory (or subdirectory) if you want to interact with an existing shop. It will automatically try to find the oxid boostrap.php and load it.
 
+#### oxrun is installed as phar
+
+    oxid-esale/           <- Works from here on. $: cd oxid-esale/ && oxrun.phar list
+    ├── LICENSE
+    ├── composer.json
+    ├── composer.lock
+    ├── source            <- or here $: cd oxid-esale/source/ && oxrun.phar list
+    │   ├── Application
+    │   │   └── ...
+    │   ├── modules       <- or here $: cd oxid-esale/source/modules && oxrun.phar list
+    │   │   ├── oe
+    │   │   └── ...
+    │   ├── bootstrap.php
+    │   └── ...
+    └── vendor            <- but not here $: cd oxid-esale/vendor/ && oxrun.phar list
+        ├── bin
+        ├── composer
+        └── ...
+
+#### oxrun is as composer package
+
+    oxid-esale/           <- work from here $: ./vendor/bin/oxrun list
+    ├── LICENSE
+    ├── composer.json
+    ├── composer.lock
+    ├── source            <- or here $: ../vendor/bin/oxrun list
+    │   ├── Application
+    │   │   └── ...
+    │   ├── modules       <- or here $: ../../vendor/bin/oxrun list
+    │   │   ├── oe
+    │   │   └── ...
+    │   ├── bootstrap.php
+    │   └── ...
+    └── vendor            <- or here $: ./bin/oxrun list
+        ├── bin
+        │   └── oxrun
+        └── ...
+
+or use the absolute path.
+    
+    /var/www/oxid-esale/vendor/bin/oxrun list
+    
+#### Docker images
+
+At the Docker Image you can use the environment variable `OXID_SHOP_DIR`. To specify the location of the OXID eShop in the image.
+
+The call could look something like this. Provided oxrun is at the location /usr/local/bin in the image.
+
+    docker run --rm -it --env 'OXID_SHOP_DIR=/var/www/oxid-esale/' myOXIDImage:latest oxrun list
+
 # Defining your own command
 
 There are three methods to add your own commands. 
