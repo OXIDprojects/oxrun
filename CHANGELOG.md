@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The directory where the Oxid eShop is located can be determined with the environment variable `OXID_SHOP_DIR`. Ideal for Docker Images.
 - oxrun finds the bootstrap file if you are in the installation directory of the oxid eshop.
 - When calling the absolute path, e.g. `/var/www/html/vendor/bin/oxrun`, bootstrap is also found. This undoes the --shopDir option. Ideal for cronjobs or continuous integration.
+- Now will make the error immediately in the console. The Oxid eShop error handling has been deactivated.
 
 ### Changed
 
@@ -19,6 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rename command `misc:generate:yaml:multiset` to `misc:generate:yaml:config` to better distinguish 
   between `yaml:modules` and `yaml:multiset`.
 - Find now several ways to find the oxid eshop directory.
+
+### Fixed
+
+- If there are errors in the DI container. It will be tried to recreate it automatically.
   
 ### Deprecated
   
