@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - If there are errors in the DI container. It will be tried to recreate it automatically.
+- Modules that extend the OxidEsales\Eshop\Core\Cache\Generic\Cache class are considered.
   
 ### Deprecated
   
