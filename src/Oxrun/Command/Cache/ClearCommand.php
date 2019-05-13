@@ -141,10 +141,10 @@ class ClearCommand extends Command implements \Oxrun\Command\EnableInterface
         }
 
         try {
-            Registry::get('\OxidEsales\Eshop\Core\Cache\Generic\Cache')->flush();
+            Registry::get('OxidEsales\Eshop\Core\Cache\Generic\Cache')->flush();
             $output->writeln('<info>Generic\Cache is cleared</info>');
 
-            Registry::get('\OxidEsales\Eshop\Core\Cache\DynamicContent\ContentCache')->reset(true);
+            Registry::get('OxidEsales\Eshop\Core\Cache\DynamicContent\ContentCache')->reset(true);
             $output->writeln('<info>DynamicContent\Cache is cleared</info>');
 
         } catch (\Exception $e) {

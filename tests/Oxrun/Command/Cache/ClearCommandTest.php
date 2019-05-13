@@ -123,7 +123,7 @@ class ClearCommandTest extends TestCase
         $genericCache = $this->prophesize(GenericCache::class);
 
         Registry::set(\OxidEsales\Facts\Facts::class, $facts->reveal());
-        Registry::set('\OxidEsales\Eshop\Core\Cache\Generic\Cache', $genericCache->reveal());
+        Registry::set('OxidEsales\Eshop\Core\Cache\Generic\Cache', $genericCache->reveal());
 
         return [$facts, $genericCache];
     }
@@ -136,7 +136,7 @@ class ClearCommandTest extends TestCase
         list($facts, $genericCache) = $this->mockEEGenericCacheClass();
 
         $dynamicContentCache = $this->prophesize(DynamicContentCache::class);
-        Registry::set('\OxidEsales\Eshop\Core\Cache\DynamicContent\ContentCache', $dynamicContentCache->reveal());
+        Registry::set('OxidEsales\Eshop\Core\Cache\DynamicContent\ContentCache', $dynamicContentCache->reveal());
 
         return [$facts, $genericCache, $dynamicContentCache];
     }
