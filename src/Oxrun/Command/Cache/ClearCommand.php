@@ -95,7 +95,7 @@ class ClearCommand extends Command implements \Oxrun\Command\EnableInterface
      */
     protected function unixFastClear($compileDir)
     {
-        $compileDir = escapeshellarg($compileDir);
+        $compileDir = escapeshellarg(rtrim($compileDir, '/\\'));
         // Fast Process: Move folder and create new folder
         passthru("mv ${compileDir} ${compileDir}_old && mkdir -p ${compileDir}/smarty");
         // Low Process delete folder on slow HD
