@@ -3,6 +3,9 @@ language: php
 php:
   - 7.1
 
+services:
+  - mysql
+
 env:
   - OXID_VERSION="dev-b-6.1-ce"
 
