@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v4.1.1] 2019-09-26
+
+### Fixed
+
+- Fix cache clearing failing on sCompileDir with trailing slash. [#46]
+
+## [v4.1.0] 2019-05-06
+
 ### Add
 - Configuration YAML is more readable, through the description texts. [see](https://github.com/OXIDprojects/oxrun/blob/master/tests/Oxrun/Helper/testData/translated_config.yml#L9)
 - The directory where the Oxid eShop is located can be determined with the environment variable `OXID_SHOP_DIR`. Ideal for Docker Images.
@@ -25,7 +33,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - If there are errors in the DI container. It will be tried to recreate it automatically.
 - Modules that extend the OxidEsales\Eshop\Core\Cache\Generic\Cache class are considered.
-- Fix cache clearing failing on sCompileDir with trailing slash. [#46]
   
 ### Deprecated
   
