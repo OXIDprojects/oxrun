@@ -75,7 +75,7 @@ class ActivateCommand extends Command implements \Oxrun\Command\EnableInterface
                     $output->writeLn("<error>Module $sModule could not be activated for shopId $shopId.</error>");
                 }
             } catch (\Exception $ex) {
-                $output->writeLn("<error>Exception actiating module: $sModule for shop $shopId: {$ex->getMessage()}</error>");
+                $output->writeLn("<error>Exception activating module: $sModule for shop $shopId: {$ex->getMessage()}</error>");
             }
         } else {
             $output->writeLn("<comment>Module $sModule already activated for shopId $shopId.</comment>");
