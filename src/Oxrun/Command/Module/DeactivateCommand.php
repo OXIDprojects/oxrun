@@ -76,7 +76,7 @@ class DeactivateCommand extends Command implements \Oxrun\Command\EnableInterfac
                     $output->writeLn("<comment>Module $sModule already deactivated for shopId $shopId.</comment>");
                 }
             } catch (\Exception $ex) {
-                $output->writeLn("<error>Exception deactiating module: $sModule for shop $shopId: {$ex->getMessage()}</error>");
+                $output->writeLn("<error>Exception deactivating module: $sModule for shop $shopId: {$ex->getMessage()}</error>");
             }
         }
     }
