@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- fix minor spelling issue in activate and deactivate command
+
 ## [v4.1.1] 2019-09-26
 
 ### Fixed
