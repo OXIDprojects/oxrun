@@ -957,7 +957,7 @@ module:multiactivate
 * Description: Activates multiple modules, based on a YAML file
 * Usage:
 
-  * `module:multiactivate [-s|--skipDeactivation] [-c|--skipClear] [--] <module>`
+  * `module:multiactivate [-s|--skipDeactivation] [-c|--skipClear] [-d|--clearModuleData] [--] <module>`
 
 usage:
 oxrun module:multiactivate configs/modules.yml
@@ -975,9 +975,17 @@ whitelist:
     #- ddoewysiwyg
 2:
     - ocb_cleartmp
+priorities:
+1:
+    moduleinternals:
+        1200
+    ocb_cleartmp:
+        950
 ```
 
 Supports either a __"whitelist"__ or a __"blacklist"__ entry with multiple shop ids and the desired module ids to activate (whitelist) or to exclude from activation (blacklist).
+
+With "priorities", you can define the order (per subshop) in which the modules will be activated.
 
 If you want, you can also specify __a YAML string on the command line instead of a file__, e.g.:
 
@@ -1013,6 +1021,15 @@ If you want, you can also specify __a YAML string on the command line instead of
 * Accept value: no
 * Is value required: no
 * Description: Skip cache clearing.
+* Default: `false`
+
+**clearModuleData:**
+
+* Name: `--clearModuleData`
+* Shortcut: `-d`
+* Accept value: no
+* Is value required: no
+* Description: Clear module data in oxconfig.
 * Default: `false`
 
 module:reload
