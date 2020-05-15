@@ -6,7 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v4.2.0] 2020-05-25
+
+### Fixed
+
 - fix minor spelling issue in activate and deactivate command
+
+### Add
+
+- add module sorting "priorities" and an option to clear the module entries in oxconfig for MultiActivateCommand
 
 ## [v4.1.1] 2019-09-26
 
