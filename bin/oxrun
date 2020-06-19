@@ -17,6 +17,8 @@ if (is_file(__DIR__ . '/../../../autoload.php')) {
 // default autoload
 if (is_file(__DIR__ . '/../vendor/autoload.php')) {
     $OXRUN_VENDOR_PATH = __DIR__ . '/../vendor/';
+} elseif (is_file(__DIR__ . '/../autoload.php')) {
+    $OXRUN_VENDOR_PATH = __DIR__ . '/../';
 }
 
 $autoloader = require_once $OXRUN_VENDOR_PATH . 'autoload.php';
@@ -29,13 +31,12 @@ set_exception_handler([OxrunErrorHandling::class, 'handleUncaughtException']);
 try {
     $commandFinder = (new CommandFinder())
         ->addRegister(new Aggregator\CommunityPass(), true)
-        ->addRegister(new Aggregator\ModulePass(),true)
-        ->addRegister(new Aggregator\CustomPass(),true)
+        ->addRegister(new Aggregator\ModulePass(), true)
+        ->addRegister(new Aggregator\CustomPass(), true)
         ->addRegister(new Aggregator\OxrunPass());
 
     (new ContainerCollection($commandFinder))
         ->addCommandTo($application);
-
 } catch (\Exception $e) {
     $consoleOutput = new ConsoleOutput();
     $consoleOutput->writeln('<error>Command Collection: '.$e->getMessage().'</error>');
@@ -44,4 +45,4 @@ try {
 $application->run();
 
 
-__HALT_COMPILER();
+__halt_compiler();
