@@ -43,7 +43,7 @@ class AnonymizeCommand extends Command implements \Oxrun\Command\EnableInterface
                 'OXMOBFON' => 'string',
                 'OXCITY' => 'string',
             ],
-            'where' => "t.`OXUSERNAME` NOT LIKE '%{{keepDomain}}' AND t.`OXUSERNAME` LIKE '%@%'"
+            'where' => "t.`OXUSERNAME` NOT LIKE '%{{keepDomain}}' AND t.`OXUSERNAME` LIKE '%@%' AND t.`OXRIGHTS` NOT LIKE 'malladmin'"
         ],
         'oxvouchers' => [
             'fields' => [
