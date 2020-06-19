@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v4.2.1] 2020-06-19
+
+### Fixed
+
+- fix composer autoload from vendor/bin dir
+- never anonymize malladmin users
+
 ## [v4.2.0] 2020-05-25
 
 ### Fixed
