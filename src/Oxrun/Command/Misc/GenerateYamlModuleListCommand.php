@@ -11,7 +11,6 @@ namespace Oxrun\Command\Misc;
 use OxidEsales\Eshop\Core\Module\ModuleList;
 use OxidEsales\Eshop\Core\Registry;
 use Oxrun\Command\EnableInterface;
-use Oxrun\Traits\ModuleListCheckTrait;
 use Oxrun\Traits\NeedDatabase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -26,7 +25,6 @@ use Symfony\Component\Yaml\Yaml;
 class GenerateYamlModuleListCommand extends Command implements EnableInterface
 {
     use NeedDatabase;
-    use ModuleListCheckTrait;
 
     /**
      * Configure Command
@@ -97,7 +95,6 @@ class GenerateYamlModuleListCommand extends Command implements EnableInterface
      */
     protected function getActiveModules($shopId)
     {
-        $this->checkModulelist($shopId);
         $oxModuleList = Registry::get(ModuleList::class);
 
         return $activeModules = array_keys($oxModuleList->getActiveModuleInfo());
@@ -110,7 +107,6 @@ class GenerateYamlModuleListCommand extends Command implements EnableInterface
      */
     protected function getDeactiveModules($shopId)
     {
-        $this->checkModulelist($shopId);
         $oxModuleList = Registry::get(ModuleList::class);
 
         return $deactiveModules = $oxModuleList->getDisabledModules();

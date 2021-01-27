@@ -2,7 +2,6 @@
 
 namespace Oxrun\Command\Module;
 
-use Oxrun\Traits\ModuleListCheckTrait;
 use Oxrun\Traits\NeedDatabase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
@@ -16,7 +15,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 class ListCommand extends Command implements \Oxrun\Command\EnableInterface
 {
     use NeedDatabase;
-    use ModuleListCheckTrait;
 
     /**
      * Configures the current command.
@@ -36,8 +34,6 @@ class ListCommand extends Command implements \Oxrun\Command\EnableInterface
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->checkModulelist();
-
         $oxModuleList = oxNew(\OxidEsales\EshopCommunity\Core\Module\ModuleList::class);
 
         $activeModules = array_keys($oxModuleList->getActiveModuleInfo());
