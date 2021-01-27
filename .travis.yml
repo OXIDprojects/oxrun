@@ -7,7 +7,7 @@ services:
   - mysql
 
 env:
-  - OXID_VERSION="dev-b-6.1-ce"
+  - OXID_VERSION="dev-b-6.2-ce"
 
 cache:
   directories:

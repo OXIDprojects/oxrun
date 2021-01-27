@@ -2,11 +2,12 @@
 
 namespace Oxrun\Command\User;
 
+use Doctrine\DBAL\Query\QueryBuilder;
+use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
+use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInterface;
 use Oxrun\Application;
 use Oxrun\CommandCollection\EnableAdapter;
 use Oxrun\TestCase;
-use Symfony\Component\Console\Helper\QuestionHelper;
-use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -18,11 +19,14 @@ class CreateUserCommandTest extends TestCase
     /**
      * Cleanup
      */
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
-        // delete user
-        $db = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-        $db->execute("DELETE FROM oxuser WHERE OXUSERNAME = 'dummyuser@oxrun.com'");
+        /** @var QueryBuilder $qb */
+        $qb = ContainerFactory::getInstance()->getContainer()->get(QueryBuilderFactoryInterface::class)->create();
+        $qb->delete('oxuser')
+            ->where('OXUSERNAME = :oxusername')
+            ->setParameter('oxusername', 'dummyuser@oxrun.com')
+            ->execute();
     }
     
     public function testExecute()
@@ -33,32 +37,11 @@ class CreateUserCommandTest extends TestCase
         $command = $app->find('user:create');
 
         $commandTester = new CommandTester($command);
-        // Equals to a user inputting "dummyuser@oxrun.com" and hitting ENTER
-        $helper = $command->getHelper('question');
-        // Equals to a user inputting "Test" and hitting ENTER
-        // If you need to enter a confirmation, "yes\n" will work
-        $helper->setInputStream($this->getInputStream("dummyuser@oxrun.com\nsecretpass\nDummy\nUser\nyes\n"));
-        // in newer Symfony versions you can just use:
-        //$commandTester->setInputs(array('dummyuser@oxrun.com'));
+        $commandTester->setInputs(["dummyuser@oxrun.com", "secretpass", "Dummy", "User", "yes"]);
         $commandTester->execute(
             array('command' => $command->getName())
         );
 
         $this->assertContains('User created', $commandTester->getDisplay());
-    }
-
-    /**
-     * Get the input stream
-     *
-     * @param [type] $input
-     * @return void
-     */
-    protected function getInputStream($input)
-    {
-        $stream = fopen('php://memory', 'r+', false);
-        fputs($stream, $input);
-        rewind($stream);
-
-        return $stream;
     }
 }

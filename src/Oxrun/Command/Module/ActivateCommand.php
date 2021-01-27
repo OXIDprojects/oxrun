@@ -12,6 +12,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Class ActivateCommand
  * @package Oxrun\Command\Module
+ *
+ * @deprecated use 'oe:module:activate'
+ * @see \OxidEsales\EshopCommunity\Internal\Framework\Module\Command\ModuleActivateCommand
  */
 class ActivateCommand extends Command implements \Oxrun\Command\EnableInterface
 {

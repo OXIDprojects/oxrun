@@ -9,14 +9,14 @@ Thanks to the [netz98 magerun](https://github.com/netz98/n98-magerun) project wh
 
 Copyright (c) 2015 Marc Harding http://www.marcharding.de (https://github.com/marcharding/oxrun)
 
-Copyright (c) 2018 Tobias Matthaiou http://www.tobimat.eu
+Copyright (c) 2019 Tobias Matthaiou http://www.tobimat.eu
 
 Copyright (c) 2018 Stefan Moises https://www.rent-a-hero.de/
 
 ## Installation
 
-PHP 7.0 is required.  
-OXID v6 is required.
+PHP 7.1|7.2 is required.  
+OXID eShop CE v6.5 is required.
 
 ##### 1. As a separate command `oxrun`
 

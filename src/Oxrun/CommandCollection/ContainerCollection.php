@@ -107,7 +107,10 @@ class ContainerCollection implements CommandCollection
     {
         $symfonyContainer = new ContainerBuilder();
         
-        $symfonyContainer->setDefinition('command_container', new Definition(DICollection::class));
+        $symfonyContainer->setDefinition(
+            'command_container',
+            (new Definition(DICollection::class))->setPublic(true)
+        );
 
         $this->findCommands($symfonyContainer);
 

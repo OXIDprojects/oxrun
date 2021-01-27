@@ -8,10 +8,9 @@
 
 namespace Oxrun\Command\Route;
 
-use Distill\Exception\IO\Exception;
 use Oxrun\Traits\NeedDatabase;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Helper\TableHelper;
+use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -65,13 +64,12 @@ class DebugCommand extends Command implements \Oxrun\Command\EnableInterface
             return;
         }
 
-        /** @var TableHelper $table */
-        $table = $this->getHelper('table');
+        $table = new Table($output);
 
         $this->addInfos($table, $aSeoURl);
         $this->addClassInfos($table, $aSeoURl);
 
-        $table->render($output);
+        $table->render();
 
         if ($input->getOption('copy')) {
             if ($this->copyFilePath()) {
@@ -94,7 +92,7 @@ class DebugCommand extends Command implements \Oxrun\Command\EnableInterface
     }
 
     /**
-     * @param TableHelper $table
+     * @param Table $table
      * @param $aSeoURl
      */
     protected function addInfos($table, $aSeoURl)
@@ -110,7 +108,7 @@ class DebugCommand extends Command implements \Oxrun\Command\EnableInterface
     }
 
     /**
-     * @param TableHelper $table
+     * @param Table $table
      * @param $aSeoURl
      */
     protected function addClassInfos($table, $aSeoURl)
