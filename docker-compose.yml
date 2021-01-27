@@ -1,38 +1,63 @@
-version: '3'
+version: '3.7'
 
 services:
-    oxid_php70:
-      image: mesa/oxid:php7.0
-      restart: always
-      container_name: oxid_php70
-      command: installOxid
-      working_dir: /data/source/
-      ports:
-        - "8082:80"
-      volumes:
-        - ./oxid-esale:/data
-        - ./:/oxrun
-        - ./docker/bin/installOxid.sh:/usr/local/bin/installOxid
-      links:
-        - oxid_db
-      environment:
-        DOCKER_DOCUMENT_ROOT: /data/source
-        MYSQL_HOST: oxid_db
-        MYSQL_DATABASE: 'oxid'
-        MYSQL_USER: "oxid"
-        MYSQL_PASSWORD: "oxid"
-        OXID_SHOP_VERSION: "dev-b-6.1-ce"
-        OXID_SHOP_URL: "http://localhost:8082"
-#        COMPOSER_AUTH: '{"http-basic": {"enterprise-edition.packages.oxid-esales.com": {"username": "XXXX", "password": "XXXX"}}}'
-    oxid_db:
-      image: mesa/oxid:db
-      restart: always
-      container_name: oxid_db
-      ports:
-        - "3306:3306"
-      environment:
-        MYSQL_ROOT_PASSWORD: root
-        MYSQL_DATABASE: oxid
-        MYSQL_USER: oxid
-        MYSQL_PASSWORD: 'oxid'
+  oxid_php:
+    image: oxidesales/oxideshop-docker-php:7.1
+    restart: always
+    container_name: oxid_php
+    command: installOxid
+    working_dir: /var/www/oxideshop
+    volumes:
+      - ./oxid-esale:/var/www/oxideshop:cached
+      - ./:/oxrun
+      - ./docker/bin/installOxid.sh:/usr/local/bin/installOxid
+    links:
+      - oxid_db
+    environment:
+      COMPILATION_VERSION: "dev-b-6.2-rc-ce"
+      DOCKER_DOCUMENT_ROOT: /var/www/oxideshop
+      MYSQL_HOST: oxid_db
+      MYSQL_DATABASE: 'oxid'
+      MYSQL_USER: "oxid"
+      MYSQL_PASSWORD: "oxid"
+      OXID_SHOP_URL: "http://oxideshop.local:8082"
+      WITH_XDEBUG: "0"
+#     COMPOSER_AUTH: '{"http-basic": {"enterprise-edition.packages.oxid-esales.com": {"username": "XXXX", "password": "XXXX"}}}'
+    networks:
+      - internal
 
+  oxid_db:
+    container_name: oxid_db
+    image: mysql:5.7
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: oxid
+      MYSQL_USER: oxid
+      MYSQL_PASSWORD: oxid
+      MYSQL_ROOT_PASSWORD: oxid
+      TZ: Europe/Berlin
+    networks:
+      - internal
+
+  webserver:
+    container_name: oxid_webserver
+    image: httpd:2.4
+    restart: always
+    domainname: oxideshop.local
+    hostname: oxideshop
+    depends_on:
+      - oxid_php
+    volumes:
+      - ./oxid-esale:/var/www/oxideshop
+      - ./docker/httpd.conf:/usr/local/apache2/conf/httpd.conf
+    ports:
+      - 8082:80
+    networks:
+      internal:
+        aliases:
+          - localhost
+          - oxideshop.local
+networks:
+  internal:

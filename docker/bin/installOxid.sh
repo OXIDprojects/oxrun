@@ -2,46 +2,46 @@ cd #!/usr/bin/env bash
 
 ln -fs /oxrun/bin/oxrun /usr/local/bin
 
-composer=$(which composer)
-
-if [ ! -f "/oxrun/vendor" ]; then
+if [ ! -d "/oxrun/vendor" ]; then
+    echo "Install oxrun composer packages" && \
     pushd /oxrun/ && \
-    $composer install --no-interaction && \
+    composer install --no-interaction && \
     popd;
 fi
 
-if [ ! -f "${DOCKER_DOCUMENT_ROOT}/config.inc.php" ]; then
+if [ ! -f "${DOCKER_DOCUMENT_ROOT}/source/config.inc.php" ]; then
+
+    /usr/local/bin/composer selfupdate
 
     echo "Install Shop";
 
-    install_dir=$(dirname ${DOCKER_DOCUMENT_ROOT})
+    install_dir=${DOCKER_DOCUMENT_ROOT}
+    source_dir=${DOCKER_DOCUMENT_ROOT}"/source"
 
-    $composer selfupdate && \
-    $composer selfupdate --1
+    echo "Download 'oxid-esales/oxideshop-project:${COMPILATION_VERSION}'";
 
-    echo "Download 'oxid-esales/oxideshop-project:${OXID_SHOP_VERSION}'";
 
-    php -d memory_limit=4G $composer create-project --no-dev --keep-vcs --working-dir=/tmp \
+    php -d memory_limit=4G /usr/local/bin/composer create-project --no-dev --keep-vcs --working-dir=/tmp \
         oxid-esales/oxideshop-project /tmp/preinstall \
-        ${OXID_SHOP_VERSION}
+        ${COMPILATION_VERSION}
 
     chown -R www-data: "/tmp/preinstall" && \
     rsync -ap /tmp/preinstall/ ${install_dir} && \
     rm -rf /tmp/preinstall
 
     echo "Configure OXID eShop ...";
-    sed -i "s/<dbHost>/${MYSQL_HOST}/" ${DOCKER_DOCUMENT_ROOT}/config.inc.php && \
-    sed -i "s/<dbName>/${MYSQL_DATABASE}/" ${DOCKER_DOCUMENT_ROOT}/config.inc.php && \
-    sed -i "s/<dbUser>/${MYSQL_USER}/" ${DOCKER_DOCUMENT_ROOT}/config.inc.php && \
-    sed -i "s/<dbPwd>/${MYSQL_PASSWORD}/" ${DOCKER_DOCUMENT_ROOT}/config.inc.php && \
-    sed -i "s|<sShopURL>|${OXID_SHOP_URL}|" ${DOCKER_DOCUMENT_ROOT}/config.inc.php && \
-    sed -i "s/'<sShopDir>'/__DIR__ . '\/'/" ${DOCKER_DOCUMENT_ROOT}/config.inc.php && \
-    sed -i "s/'<sCompileDir>'/__DIR__ . '\/tmp'/" ${DOCKER_DOCUMENT_ROOT}/config.inc.php
+    sed -i "s/<dbHost>/${MYSQL_HOST}/" ${source_dir}/config.inc.php && \
+    sed -i "s/<dbName>/${MYSQL_DATABASE}/" ${source_dir}/config.inc.php && \
+    sed -i "s/<dbUser>/${MYSQL_USER}/" ${source_dir}/config.inc.php && \
+    sed -i "s/<dbPwd>/${MYSQL_PASSWORD}/" ${source_dir}/config.inc.php && \
+    sed -i "s|<sShopURL>|${OXID_SHOP_URL}|" ${source_dir}/config.inc.php && \
+    sed -i "s/'<sShopDir>'/__DIR__ . '\/'/" ${source_dir}/config.inc.php && \
+    sed -i "s/'<sCompileDir>'/__DIR__ . '\/tmp'/" ${source_dir}/config.inc.php
 
     echo "Create mysql database schema ...";
-    mysql -h ${MYSQL_HOST} -u ${MYSQL_USER} -p${MYSQL_PASSWORD} ${MYSQL_DATABASE} < ${DOCKER_DOCUMENT_ROOT}/Setup/Sql/database_schema.sql && \
+    mysql -h ${MYSQL_HOST} -u ${MYSQL_USER} -p${MYSQL_PASSWORD} ${MYSQL_DATABASE} < ${install_dir}/vendor/oxid-esales/oxideshop-ce/source/Setup/Sql/database_schema.sql && \
     mysql -h ${MYSQL_HOST} -u ${MYSQL_USER} -p${MYSQL_PASSWORD} ${MYSQL_DATABASE} < ${install_dir}/vendor/oxid-esales/oxideshop-demodata-ce/src/demodata.sql && \
-    rm -Rf ${DOCKER_DOCUMENT_ROOT}/Setup
+    rm -Rf ${source_dir}/Setup
 
     echo "Copy demo asset ...";
     ${install_dir}/vendor/bin/oe-eshop-demodata_install
@@ -50,25 +50,11 @@ if [ ! -f "${DOCKER_DOCUMENT_ROOT}/config.inc.php" ]; then
     ${install_dir}/vendor/bin/oe-eshop-doctrine_migration migrations:migrate
 
     echo "Create OXID views ...";
-    oxrun view:update --shopDir ${DOCKER_DOCUMENT_ROOT}
-
-#   oxrun user:password --shopDir ${DOCKER_DOCUMENT_ROOT} -a ${OXID_ADMIN_PASSWORD} ${OXID_ADMIN_USERNAME}
-
-#    oxrun install:shop \
-#        --oxidVersion="${OXID_SHOP_VERSION}" \
-#        --dbHost="${MYSQL_HOST}" \
-#        --dbUser="${MYSQL_USER}" \
-#        --dbPwd="${MYSQL_PASSWORD}" \
-#        --dbName=" " \
-#        --installationFolder="${DOCKER_DOCUMENT_ROOT}/" \
-#        --shopURL="${OXID_SHOP_URL}" \
-#        --adminUser="${OXID_ADMIN_PASSWORD}" \
-#        --adminPassword="${OXID_ADMIN_USERNAME}"
-
+    ${install_dir}/vendor/bin/oe-eshop-db_views_generate
 fi
 
 echo ""
 echo "WebSeite: ${OXID_SHOP_URL}";
 echo ""
 
-/usr/sbin/apache2ctl -D FOREGROUND
+docker-php-entrypoint php-fpm
