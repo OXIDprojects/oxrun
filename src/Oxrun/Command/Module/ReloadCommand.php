@@ -35,6 +35,8 @@ class ReloadCommand extends Command implements \Oxrun\Command\EnableInterface
     /**
      * Executes the current command.
      *
+     * todo test make it new
+     *
      * @param InputInterface $input An InputInterface instance
      * @param OutputInterface $output An OutputInterface instance
      */
@@ -44,8 +46,8 @@ class ReloadCommand extends Command implements \Oxrun\Command\EnableInterface
         $app = $this->getApplication();
 
         $clearCommand      = $app->find('cache:clear');
-        $deactivateCommand = $app->find('module:deactivate');
-        $activateCommand   = $app->find('module:activate');
+        $deactivateCommand = $app->find('oe:module:deactivate');
+        $activateCommand   = $app->find('oe:module:activate');
         
         $argvInputClearCache = $this->createInputArray($clearCommand, $input);
         $argvInputDeactivate = $this->createInputArray($deactivateCommand, $input, ['module' => $input->getArgument('module')]);

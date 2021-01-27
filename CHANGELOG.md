@@ -22,6 +22,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update local docker-composer
 
+### Added
+  - ./bin/generate_service_yaml.php to generate `services.yaml` for `oe-console`
+
+
+### Changed
+  - now a oxideshop component
+  - Command `module:activate` is now `oe:module:activate`
+  - Command `module:deactivate` is now `oe:module:deactivate`
+
+### Removed
+  - `oxrun.phar` use ./vendor/bin/oe-console
+  - Command `cms:update`
+  - Command `log:exceptionlog` the log - output has be changed 
+  - Command `list` don't show database errors
+  
+
 ## [v4.2.1] 2020-06-19
 
 ### Fixed
