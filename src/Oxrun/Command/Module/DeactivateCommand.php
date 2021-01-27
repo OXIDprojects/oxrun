@@ -2,7 +2,6 @@
 
 namespace Oxrun\Command\Module;
 
-use Oxrun\Traits\ModuleListCheckTrait;
 use Oxrun\Traits\NeedDatabase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -19,7 +18,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 class DeactivateCommand extends Command implements \Oxrun\Command\EnableInterface
 {
     use NeedDatabase;
-    use ModuleListCheckTrait;
 
     /**
      * Configures the current command.
@@ -44,8 +42,6 @@ class DeactivateCommand extends Command implements \Oxrun\Command\EnableInterfac
         if ($shopId) {
             $this->getApplication()->switchToShopId($shopId);
         }
-
-        $this->checkModulelist($shopId);
 
         $this->executeDeactivate($input, $output);
     }
