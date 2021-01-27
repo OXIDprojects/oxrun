@@ -12,6 +12,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Class DeactivateCommand
  * @package Oxrun\Command\Module
+ *
+ * @deprecated use 'oe:module:deactivate'
+ * @see \OxidEsales\EshopCommunity\Internal\Framework\Module\Command\ModuleDeactivateCommand
  */
 class DeactivateCommand extends Command implements \Oxrun\Command\EnableInterface
 {

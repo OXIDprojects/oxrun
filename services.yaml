@@ -14,16 +14,6 @@ services:
     tags:
       - { name: 'console.command' }
 
-  oxid_community.oxrun.module.activate:
-    class: Oxrun\Command\Module\ActivateCommand
-    tags:
-      - { name: 'console.command' }
-
-  oxid_community.oxrun.module.deactivate:
-    class: Oxrun\Command\Module\DeactivateCommand
-    tags:
-      - { name: 'console.command' }
-
   oxid_community.oxrun.module.list:
     class: Oxrun\Command\Module\ListCommand
     tags:

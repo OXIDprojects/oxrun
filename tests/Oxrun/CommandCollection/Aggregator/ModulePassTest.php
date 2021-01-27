@@ -49,12 +49,13 @@ class ModulePassTest extends \Oxrun\TestCase
         $actual = array_keys($actual);
 
         //Assert
-       $this->assertEquals([
-           'command_container',
-           'anynamespace\modulecommand\modulecommand',
-           'mynamespace\customcommand\modulesuncommand',
-           'module\sun\command\modulesunshinecommand',
-       ], $actual );
+        $this->assertEquals([
+            'service_container',
+            'command_container',
+            'AnyNamespace\ModuleCommand\ModuleCommand',
+            'MyNamespace\CustomCommand\ModuleSunCommand',
+            'Module\Sun\Command\ModuleSunshineCommand',
+        ], $actual);
     }
 
     public function testLoadModuleCommandWithSyntaxError()
@@ -85,7 +86,7 @@ class ModulePassTest extends \Oxrun\TestCase
         $actual = array_keys($this->containerBuilder->getDefinitions());
 
         //Assert
-        $this->assertEquals(['command_container'], $actual );
+        $this->assertContains('command_container', $actual);
         $this->assertCount(0, CacheCheck::getResource());
         $this->assertEquals(
             'Class \'WrongNameCommand\' was not inside: vfs://installation_root_path/source/modules/tm/planet/Commands/WrongNameCommand.php'. PHP_EOL,
