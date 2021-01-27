@@ -2,6 +2,7 @@
 
 namespace Oxrun\Command\Config;
 
+use OxidEsales\Eshop\Core\Config;
 use Oxrun\Traits\NeedDatabase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -38,7 +39,7 @@ class GetCommand extends Command implements \Oxrun\Command\EnableInterface
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $oxConfig = oxNew('oxConfig');
+        $oxConfig = oxNew(Config::class);
         $shopConfVar = $oxConfig->getShopConfVar(
             $input->getArgument('variableName'),
             $input->getOption('shopId'),

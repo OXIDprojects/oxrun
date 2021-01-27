@@ -15,8 +15,7 @@
   "require": {
     "oxid-esales/oxideshop-ce": "^v6.5",
     "guzzlehttp/guzzle": "^6.0",
-    "gbeushausen/distill": "0.9.*",
-    "composer/composer": "^1"
+    "gbeushausen/distill": "0.9.*"
   },
   "require-dev": {
     "phpunit/phpunit": "^6",
