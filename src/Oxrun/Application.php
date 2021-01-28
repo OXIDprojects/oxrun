@@ -3,7 +3,6 @@
 namespace Oxrun;
 
 use Composer\Autoload\ClassLoader;
-use Oxrun\Command\Custom;
 use Oxrun\Helper\BootstrapFinder;
 use Oxrun\Helper\DatabaseConnection;
 use Oxrun\Helper\OxrunErrorHandling;
@@ -65,14 +64,6 @@ class Application extends BaseApplication
     {
         $this->autoloader = $autoloader;
         parent::__construct($name, $version);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function getDefaultCommands()
-    {
-        return array(new HelpCommand(), new Custom\ListCommand());
     }
 
     /**
@@ -149,22 +140,9 @@ class Application extends BaseApplication
         return false;
     }
 
-    /**
-     * @return mixed|string
-     * @throws \Exception
-     */
-    public function getOxidVersion()
-    {
-        if ($this->oxid_version != '0.0.0') {
-            return $this->oxid_version;
-        }
-
-        $this->findVersionOnOxid6();
-
-        return $this->oxid_version;
-    }
 
     /**
+     * @deprecated
      * @return string
      */
     public function getShopDir()
@@ -173,6 +151,7 @@ class Application extends BaseApplication
     }
 
     /**
+     * @deprecated
      * @param string $shopDir
      */
     public function setShopDir($shopDir)
@@ -181,6 +160,7 @@ class Application extends BaseApplication
     }
 
     /**
+     * @deprecated
      * @return bool
      */
     public function canConnectToDB()
@@ -208,6 +188,7 @@ class Application extends BaseApplication
     }
 
     /**
+     * @deprecated
      * @return DatabaseConnection
      */
     public function getDatabaseConnection()
@@ -230,7 +211,7 @@ class Application extends BaseApplication
     {
         $_GET['shp'] = $shopId;
         $_GET['actshop'] = $shopId;
-        
+
         $keepThese = [\OxidEsales\Eshop\Core\ConfigFile::class];
         $registryKeys = \OxidEsales\Eshop\Core\Registry::getKeys();
         foreach ($registryKeys as $key) {
@@ -263,6 +244,7 @@ class Application extends BaseApplication
     }
 
     /**
+     * @deprecated
      * Get YAML string, either from file or from string
      *
      * @param string $ymlString The relative file path, from shop INSTALLATION_ROOT_PATH/oxrun_config/ OR a YAML string
@@ -284,11 +266,12 @@ class Application extends BaseApplication
                 $ymlString = file_get_contents($ymlFile);
             }
         }
-        
+
         return $ymlString;
     }
 
     /**
+     * @deprecated
      * @return string
      */
     public function getOxrunConfigPath()
@@ -301,19 +284,6 @@ class Application extends BaseApplication
         }
 
         return $base;
-    }
-        
-    /**
-     * Find Version up to OXID 6 Version
-     * @throws \Exception
-     */
-    protected function findVersionOnOxid6()
-    {
-        if (!class_exists('OxidEsales\\Eshop\\Core\\ShopVersion')) {
-            throw new \Exception('Can\'t find Shop Version. Maybe run OXID `Unified Namespace Generator` with composer');
-        }
-
-        $this->oxid_version = \OxidEsales\Eshop\Core\ShopVersion::getVersion();
     }
 
     /**
