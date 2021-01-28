@@ -8,7 +8,6 @@
 
 namespace Oxrun\Command\Module;
 
-use Oxrun\Traits\NeedDatabase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
@@ -16,9 +15,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class ReloadCommand extends Command implements \Oxrun\Command\EnableInterface
+class ReloadCommand extends Command
 {
-    use NeedDatabase;
 
     /**
      * Configures the current command.
@@ -33,25 +31,22 @@ class ReloadCommand extends Command implements \Oxrun\Command\EnableInterface
     }
 
     /**
-     * Executes the current command.
-     *
-     * todo test make it new
+     * Executes the current commandd
      *
      * @param InputInterface $input An InputInterface instance
      * @param OutputInterface $output An OutputInterface instance
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /** @var \Oxrun\Application $app */
         $app = $this->getApplication();
 
         $clearCommand      = $app->find('cache:clear');
         $deactivateCommand = $app->find('oe:module:deactivate');
         $activateCommand   = $app->find('oe:module:activate');
-        
+
         $argvInputClearCache = $this->createInputArray($clearCommand, $input);
-        $argvInputDeactivate = $this->createInputArray($deactivateCommand, $input, ['module' => $input->getArgument('module')]);
-        $argvInputActivate   = $this->createInputArray($activateCommand, $input,['module' => $input->getArgument('module')]);
+        $argvInputDeactivate = $this->createInputArray($deactivateCommand, $input, ['module-id' => $input->getArgument('module')]);
+        $argvInputActivate   = $this->createInputArray($activateCommand, $input, ['module-id' => $input->getArgument('module')]);
 
         if ($input->getOption('force')) {
             $argvInputClearCache->setOption('force', true);
@@ -62,6 +57,8 @@ class ReloadCommand extends Command implements \Oxrun\Command\EnableInterface
         $deactivateCommand->execute($argvInputDeactivate, $output);
         $clearCommand->execute($argvInputClearCache, $output);
         $activateCommand->execute($argvInputActivate, $output);
+
+        return 0;
     }
 
     /**
@@ -70,11 +67,11 @@ class ReloadCommand extends Command implements \Oxrun\Command\EnableInterface
      */
     protected function createInputArray($command, $input, $extraOption = [])
     {
-        //default --shopId
-        $command->getDefinition()->addOption(new InputOption('--shopId', 'm', InputOption::VALUE_REQUIRED));
+        //default --sho-id
+        $command->getDefinition()->addOption(new InputOption('--shop-id', '', InputOption::VALUE_REQUIRED));
 
         $parameters = array_merge(
-            ['--shopId' => $input->getOption('shopId')],
+            ['--shop-id' => $input->getOption('shop-id')],
             $extraOption
         );
 

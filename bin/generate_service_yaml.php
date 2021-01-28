@@ -7,12 +7,23 @@
  * Time: 16:25
  */
 
-if (!file_exists(__DIR__ . '/../vendor/autoload.php')) {
-    echo "Please run `composer install`";
-    exit(2);
+$search_autoloader = [
+    __DIR__ . "/../vendor/autoload.php",
+    __DIR__ . "/../../../../vendor/autoload.php",
+];
+
+$isAutoloaderFound = null;
+
+foreach ($search_autoloader as $autoloader) {
+    if (file_exists($autoloader)) {
+        $isAutoloaderFound = include $autoloader;
+    }
 }
 
-require __DIR__ . '/../vendor/autoload.php';
+if ($isAutoloaderFound === null) {
+    echo "Please run `composer install`" . PHP_EOL;
+    exit(2);
+}
 
 file_put_contents(
     __DIR__ . '/../services.yaml',

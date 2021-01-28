@@ -3,21 +3,23 @@
 namespace Oxrun\Command\Config;
 
 use OxidEsales\Eshop\Core\Config;
-use Oxrun\Traits\NeedDatabase;
+use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
+use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Class GetCommand
  * @package Oxrun\Command\Config
  */
-class GetCommand extends Command implements \Oxrun\Command\EnableInterface
+class GetCommand extends Command
 {
 
-    use NeedDatabase;
+//    use NeedDatabase;
 
     /**
      * Configures the current command.
@@ -28,7 +30,9 @@ class GetCommand extends Command implements \Oxrun\Command\EnableInterface
             ->setName('config:get')
             ->setDescription('Gets a config value')
             ->addArgument('variableName', InputArgument::REQUIRED, 'Variable name')
-            ->addOption('moduleId', null, InputOption::VALUE_OPTIONAL, '');
+            ->addOption('moduleId', null, InputOption::VALUE_OPTIONAL, '')
+            ->addOption('json', null, InputOption::VALUE_NONE, 'Output as json')
+            ->addOption('yaml', null, InputOption::VALUE_NONE, 'Output as YAML (default)');
     }
 
     /**
@@ -40,17 +44,55 @@ class GetCommand extends Command implements \Oxrun\Command\EnableInterface
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $oxConfig = oxNew(Config::class);
+
+        $varName = $input->getArgument('variableName');
+
+        $shopId = $input->getOption('shop-id');
+        $moduleId = $input->getOption('moduleId');
+
         $shopConfVar = $oxConfig->getShopConfVar(
-            $input->getArgument('variableName'),
-            $input->getOption('shopId'),
-            $input->getOption('moduleId')
+            $varName,
+            $shopId,
+            $moduleId
         );
-        if (is_array($shopConfVar)) {
-            $shopConfVar = json_encode($shopConfVar, true);
+
+        if ($shopConfVar === null) {
+            $output->writeln("<error>$varName not found.</error>");
+            return 2;
         }
-        if( empty($shopConfVar)){
-            $shopConfVar = 0;
+
+        if ($shopId) {
+            $output_var[$varName]['shop-id'] = $shopId;
         }
-        $output->writeln("<info>{$input->getArgument('variableName')} has value {$shopConfVar}</info>");
+
+        if ($moduleId) {
+            $output_var[$varName]['moduleId'] = $moduleId;
+        }
+
+        $output_var[$varName]['type'] = $this->findType($varName);
+        $output_var[$varName]['value'] = $shopConfVar;
+
+        if ($input->getOption('json')) {
+            $output_var = \json_encode($output_var);
+        } else {
+            $output_var = Yaml::dump($output_var, 4, 2);
+        }
+
+        $output->writeln("<info>".$output_var."</info>");
+
+        return 0;
+    }
+
+    public function findType($varName)
+    {
+        $qb = ContainerFactory::getInstance()->getContainer()->get(QueryBuilderFactoryInterface::class)->create();
+        $qb->select('oxvartype' )
+            ->from('oxconfig')
+            ->where('OXVARNAME = :oxvarname')
+            ->setParameter('oxvarname', $varName)
+            ->setMaxResults(1);
+
+        $firstColumn = $qb->execute()->fetchFirstColumn();
+        return array_shift($firstColumn);
     }
 }

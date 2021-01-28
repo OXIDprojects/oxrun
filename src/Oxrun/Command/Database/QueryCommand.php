@@ -2,7 +2,6 @@
 
 namespace Oxrun\Command\Database;
 
-use Oxrun\Traits\NeedDatabase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
@@ -14,9 +13,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Class QueryCommand
  * @package Oxrun\Command\Database
  */
-class QueryCommand extends Command implements \Oxrun\Command\EnableInterface
+class QueryCommand extends Command
 {
-    use NeedDatabase;
 
     /**
      * Configures the current command.
@@ -84,12 +82,12 @@ HELP;
 
         if ($returnValue > 0) {
             $output->writeln('<error>' . implode(PHP_EOL, $commandOutput) . '</error>');
-            return;
+            return 2;
         }
 
         if ($input->getOption('raw') === true) {
             $output->writeln($commandOutput);
-            return;
+            return 0;
         }
 
         $commandOutput = array_map(function ($row) {
@@ -99,6 +97,7 @@ HELP;
         $table = new Table($output);
         $table->setHeaders(array_shift($commandOutput))->setRows($commandOutput);
         $table->render();
+        return 0;
     }
 
     /**
@@ -108,5 +107,4 @@ HELP;
     {
         return function_exists('exec');
     }
-
 }

@@ -2,7 +2,7 @@
 
 namespace Oxrun\Command\Database;
 
-use Oxrun\Traits\NeedDatabase;
+use OxidEsales\Eshop\Core\Registry;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -12,9 +12,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Class DumpCommand
  * @package Oxrun\Command\Database
  */
-class DumpCommand extends Command implements \Oxrun\Command\EnableInterface
+class DumpCommand extends Command
 {
-    use NeedDatabase;
+//    use NeedDatabase;
 
     /**
      * Tables with no contents
@@ -86,25 +86,25 @@ Create a dump from the current database.
 
 <info>usage:</info>
 
-    <comment>oxrun {$this->getName()} --withoutTableData oxseo,oxvou%</comment>
+    <comment>oe-console {$this->getName()} --withoutTableData oxseo,oxvou%</comment>
     - To dump all Tables, but `oxseo`, `oxvoucher`, and `oxvoucherseries` without data.
       possibilities: <comment>oxseo%,oxuser,%logs%</comment>
-      
-    <comment>oxrun {$this->getName()} --table %user%</comment>
-    - to dump only those tables `oxuser` `oxuserbasketitems` `oxuserbaskets` `oxuserpayments` 
 
-    <comment>oxrun {$this->getName()} --anonymous</comment> <info># Perfect for Stage Server</info>
+    <comment>oe-console {$this->getName()} --table %user%</comment>
+    - to dump only those tables `oxuser` `oxuserbasketitems` `oxuserbaskets` `oxuserpayments`
+
+    <comment>oe-console {$this->getName()} --anonymous</comment> <info># Perfect for Stage Server</info>
     - Those table without data: `{$anonymousTables}`.
-    
-    <comment>oxrun {$this->getName()} -v</comment>
+
+    <comment>oe-console {$this->getName()} -v</comment>
     - With verbose mode you will see the mysqldump command
       (`mysqldump -u 'root' -h 'oxid_db' -p ... `)
-      
-    <comment>oxrun {$this->getName()} --file dump.sql </comment>
+
+    <comment>oe-console {$this->getName()} --file dump.sql </comment>
     - Put the Output into a File
-    
+
 ** Only existing tables will be exported. No matter what was required.
-    
+
 ## System requirement:
 
     * <comment>php</comment>
@@ -126,7 +126,7 @@ HELP;
         $canDumpTables = true;
 
         $file   = $input->getOption('file');
-        $dbName = \oxRegistry::getConfig()->getConfigParam('dbName');
+        $dbName = Registry::getConfig()->getConfigParam('dbName');
 
         if($input->getOption('ignoreViews')) {
             $viewsResultArray = \oxDb::getDb()->getAll("SHOW FULL TABLES IN {$dbName} WHERE TABLE_TYPE LIKE 'VIEW'");
@@ -156,7 +156,7 @@ HELP;
             $explicatedTable = $this->filterValidTables($argvData);
             if (empty($explicatedTable)) {
                 $output->writeln('<error>No table found: `'. $input->getOption('table').'`</error>');
-                exit(2);
+                return 2;
             }
             $ignoreTables = [];
         }
@@ -217,6 +217,7 @@ HELP;
             }
             $this->executeCommand($input, $output, $commandTable);
         }
+        return 0;
     }
 
 

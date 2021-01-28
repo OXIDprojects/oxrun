@@ -2,7 +2,6 @@
 
 namespace Oxrun\Command\Config;
 
-use Oxrun\Traits\NeedDatabase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -13,9 +12,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Class ShopSetCommand
  * @package Oxrun\Command\Config
  */
-class ShopSetCommand extends Command implements \Oxrun\Command\EnableInterface
+class ShopSetCommand extends Command
 {
-    use NeedDatabase;
+//    use NeedDatabase;
 
     /**
      * Configures the current command.
@@ -37,10 +36,17 @@ class ShopSetCommand extends Command implements \Oxrun\Command\EnableInterface
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $oxShop = oxNew('oxShop');
-        $oxShop->load($input->getOption('shopId'));
-        $oxShop->assign(array('oxshops__' . $input->getArgument('variableName') => $input->getArgument('variableValue')));
-        $oxShop->save();
-        $output->writeln("<info>Shopconfig {$input->getArgument('variableName')} set to {$input->getArgument('variableValue')}</info>");
+        $oxShop = oxNew(\OxidEsales\Eshop\Application\Model\Shop::class);
+        if ($oxShop->load($input->getOption('shop-id'))) {
+            $oxShop->assign([
+                $input->getArgument('variableName')  => $input->getArgument('variableValue')
+            ]);
+            $oxShop->save();
+            $output->writeln("Shopconfig <info>{$input->getArgument('variableName')}</info> set to <comment>{$input->getArgument('variableValue')}</comment>");
+        } else {
+            $output->writeln("<error>Shop Id: {$input->getOption('shop-id')} don't exits</error>");
+            return 1;
+        }
+        return 0;
     }
 }

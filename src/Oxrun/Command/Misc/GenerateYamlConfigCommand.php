@@ -12,7 +12,7 @@ use OxidEsales\Eshop\Core\DatabaseProvider;
 use OxidEsales\Eshop\Core\Registry;
 use Oxrun\Helper\MulitSetConfigConverter;
 use Oxrun\Helper\MultiSetTranslator;
-use Oxrun\Traits\NeedDatabase;
+use Oxrun\Traits\OxrunConfigPool;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -23,9 +23,9 @@ use Symfony\Component\Yaml\Yaml;
  * Class GenerateYamlMultiSetCommand
  * @package Oxrun\Command\Misc
  */
-class GenerateYamlConfigCommand extends Command implements \Oxrun\Command\EnableInterface
+class GenerateYamlConfigCommand extends Command
 {
-    use NeedDatabase;
+    use OxrunConfigPool;
 
     protected $ignoreVariablen = [
         'aDisabledModules',
@@ -63,8 +63,7 @@ class GenerateYamlConfigCommand extends Command implements \Oxrun\Command\Enable
             ->addOption('oxmodule', '', InputOption::VALUE_REQUIRED, 'Dump configs by oxmodule. One name or as comma separated List')
             ->addOption('no-descriptions', '-d', InputOption::VALUE_NONE, 'No descriptions are added.')
             ->addOption('language', '-l', InputOption::VALUE_REQUIRED, 'Speech selection of the descriptions.', 0)
-            ->setDescription('Generate a Yaml File for command `config:multiset`')
-            ->setAliases(['misc:generate:yaml:multiset']); /* @deprecated name: misc:generate:yaml:multiset */
+            ->setDescription('Generate a Yaml File for command `config:multiset`');
     }
 
     /**
@@ -85,7 +84,7 @@ class GenerateYamlConfigCommand extends Command implements \Oxrun\Command\Enable
         $config = Registry::getConfig();
         $shopIds = $config->getShopIds();
 
-        if ($shopId = $input->getOption('shopId')) {
+        if ($shopId = $input->getOption('shop-id')) {
             $shopIds = [$shopId];
         }
 
@@ -110,6 +109,7 @@ class GenerateYamlConfigCommand extends Command implements \Oxrun\Command\Enable
         file_put_contents($path, $yamltxt);
 
         $output->writeln("<comment>Config saved. use `oxrun config:multiset ".basename($path)."`</comment>");
+        return 0;
     }
 
     /**
@@ -153,7 +153,9 @@ class GenerateYamlConfigCommand extends Command implements \Oxrun\Command\Enable
     public function getSavePath(InputInterface $input)
     {
         $filename = $input->getOption('configfile');
-        $oxrunConfigPath = $this->getApplication()->getOxrunConfigPath();
+
+        $oxrunConfigPath = $this->getOxrunConfigPath();
+
         if (false == preg_match('/\.ya?ml$/', $filename)) {
             $filename .= '.yml';
         }

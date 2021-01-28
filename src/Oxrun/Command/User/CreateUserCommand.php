@@ -2,16 +2,15 @@
 
 namespace Oxrun\Command\User;
 
-use Oxrun\Traits\NeedDatabase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
-class CreateUserCommand extends Command  implements \Oxrun\Command\EnableInterface
+class CreateUserCommand extends Command
 {
-    use NeedDatabase;
+//    use NeedDatabase;
     /**
      * Configures the current command.
      */
@@ -56,6 +55,9 @@ class CreateUserCommand extends Command  implements \Oxrun\Command\EnableInterfa
             $ret = $this->createUser($output, $emailAddress, $userPassword, $sFirstName, $sLastName, $isAdmin);
             if ($ret) {
                 $output->writeln("<info>User created!</info>");
+                return 0;
+            } else {
+                return 1;
             }
         }
     }
@@ -75,12 +77,16 @@ class CreateUserCommand extends Command  implements \Oxrun\Command\EnableInterfa
     {
         /** @var \OxidEsales\Eshop\Application\Model\User $oUser */
         $oUser = oxNew(\OxidEsales\Eshop\Application\Model\User::class);
+
         // setting values
-        $oUser->oxuser__oxusername = new \OxidEsales\Eshop\Core\Field($sUser, \OxidEsales\Eshop\Core\Field::T_RAW);
-        $oUser->oxuser__oxfname = new \OxidEsales\Eshop\Core\Field($sFirstName, \OxidEsales\Eshop\Core\Field::T_RAW);
-        $oUser->oxuser__oxlname = new \OxidEsales\Eshop\Core\Field($sLastName, \OxidEsales\Eshop\Core\Field::T_RAW);
+        $oUser->assign([
+            'oxusername' => $sUser,
+            'oxfname' => $sFirstName,
+            'oxlname' => $sLastName,
+            'oxactive' => 1,
+        ]);
+
         $oUser->setPassword($sPassword);
-        $oUser->oxuser__oxactive = new \OxidEsales\Eshop\Core\Field(1, \OxidEsales\Eshop\Core\Field::T_RAW);
 
         $database = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
         $database->startTransaction();
