@@ -2,11 +2,7 @@
 
 namespace Oxrun\Command\Misc;
 
-use Oxrun\Application;
-use Oxrun\Traits\NeedDatabase;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -15,9 +11,9 @@ use Symfony\Component\Console\Tester\CommandTester;
  * Class GenerateDocumentationCommand
  * @package Oxrun\Command\Misc
  */
-class GenerateDocumentationCommand extends Command implements \Oxrun\Command\EnableInterface
+class GenerateDocumentationCommand extends Command
 {
-    use NeedDatabase;
+//    use NeedDatabase;
 
     protected $skipCommands = ['help', 'list'];
 
@@ -61,7 +57,7 @@ class GenerateDocumentationCommand extends Command implements \Oxrun\Command\Ena
 
 
         $availableCommands = array_filter($availableCommands, function ($commandName) {
-            if (in_array($commandName, $this->skipCommands)) {
+            if (in_array($commandName, $this->skipCommands) || preg_match('/^oe:/', $commandName) !== false) {
                 return false;
             }
             return true;
@@ -74,6 +70,7 @@ class GenerateDocumentationCommand extends Command implements \Oxrun\Command\Ena
         $output->writeLn(PHP_EOL);
 
         $this->writeCommandUsage($output, $availableCommands);
+        return 0;
     }
 
     /**

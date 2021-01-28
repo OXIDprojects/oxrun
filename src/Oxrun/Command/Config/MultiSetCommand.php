@@ -2,7 +2,7 @@
 
 namespace Oxrun\Command\Config;
 
-use Oxrun\Traits\NeedDatabase;
+use Oxrun\Traits\OxrunConfigPool;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -34,9 +34,10 @@ use Symfony\Component\Yaml\Yaml;
  * @package Oxrun\Command\Config
  * @see example/malls.yml.dist
  */
-class MultiSetCommand extends Command  implements \Oxrun\Command\EnableInterface
+class MultiSetCommand extends Command
 {
-    use NeedDatabase;
+    use OxrunConfigPool;
+
     /**
      * Configures the current command.
      */
@@ -48,7 +49,7 @@ class MultiSetCommand extends Command  implements \Oxrun\Command\EnableInterface
             ->addArgument('configfile', InputArgument::REQUIRED, 'The file containing the config values, see example/malls.yml.dist. (e.g. dev.yml, stage.yml, prod.yml)');
 
         $help = <<<HELP
-The file path is relative to the shop installation_root_path/oxrun_config/. 
+The file path is relative to the shop installation_root_path/oxrun_config/.
 You can also pass a YAML string on the command line.
 
 To create YAML use command `oxrun misc:generate:yaml:multiset --help`
@@ -57,7 +58,7 @@ To create YAML use command `oxrun misc:generate:yaml:multiset --help`
 ```yaml
 config:
   1:
-    blReverseProxyActive: 
+    blReverseProxyActive:
       variableType: bool
       variableValue: false
     # simple string type
@@ -71,7 +72,7 @@ config:
       # optional module id
       moduleId: my_module
   2:
-    blReverseProxyActive: 
+    blReverseProxyActive:
 ...
 ```
 [Example: malls.yml.dist](example/malls.yml.dist)
@@ -80,11 +81,11 @@ If you want, you can also specify __a YAML string on the command line instead of
 
 ```bash
 ../vendor/bin/oxrun module:multiset $'config:\n  1:\n    foobar: barfoo\n' --shopId=1
-```    
+```
 HELP;
         $this->setHelp($help);
     }
-    
+
     /**
      * Executes the current command.
      *
@@ -96,11 +97,8 @@ HELP;
         // do not use the registry pattern (\OxidEsales\Eshop\Core\Registry::getConfig()) here, so we do not have any caches (breaks unit tests)
         $oxConfig = oxNew(\OxidEsales\Eshop\Core\Config::class);
 
-        /* @var \Oxrun\Application $app */
-        $app = $this->getApplication();
-
         // now try to read YAML
-        $mallYml = $app->getYaml($input->getArgument('configfile'));
+        $mallYml = $this->getConfigYaml($input->getArgument('configfile'));
         $mallValues = Yaml::parse($mallYml);
 
         if ($mallValues && is_array($mallValues['config'])) {
@@ -129,6 +127,8 @@ HELP;
                     $output->writeln("<info>Config {$configKey} for shop {$shopId} set to " . print_r($variableValue, true) . "</info>");
                 }
             }
+            return 0;
         }
+        return 1;
     }
 }

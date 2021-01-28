@@ -8,8 +8,8 @@
 
 namespace Oxrun\Command\Database;
 
-use Oxrun\Application;
-use Oxrun\Traits\NeedDatabase;
+use OxidEsales\Eshop\Core\Registry;
+use OxidEsales\EshopProfessional\Core\DatabaseProvider;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
@@ -17,9 +17,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 
-class ListCommand extends Command implements \Oxrun\Command\EnableInterface
+class ListCommand extends Command
 {
-    use NeedDatabase;
+//    use NeedDatabase;
 
     protected function configure()
     {
@@ -44,10 +44,10 @@ class ListCommand extends Command implements \Oxrun\Command\EnableInterface
 List Tables
 
 <info>usage:</info>
-    <comment>oxrun {$this->getName()} --pattern oxseo%,oxuser</comment>
+    <comment>oe-console {$this->getName()} --pattern oxseo%,oxuser</comment>
     - To dump all Tables, but `oxseo`, `oxvoucher`, and `oxvoucherseries` without data.
       possibilities: <comment>oxseo%,oxuser,%logs%</comment>
-      
+
 
 HELP;
         $this->setHelp($help);
@@ -69,7 +69,7 @@ HELP;
             $existsTable = array_map(function ($row) {return $row[0];}, $tablenames);
             $list = implode("$quote, $quote", $existsTable);
             $output->writeln($quote . $list . $quote);
-            return;
+            return 0;
         }
 
         $table = new Table($output);
@@ -77,6 +77,7 @@ HELP;
         $table->addRows($tablenames);
 
         $table->render();
+        return 0;
     }
 
     /**
@@ -87,7 +88,7 @@ HELP;
     {
         $whereIN = $whereLIKE = [];
 
-        $dbName = \oxRegistry::getConfig()->getConfigParam('dbName');
+        $dbName = Registry::getConfig()->getConfigParam('dbName');
 
         foreach ($tables as $name) {
             if (preg_match('/[%*]/', $name)) {
@@ -111,7 +112,7 @@ HELP;
 
         $sqlstament = "SHOW FULL TABLES IN {$dbName} WHERE $conditionsIN $conditionsLIKE";
 
-        $existsTable = \oxDb::getDb()->getAll($sqlstament);
+        $existsTable = DatabaseProvider::getDb()->getAll($sqlstament);
 
         return $existsTable;
     }

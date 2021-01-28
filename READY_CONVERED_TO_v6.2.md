@@ -5,31 +5,31 @@ Commands that are successfully tested in the oxide v6.2.3.
 
 | Command                      | v6.2        | Extra                |
 |------------------------------|-------------|----------------------|
-|`cache:clear`                 |  [ ]        |                      |
+|`cache:clear`                 |  [x]        |                      |
 |`cms:update`                  |  [removed]  | Not used             |
-|`config:get`                  |  [ ]        |                      |
-|`config:multiset`             |  [ ]        |                      |
-|`config:set`                  |  [ ]        |                      |
-|`config:shop:get`             |  [ ]        |                      |
-|`config:shop:set`             |  [ ]        |                      |
-|`db:anonymize`                |  [ ]        |                      |
-|`db:dump`                     |  [ ]        |                      |
-|`db:import`                   |  [ ]        |                      |
-|`db:list`                     |  [ ]        |                      |
-|`db:query`                    |  [ ]        |                      |
-|`log:exceptionlog`            |  [removed]  | new new concept      |
-|`misc:generate:documentation` |  [ ]        |                      |
-|`misc:generate:yaml:config`   |  [ ]        |                      |
-|`misc:generate:yaml:module`   |  [ ]        |                      |
-|`misc:phpstorm:metadata`      |  [ ]        |                      |
-|`module:generate`             |  [ ]        |                      |
+|`config:get`                  |  [x]        |                      |
+|`config:multiset`             |  [x]        |                      |
+|`config:set`                  |  [x]        |                      |
+|`config:shop:get`             |  [x]        |                      |
+|`config:shop:set`             |  [x]        |                      |
+|`db:anonymize`                |  [x]        |                      |
+|`db:dump`                     |  [x]        |                      |
+|`db:import`                   |  [x]        |                      |
+|`db:list`                     |  [x]        |                      |
+|`db:query`                    |  [x]        |                      |
+|`log:exceptionlog`            |  [removed]  | need refactoring     |
+|`misc:generate:documentation` |  [x]        |                      |
+|`misc:generate:yaml:config`   |  [x]        |                      |
+|`misc:generate:yaml:module`   |  [removed]  | oe:module:..         |
+|`misc:phpstorm:metadata`      |  [x]        |                      |
+|`module:generate`             |  [x]        |                      |
 |`module:activate`             |  [replaced] | oe:module:activate   |
 |`module:deactivate`           |  [replaced] | oe:module:deactivate |
-|`module:list`                 |  [ ]        |                      |
-|`module:multiactivate`        |  [ ]        |                      |
-|`module:reload`               |  [ ]        |                      |
-|`oxid:shops`                  |  [ ]        |                      |
-|`route:debug`                 |  [ ]        |                      |
-|`user:create`                 |  [ ]        |                      |
-|`user:password`               |  [ ]        |                      |
-|`views:update`                |  [ ]        |                      |
+|`module:list`                 |  [x]        |                      |
+|`module:multiactivate`        |  [removed]  | oe:module:..         |
+|`module:reload`               |  [x]        |                      |
+|`oxid:shops`                  |  [x]        |                      |
+|`route:debug`                 |  [x]        |                      |
+|`user:create`                 |  [x]        |                      |
+|`user:password`               |  [x]        |                      |
+|`views:update`                |  [x]        |                      |

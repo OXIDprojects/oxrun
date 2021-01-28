@@ -2,7 +2,8 @@
 
 namespace Oxrun\Command\User;
 
-use Oxrun\Traits\NeedDatabase;
+use OxidEsales\Eshop\Application\Model\User;
+use OxidEsales\EshopProfessional\Core\DatabaseProvider;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,9 +13,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Class PasswordCommand
  * @package Oxrun\Command\User
  */
-class PasswordCommand extends Command implements \Oxrun\Command\EnableInterface
+class PasswordCommand extends Command
 {
-    use NeedDatabase;
+//    use NeedDatabase;
 
     /**
      * Configures the current command.
@@ -36,20 +37,21 @@ class PasswordCommand extends Command implements \Oxrun\Command\EnableInterface
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $oxUser = \oxNew('oxUser');
+        $oxUser = \oxNew(User::class);
 
-        $sql = sprintf(
-            "SELECT `oxuser`.`OXID` FROM `oxuser` WHERE `oxuser`.`OXUSERNAME` = %s",
-            \oxDb::getDb()->quote($input->getArgument('username'))
-        );
-        $userOxid = \oxDb::getDb()->getOne($sql);
+        $sql = 'SELECT `oxuser`.`OXID` FROM `oxuser` WHERE `oxuser`.`OXUSERNAME` = ?';
+
+        $userOxid = DatabaseProvider::getDb()->getOne($sql, [$input->getArgument('username')]);
+
         if(empty($userOxid)){
             $output->writeln('<error>User does not exist.</error>');
-            return;
+            return 1;
         }
         $oxUser->load($userOxid);
         $oxUser->setPassword($input->getArgument('password'));
         $oxUser->save();
         $output->writeln('<info>New password set.</info>');
+
+        return 0;
     }
 }

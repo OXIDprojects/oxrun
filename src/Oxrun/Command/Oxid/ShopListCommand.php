@@ -8,7 +8,6 @@
 
 namespace Oxrun\Command\Oxid;
 
-use Oxrun\Traits\NeedDatabase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
@@ -18,9 +17,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Class ShopListCommands
  * @package Oxrun\Command\Misc
  */
-class ShopListCommand extends Command implements \Oxrun\Command\EnableInterface
+class ShopListCommand extends Command
 {
-    use NeedDatabase;
 
     protected function configure()
     {
@@ -37,7 +35,6 @@ class ShopListCommand extends Command implements \Oxrun\Command\EnableInterface
     {
         $table = new Table($output);
 
-        /** @var \oxShopList $oxShopList */
         $oxShopList = oxNew(\OxidEsales\Eshop\Application\Model\ShopList::class);
         $oxShopList->getAll();
 
@@ -52,6 +49,7 @@ class ShopListCommand extends Command implements \Oxrun\Command\EnableInterface
         }
 
         $table->render();
+        return 0;
     }
 
     /**

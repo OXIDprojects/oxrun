@@ -2,7 +2,6 @@
 
 namespace Oxrun\Command\Database;
 
-use Oxrun\Traits\NeedDatabase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -13,9 +12,10 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
  * Class AnonymizeCommand
  * @package Oxrun\Command\Database
  */
-class AnonymizeCommand extends Command implements \Oxrun\Command\EnableInterface
+class AnonymizeCommand extends Command
 {
-    use NeedDatabase;
+//    use NeedDatabase;
+
     /**
      * Tables with no contents
      *
@@ -99,7 +99,7 @@ class AnonymizeCommand extends Command implements \Oxrun\Command\EnableInterface
      * @var string
      */
     protected $keepDomain = "@foobar.com";
-    
+
     /**
      * Configures the current command.
      */
@@ -182,7 +182,7 @@ HELP;
         if ($domain) {
             $this->anonymousDomain = $domain;
         }
-        
+
         foreach ($this->anonymousTables as $tableName => $tableData) {
             $cols = $tableData['fields'];
             $where = $tableData['where'];
@@ -213,8 +213,10 @@ HELP;
                 \OxidEsales\Eshop\Core\DatabaseProvider::getDb()->execute($sQ);
             } catch (\Exception $e) {
                 $output->writeln("<comment>SQL warn: `{$tableName}` ".$e->getMessage().'</comment>');
+                return 2;
             }
         }
         $output->writeln('<info>Anonymizing done.</info>');
+        return 0;
     }
 }

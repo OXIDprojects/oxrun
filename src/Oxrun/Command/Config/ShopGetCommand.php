@@ -2,20 +2,17 @@
 
 namespace Oxrun\Command\Config;
 
-use Oxrun\Traits\NeedDatabase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class ShopGetCommand
  * @package Oxrun\Command\Config
  */
-class ShopGetCommand extends Command implements \Oxrun\Command\EnableInterface
+class ShopGetCommand extends Command
 {
-    use NeedDatabase;
 
     /**
      * Configures the current command.
@@ -24,7 +21,7 @@ class ShopGetCommand extends Command implements \Oxrun\Command\EnableInterface
     {
         $this
             ->setName('config:shop:get')
-            ->setDescription('Sets a shop config value')
+            ->setDescription('Gets a shop config value')
             ->addArgument('variableName', InputArgument::REQUIRED, 'Variable name');
     }
 
@@ -38,9 +35,14 @@ class ShopGetCommand extends Command implements \Oxrun\Command\EnableInterface
     {
         // Shop config
         $oxShop = oxNew(\OxidEsales\Eshop\Application\Model\Shop::class);
-        $oxShop->load($input->getOption('shopId'));
-        $varibaleValue = $oxShop->{'oxshops__' . $input->getArgument('variableName')}->value;
-        $output->writeln("<info>Config {$input->getArgument('variableName')} has value $varibaleValue</info>");
+        if ($oxShop->load($input->getOption('shop-id'))) {
+            $varibaleValue = $oxShop->getFieldData($input->getArgument('variableName'));
+            $output->writeln("Shopconfig <info>{$input->getArgument('variableName')}</info> has value <comment>$varibaleValue</comment>");
+        } else {
+            $output->writeln("<error>Shop Id: {$input->getOption('shop-id')} don't exits</error>");
+            return 2;
+        }
+        return 0;
     }
 
 }
