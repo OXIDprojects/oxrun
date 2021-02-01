@@ -25,9 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
   - ./bin/generate_service_yaml.php to generate `services.yaml` for `oe-console`
 
-
 ### Changed
-  - now a oxideshop component
+  - Oxrun is now a [OXID eShop Component](https://docs.oxid-esales.com/developer/en/6.2/development/modules_components_themes/component.html)
   - Command `module:activate` is now `oe:module:activate`
   - Command `module:deactivate` is now `oe:module:deactivate`
   - Command `misc:phpstorm:metadata` updated to oxid namespace style and fill Module parent classes
