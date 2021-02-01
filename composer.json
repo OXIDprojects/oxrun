@@ -9,8 +9,10 @@
   "homepage": "https://github.com/oxidprojects/oxrun",
   "keywords": [
     "oxid",
-    "installer",
-    "cli"
+    "eshop",
+    "cli",
+    "pimp",
+    "oe-console"
   ],
   "require": {
     "oxid-esales/oxideshop-ce": "^v6.5",
@@ -47,7 +49,7 @@
     {
       "name":"Stefan Krenz",
       "email":"info@kyoya.de"
-    },
+    }
   ],
   "suggest": {},
   "bin": ["bin/oxrun"]
