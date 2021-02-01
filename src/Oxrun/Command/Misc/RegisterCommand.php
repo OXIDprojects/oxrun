@@ -113,13 +113,17 @@ class RegisterCommand extends Command {
      */
     public function extract()
     {
+        $loaded_services = join('$7$', array_keys($this->service_yaml['services']));
+
         /** @var \SplFileInfo $item */
         foreach ($this->commandsPhps as $item) {
 
             $class = $this->extractClassName($item);
 
             if (empty($class)) {
-                $this->output->writeln('<error>'. $item->getBasename() . ' has not loaded Class' . '</error>');
+                if (strpos($loaded_services, $item->getBasename('.php')) === false) {
+                    $this->output->writeln('<error>' . $item->getBasename('.php') . ' has not loaded Class' . '</error>');
+                }
                 continue;
             }
 
