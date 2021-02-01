@@ -7,7 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+  - New Command `misc:register:command` to Register Command to service.yaml files.
   - ./bin/generate_service_yaml.php to generate `services.yaml` for `oe-console`
+  - ./bin/oxrun-light.php small application with one command `misc:register:command`
+
 
 ### Changed
   - Oxrun is now a [OXID eShop Component](https://docs.oxid-esales.com/developer/en/6.2/development/modules_components_themes/component.html)
