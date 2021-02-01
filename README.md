@@ -17,8 +17,8 @@ Copyright (c) 2018 Stefan Moises https://www.rent-a-hero.de/
 
 `composer require oxidprojects/oxrun`.
 
-PHP 7.1|7.2 is required.
-OXID eShop CE v6.5 is required.
+- PHP >=7.1 is required.
+- OXID eShop >= CE v6.5 is required.
 
 # Usage
 
@@ -48,7 +48,7 @@ That's how looks
 
 [Template for your command](example/HelloWorldCommand.php)
 
-Example: https://github.com/OXIDprojects/oxid-module-internals/blob/master/services.yaml
+Example: [services.yaml](services.yaml)
 
 Available commands
 ==================
