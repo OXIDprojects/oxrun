@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by oxid-commandling.
- * Autor: Tobias Matthaiou <tm@loberon.de>
+ * Autor: Tobias Matthaiou
  * Date: 09.12.17
  * Time: 21:11
  */

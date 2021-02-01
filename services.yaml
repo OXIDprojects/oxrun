@@ -17,6 +17,8 @@ services:
         tags: { name: console.command, command: 'db:dump' }
     Oxrun\Command\Database\ImportCommand:
         tags: { name: console.command, command: 'db:import' }
+    Oxrun\Command\Database\Info:
+        tags: { name: console.command, command: 'db:info' }
     Oxrun\Command\Database\ListCommand:
         tags: { name: console.command, command: 'db:list' }
     Oxrun\Command\Database\QueryCommand:
