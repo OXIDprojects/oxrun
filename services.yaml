@@ -27,6 +27,8 @@ services:
         tags: { name: console.command, command: 'misc:generate:yaml:config' }
     Oxrun\Command\Misc\PhpstormMetadataCommand:
         tags: { name: console.command, command: 'misc:phpstorm:metadata' }
+    Oxrun\Command\Misc\RegisterCommand:
+        tags: { name: console.command, command: 'misc:register:command' }
     Oxrun\Command\Module\GenerateCommand:
         tags: { name: console.command, command: 'module:generate' }
     Oxrun\Command\Module\ListCommand:
