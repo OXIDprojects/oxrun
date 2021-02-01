@@ -8,7 +8,7 @@
 
 namespace Oxrun\Oxid;
 
-use Oxrun\Application;
+use Symfony\Component\Console\Application;
 use Oxrun\Command\Oxid\ShopListCommand;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Output\Output;
@@ -24,7 +24,6 @@ class ShopListCommandTest extends TestCase
     {
         $app = new Application();
         $shopListCommand = new ShopListCommand();
-        $app->bootstrapOxid($shopListCommand->needDatabaseConnection());
         $app->add($shopListCommand);
 
         $command = $app->find('oxid:shops');
@@ -33,16 +32,15 @@ class ShopListCommandTest extends TestCase
         $commandTester->execute([]);
 
         $display = $commandTester->getDisplay();
-        $this->assertContains('ShopId', $display);
-        $this->assertContains('Shop name', $display);
-        $this->assertContains('OXID eShop', $display);
+        $this->assertStringContainsString('ShopId', $display);
+        $this->assertStringContainsString('Shop name', $display);
+        $this->assertStringContainsString('OXID eShop', $display);
     }
 
     public function testVerboseExecute()
     {
         $app = new Application();
         $shopListCommand = new ShopListCommand();
-        $app->bootstrapOxid($shopListCommand->needDatabaseConnection());
         $app->add($shopListCommand);
 
         $command = $app->find('oxid:shops');
@@ -51,8 +49,8 @@ class ShopListCommandTest extends TestCase
         $commandTester->execute(['command' =>'oxid:shops'], ['verbosity' => Output::VERBOSITY_VERBOSE]);
 
         $display = $commandTester->getDisplay();
-        $this->assertContains('oxactive', $display);
-        $this->assertContains('oxproductive', $display);
-        $this->assertContains('oxedition', $display);
+        $this->assertStringContainsString('oxactive', $display);
+        $this->assertStringContainsString('oxproductive', $display);
+        $this->assertStringContainsString('oxedition', $display);
     }
 }

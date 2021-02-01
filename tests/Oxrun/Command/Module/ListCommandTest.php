@@ -2,8 +2,8 @@
 
 namespace Oxrun\Command\Module;
 
-use Oxrun\Application;
-use Oxrun\TestCase;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
 class ListCommandTest extends TestCase
@@ -22,6 +22,6 @@ class ListCommandTest extends TestCase
             )
         );
 
-        $this->assertContains('paypal', $commandTester->getDisplay());
+        $this->assertStringContainsString('paypal', $commandTester->getDisplay());
     }
 }

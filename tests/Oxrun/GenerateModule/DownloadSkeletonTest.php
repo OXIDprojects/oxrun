@@ -13,10 +13,9 @@ use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\RequestOptions;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
-use Prophecy\Prophecy\ObjectProphecy;
+use Prophecy\PhpUnit\ProphecyTrait;
 
 /**
  * Class DownloadSkeletonTest
@@ -25,6 +24,8 @@ use Prophecy\Prophecy\ObjectProphecy;
  */
 class DownloadSkeletonTest extends TestCase
 {
+    use ProphecyTrait;
+
     /**
      * @var DownloadSkeleton
      */
@@ -40,7 +41,7 @@ class DownloadSkeletonTest extends TestCase
      */
     private $mockHandler = null;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->mockHandler = new MockHandler();
         $client = new Client([
@@ -148,7 +149,7 @@ class DownloadSkeletonTest extends TestCase
     /**
      * This method is called after each test.
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         foreach ($this->toUnlink as $file) {
             exec('rm -rf '. $file . ' 2>&1',$output, $code);

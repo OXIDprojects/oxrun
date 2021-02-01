@@ -8,8 +8,8 @@
 
 namespace Oxrun\Command\Route;
 
-use Oxrun\Application;
-use Oxrun\TestCase;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Application;
 use Oxrun\Command\Route;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -44,7 +44,7 @@ class DebugTest extends TestCase
      *
      * @return void
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $app = new Application();
         $app->add(new Route\DebugCommand());
@@ -67,7 +67,7 @@ class DebugTest extends TestCase
         );
 
         //echo "\nRESULT: " . $this->commandTester->getDisplay();
-        $this->assertRegExp('~\|\s+Controller\s+\|\s+manufacturerlist\s+\|~', $this->commandTester->getDisplay());
+        $this->assertMatchesRegularExpression('~\|\s+Controller\s+\|\s+manufacturerlist\s+\|~', $this->commandTester->getDisplay());
     }
 
     public function testHalfBrokenUrl()
@@ -79,7 +79,7 @@ class DebugTest extends TestCase
             )
         );
 
-        $this->assertRegExp('~\|\s+Controller\s+\|\s+manufacturerlist\s+\|~', $this->commandTester->getDisplay());
+        $this->assertMatchesRegularExpression('~\|\s+Controller\s+\|\s+manufacturerlist\s+\|~', $this->commandTester->getDisplay());
     }
 
     public function testOnlyPath()
@@ -91,7 +91,7 @@ class DebugTest extends TestCase
             )
         );
 
-        $this->assertRegExp('~\|\s+Controller\s+\|\s+manufacturerlist\s+\|~', $this->commandTester->getDisplay());
+        $this->assertMatchesRegularExpression('~\|\s+Controller\s+\|\s+manufacturerlist\s+\|~', $this->commandTester->getDisplay());
     }
 
     public function testHalfOnlyPath()
@@ -103,7 +103,7 @@ class DebugTest extends TestCase
             )
         );
 
-        $this->assertRegExp('~\|\s+Controller\s+\|\s+manufacturerlist\s+\|~', $this->commandTester->getDisplay());
+        $this->assertMatchesRegularExpression('~\|\s+Controller\s+\|\s+manufacturerlist\s+\|~', $this->commandTester->getDisplay());
     }
 
     public function testGiveMeClassPath()
@@ -115,7 +115,7 @@ class DebugTest extends TestCase
             )
         );
 
-        $this->assertContains('manufacturerlist', $this->commandTester->getDisplay());
+        $this->assertStringContainsString('manufacturerlist', $this->commandTester->getDisplay());
     }
 
     public function testGiveFunctionLineNumber()
@@ -131,7 +131,7 @@ class DebugTest extends TestCase
             )
         );
 
-        $this->assertRegExp('~NewsController.php:\d+~', $this->commandTester->getDisplay());
+        $this->assertMatchesRegularExpression('~NewsController.php:\d+~', $this->commandTester->getDisplay());
     }
 
     public function testClassDontExists()
@@ -147,7 +147,7 @@ class DebugTest extends TestCase
             )
         );
 
-        $this->assertContains('Class classdontexists does not exist', $this->commandTester->getDisplay());
+        $this->assertStringContainsString('Class classdontexists does not exist', $this->commandTester->getDisplay());
     }
 
     public function testMethodInClassDontExists()
@@ -163,13 +163,13 @@ class DebugTest extends TestCase
             )
         );
 
-        $this->assertContains('Method nameXYX does not exist', $this->commandTester->getDisplay());
+        $this->assertStringContainsString('Method nameXYX does not exist', $this->commandTester->getDisplay());
     }
 
     /**
      * Reset seo db
      */
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
         $db = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
 

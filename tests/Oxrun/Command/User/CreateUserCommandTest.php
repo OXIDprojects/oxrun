@@ -5,9 +5,8 @@ namespace Oxrun\Command\User;
 use Doctrine\DBAL\Query\QueryBuilder;
 use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
 use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInterface;
-use Oxrun\Application;
-use Oxrun\CommandCollection\EnableAdapter;
-use Oxrun\TestCase;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -16,6 +15,8 @@ use Symfony\Component\Console\Tester\CommandTester;
  */
 class CreateUserCommandTest extends TestCase
 {
+
+
     /**
      * Cleanup
      */
@@ -28,11 +29,11 @@ class CreateUserCommandTest extends TestCase
             ->setParameter('oxusername', 'dummyuser@oxrun.com')
             ->execute();
     }
-    
+
     public function testExecute()
     {
         $app = new Application();
-        $app->add(new EnableAdapter(new CreateUserCommand()));
+        $app->add(new CreateUserCommand());
 
         $command = $app->find('user:create');
 
@@ -42,6 +43,6 @@ class CreateUserCommandTest extends TestCase
             array('command' => $command->getName())
         );
 
-        $this->assertContains('User created', $commandTester->getDisplay());
+        $this->assertStringContainsString('User created', $commandTester->getDisplay());
     }
 }

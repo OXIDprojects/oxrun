@@ -2,9 +2,8 @@
 
 namespace Oxrun\Command\Database;
 
-use Oxrun\Application;
-use Oxrun\CommandCollection\EnableAdapter;
-use Oxrun\TestCase;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -16,7 +15,7 @@ class AnonymizeCommandTest extends TestCase
     public function testExecute()
     {
         $app = new Application();
-        $app->add(new EnableAdapter(new AnonymizeCommand()));
+        $app->add(new AnonymizeCommand());
 
         $command = $app->find('db:anonymize');
 
@@ -30,7 +29,7 @@ class AnonymizeCommandTest extends TestCase
             ['interactive' => false]
         );
 
-        $this->assertContains('oxaddress', $commandTester->getDisplay());
-        $this->assertContains('Anonymizing done.', $commandTester->getDisplay());
+        $this->assertStringContainsString('oxaddress', $commandTester->getDisplay());
+        $this->assertStringContainsString('Anonymizing done.', $commandTester->getDisplay());
     }
 }

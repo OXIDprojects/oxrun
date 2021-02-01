@@ -2,8 +2,8 @@
 
 namespace Oxrun\Command\Database;
 
-use Oxrun\Application;
-use Oxrun\TestCase;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
 class ImportCommandTest extends TestCase
@@ -36,7 +36,7 @@ EOD;
             )
         );
 
-        $this->assertContains("File $path is imported.", $commandTester->getDisplay());
+        $this->assertStringContainsString("File $path is imported.", $commandTester->getDisplay());
 
         $app->add(new DumpCommand());
 
@@ -49,7 +49,7 @@ EOD;
             )
         );
 
-        $this->assertContains('DROP TABLE IF EXISTS `oxrun_db_import_test`;', $commandTester->getDisplay());
+        $this->assertStringContainsString('DROP TABLE IF EXISTS `oxrun_db_import_test`;', $commandTester->getDisplay());
 
         $command = $app->find('db:import');
 
@@ -61,7 +61,7 @@ EOD;
             )
         );
 
-        $this->assertContains("File file_does_not_exist does not exist.", $commandTester->getDisplay());
+        $this->assertStringContainsString("File file_does_not_exist does not exist.", $commandTester->getDisplay());
     }
 
 }

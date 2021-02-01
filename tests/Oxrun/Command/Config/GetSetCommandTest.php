@@ -2,14 +2,38 @@
 
 namespace Oxrun\Command\Config;
 
-use Oxrun\Application;
-use Oxrun\TestCase;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Yaml\Yaml;
 
 class GetSetCommandTest extends TestCase
 {
-    public function testExecute()
+    /**
+     * @var CommandTester
+     */
+    private $setCommand = null;
+
+    /**
+     * @var CommandTester
+     */
+    private $getCommand = null;
+
+    /**
+     * @var string|null
+     */
+    private $setCommandName = '';
+
+    /**
+     * @var string|null
+     */
+    private $getCommandName = '';
+
+
+    protected function setUp(): void
     {
+        parent::setUp();
         $app = new Application();
         $app->add(new SetCommand());
         $app->add(new GetCommand());
@@ -17,6 +41,20 @@ class GetSetCommandTest extends TestCase
         $setCommand = $app->find('config:set');
         $getCommand = $app->find('config:get');
 
+        $setCommand->addOption('shop-id', '', InputOption::VALUE_REQUIRED, 'Shop Id', 1);
+        $getCommand->addOption('shop-id', '', InputOption::VALUE_REQUIRED, 'Shop Id', 1);
+
+        $this->setCommand = new CommandTester($setCommand);
+        $this->setCommandName = $setCommand->getName();
+
+        $this->getCommand = new CommandTester($getCommand);
+        $this->getCommandName = $getCommand->getName();
+
+    }
+
+
+    public function testJsonInput()
+    {
         $randomColumns = array(
             md5(microtime(true) . rand(1024, 2048)),
             md5(microtime(true) . rand(1024, 2048)),
@@ -24,84 +62,95 @@ class GetSetCommandTest extends TestCase
         );
         $randomColumnsJson = json_encode($randomColumns, true);
 
-        $commandTester = new CommandTester($setCommand);
-        $commandTester->execute(
-            array(
-                'command' => $setCommand->getName(),
+        $this->setCommand->execute(
+            [
+                'command' => $this->setCommandName,
                 'variableName' => 'aSortCols',
                 'variableValue' => $randomColumnsJson
-            )
+            ]
         );
 
-        $commandTester = new CommandTester($getCommand);
-        $commandTester->execute(
-            array(
-                'command' => $getCommand->getName(),
+        $this->getCommand->execute(
+            [
+                'command' => $this->getCommandName,
                 'variableName' => 'aSortCols',
-            )
+            ]
         );
 
-        $this->assertContains('aSortCols has value ' . $randomColumnsJson, $commandTester->getDisplay());
+        $expect = Yaml::dump(['aSortCols' => ['shop-id' => 1, 'type' => "arr", 'value' => $randomColumns]], 3, 2) . PHP_EOL;
 
-        $commandTester = new CommandTester($setCommand);
-        $commandTester->execute(
-            array(
-                'command' => $setCommand->getName(),
+        $this->assertEquals($expect, $this->getCommand->getDisplay());
+    }
+
+    public function testBooleanInput()
+    {
+        $this->setCommand->execute(
+            [
+                'command' => $this->setCommandName,
                 'variableName' => 'bl_perfLoadAktion',
                 'variableValue' => false
-            )
+            ]
         );
 
-        $commandTester = new CommandTester($getCommand);
-        $commandTester->execute(
-            array(
-                'command' => $getCommand->getName(),
+        $this->getCommand->execute(
+            [
+                'command' => $this->getCommandName,
                 'variableName' => 'bl_perfLoadAktion',
-            )
+            ]
         );
 
-        $this->assertContains('bl_perfLoadAktion has value 0', $commandTester->getDisplay());
+        $expect = Yaml::dump(['bl_perfLoadAktion' => ['shop-id' => 1, 'type' => "bool", 'value' => false]], 3, 2) . PHP_EOL;
 
-        $commandTester = new CommandTester($setCommand);
-        $commandTester->execute(
-            array(
-                'command' => $setCommand->getName(),
+        $this->assertEquals($expect, $this->getCommand->getDisplay());
+    }
+
+    public function testBooleanTrueInput()
+    {
+        $this->setCommand->execute(
+            [
+                'command' => $this->setCommandName,
                 'variableName' => 'bl_perfLoadAktion',
                 'variableValue' => true
-            )
+            ]
         );
 
-        $commandTester = new CommandTester($getCommand);
-        $commandTester->execute(
-            array(
-                'command' => $getCommand->getName(),
+        $this->getCommand->execute(
+            [
+                'command' => $this->getCommandName,
                 'variableName' => 'bl_perfLoadAktion',
-            )
+            ]
         );
 
-        $this->assertContains('bl_perfLoadAktion has value 1', $commandTester->getDisplay());
+        $expect = Yaml::dump(['bl_perfLoadAktion' => ['shop-id' => 1, 'type' => "bool", 'value' => true]], 3, 2) . PHP_EOL;
 
-        $commandTester = new CommandTester($setCommand);
-        $commandTester->execute(
-            array(
-                'command' => $setCommand->getName(),
+        $this->assertEquals($expect, $this->getCommand->getDisplay());
+
+    }
+
+    public function testFromModuleInput()
+    {
+        $this->setCommand->execute(
+            [
+                'command' => $this->setCommandName,
                 'variableName' => 'iTopNaviCatCount',
                 'variableValue' => 99,
+                '--variableType' => 'int',
                 '--moduleId' => 'theme:azure'
-            )
+            ]
         );
 
-        $commandTester = new CommandTester($getCommand);
-        $commandTester->execute(
-            array(
-                'command' => $getCommand->getName(),
+        $this->getCommand->execute(
+            [
+                'command' => $this->getCommandName,
                 'variableName' => 'iTopNaviCatCount',
-                '--moduleId' => 'theme:azure'
-            )
+                '--json' => true,
+                '--moduleId' => 'theme:azure',
+            ]
         );
 
-        $this->assertContains('iTopNaviCatCount has value 99', $commandTester->getDisplay());
+        $expect = \json_encode(['iTopNaviCatCount' => ['shop-id' => 1, 'moduleId' => 'theme:azure', 'type' => 'int', 'value' => '99']]) . PHP_EOL;
 
+        $this->assertEquals($expect, $this->getCommand->getDisplay());
     }
 
 }

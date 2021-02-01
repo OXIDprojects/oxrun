@@ -9,7 +9,7 @@
 namespace Oxrun\GenerateModule\Test;
 
 use Oxrun\GenerateModule\ModuleSpecification;
-use Oxrun\TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class ModuleSpecificationTest

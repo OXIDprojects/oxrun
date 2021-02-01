@@ -90,7 +90,7 @@ class ComposerConfigTest extends TestCase
             ->addAutoload($shopRoot,'', $shopRoot.'/modules/tm/OxidModule');
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->io_hd = vfsStream::setup('root', 444, [
             'oxid' => [
