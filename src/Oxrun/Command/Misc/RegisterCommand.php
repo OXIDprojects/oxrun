@@ -15,13 +15,15 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
 
 /**
  * Class RegisterCommand
  * @package Oxrun\Command\Misc
  */
-class RegisterCommand extends Command {
+class RegisterCommand extends Command
+{
 
     /**
      * @var int
@@ -44,23 +46,35 @@ class RegisterCommand extends Command {
     private $output;
 
     /**
+     * @var BasicContext
+     */
+    private $basicContext;
+
+    /**
      * @inheritDoc
      */
     protected function configure()
     {
+        $this->basicContext = new BasicContext();
         $this->setName('misc:register:command')
             ->setDescription(
             'Extends the service.yaml file with the commands. So that they are found in oe-console.')
             ->addArgument(
             'command-dir',
             InputArgument::REQUIRED,
-        'The folder where the commands are located.')
+        'The folder where the commands are located or Module with option --isModule')
+            ->addOption(
+                'isModule',
+            '',
+                InputOption::VALUE_NONE,
+                'Just write the Module and the path and the service-yaml will be found automatically.'
+            )
             ->addOption(
                 'service-yaml',
                 's',
                 InputOption::VALUE_REQUIRED,
                 'The service.yaml file that will be updated (default: var/configuration/configurable_services.yaml)',
-                (new BasicContext())->getConfigurableServicesFilePath()
+                $this->basicContext->getConfigurableServicesFilePath()
             );
     }
 
@@ -72,6 +86,10 @@ class RegisterCommand extends Command {
         $commandDir = $input->getArgument('command-dir');
         $serviceYaml = $input->getOption('service-yaml');
         $this->output = $output;
+
+        if ($input->getOption('isModule')) {
+            list($commandDir, $serviceYaml) = $this->moduleContext($commandDir);
+        }
 
         $commandDir = new \SplFileInfo($commandDir);
         if ($commandDir->isDir() === false) {
@@ -89,7 +107,27 @@ class RegisterCommand extends Command {
         $output->writeln('<info>' . $serviceYaml->getPathname() . ' was updated</info>');
         $output->writeln('<comment>Please start command clear:cache</comment>');
 
-        return file_put_contents($serviceYaml->getRealPath(), $serviceYamlContent) !== false ? 0 : 2;
+        return file_put_contents($serviceYaml->getPathname(), $serviceYamlContent) !== false ? 0 : 2;
+    }
+
+    private function moduleContext($commandDir)
+    {
+        $moduleDir = $this->basicContext->getModulesPath() . DIRECTORY_SEPARATOR . $commandDir;
+        $serviceYaml = $moduleDir . DIRECTORY_SEPARATOR .'services.yaml';
+
+        $moduleDirCommands = (new Finder())
+            ->name('Command*')
+            ->directories()
+            ->in($moduleDir);
+
+        if ($moduleDirCommands->hasResults() == false) {
+            $this->output->writeln('<error>No Commands found in Module. Has a `Commands/*Command.php`-Folder?</error>');
+            return 2;
+        }
+
+        foreach ($moduleDirCommands as $folder) {
+            return [$folder->getPathname(), $serviceYaml];
+        }
     }
 
 
@@ -97,7 +135,7 @@ class RegisterCommand extends Command {
      * @param \SplFileInfo $commandDir
      * @return $this
      */
-    public function find($commandDir)
+    private function find($commandDir)
     {
         $this->commandsPhps = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator(
