@@ -34,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Command `module:deactivate` is now `oe:module:deactivate`
   - Command `misc:phpstorm:metadata` updated to oxid namespace style and fill Module parent classes
   - See more [details](READY_CONVERED_TO_v6.2.md) which command refactored
+  - the option `--shopId` is changed to `--shop-id` and the shortcut `-m` is removed
 
 ### Removed
   - `oxrun.phar` use ./vendor/bin/oe-console

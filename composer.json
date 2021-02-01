@@ -33,6 +33,14 @@
   },
   "authors": [
     {
+        "name":"Tobias Matthaiou",
+        "email":"github@tobimat.de"
+    },
+    {
+        "name": "Stefan Moises",
+        "email": "beffy@proudcommerce.com"
+    },
+    {
       "name": "Marc Harding",
       "email": "info@marcharding.de"
     },
@@ -40,18 +48,7 @@
       "name":"Stefan Krenz",
       "email":"info@kyoya.de"
     },
-    {
-      "name":"Tobias Matthaiou",
-      "email":"github@tobimat.de"
-    },
-    {
-      "name": "Stefan Moises",
-      "email": "beffy@proudcommerce.com"
-    }
   ],
-  "suggest": {
-    "oxid-community/moduleinternals": "To has more command",
-    "oxid-professional-services/oxid-console": "a other console cli"
-  },
+  "suggest": {},
   "bin": ["bin/oxrun"]
 }
