@@ -2,8 +2,8 @@
 
 namespace Oxrun\Command\User;
 
-use Oxrun\Application;
-use Oxrun\TestCase;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -17,7 +17,7 @@ class PasswordCommandTest extends TestCase
      *
      * @return void
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $db = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
         // insert user
@@ -30,13 +30,13 @@ class PasswordCommandTest extends TestCase
     /**
      * Cleanup
      */
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
         // delete user
         $db = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
         $db->execute("DELETE FROM oxuser WHERE OXID = '__dummyuser__'");
     }
-    
+
     public function testExecute()
     {
         $app = new Application();
@@ -53,7 +53,7 @@ class PasswordCommandTest extends TestCase
             )
         );
 
-        $this->assertContains('New password set.', $commandTester->getDisplay());
+        $this->assertStringContainsString('New password set.', $commandTester->getDisplay());
 
         $commandTester->execute(
             array(
@@ -63,6 +63,6 @@ class PasswordCommandTest extends TestCase
             )
         );
 
-        $this->assertContains('User does not exist.', $commandTester->getDisplay());
+        $this->assertStringContainsString('User does not exist.', $commandTester->getDisplay());
     }
 }

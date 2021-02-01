@@ -8,10 +8,9 @@
 
 namespace Oxrun\Command\Module;
 
-use Oxrun\Application;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Application;
 use Oxrun\Command\Cache\ClearCommand;
-use Oxrun\CommandCollection\EnableAdapter;
-use Oxrun\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -23,10 +22,10 @@ class ReloadCommandTest extends TestCase
     public function testExecute()
     {
         $app = new Application();
-        $app->add(new EnableAdapter(new ReloadCommand()));
-        $app->add(new EnableAdapter(new DeactivateCommand()));
-        $app->add(new EnableAdapter(new ClearCommand()));
-        $app->add(new EnableAdapter(new ActivateCommand()));
+        $app->add(new ReloadCommand());
+        $app->add(new DeactivateCommand());
+        $app->add(new ClearCommand());
+        $app->add(new ActivateCommand());
 
         $command = $app->find('module:reload');
 
@@ -40,8 +39,8 @@ class ReloadCommandTest extends TestCase
             )
         );
 
-        $this->assertContains('activated', $commandTester->getDisplay());
-        $this->assertContains('Cache cleared', $commandTester->getDisplay());
-        $this->assertContains('deactivated', $commandTester->getDisplay());
+        $this->assertStringContainsString('activated', $commandTester->getDisplay());
+        $this->assertStringContainsString('Cache cleared', $commandTester->getDisplay());
+        $this->assertStringContainsString('deactivated', $commandTester->getDisplay());
     }
 }
