@@ -28,7 +28,7 @@ class RegisterCommand extends Command
     /**
      * @var int
      */
-    private $yamlInline = 3;
+    private $yamlInline = 4;
 
     /**
      * @var array[]
@@ -75,6 +75,13 @@ class RegisterCommand extends Command
                 InputOption::VALUE_REQUIRED,
                 'The service.yaml file that will be updated (default: var/configuration/configurable_services.yaml)',
                 $this->basicContext->getConfigurableServicesFilePath()
+            )
+            ->addOption(
+                'yaml-inline',
+                'y',
+                InputOption::VALUE_REQUIRED,
+                'The level where you switch to inline YAML',
+                $this->yamlInline
             );
     }
 
@@ -85,7 +92,9 @@ class RegisterCommand extends Command
     {
         $commandDir = $input->getArgument('command-dir');
         $serviceYaml = $input->getOption('service-yaml');
+        $this->yamlInline = $input->getOption('yaml-inline');
         $this->output = $output;
+
 
         if ($input->getOption('isModule')) {
             list($commandDir, $serviceYaml) = $this->moduleContext($commandDir);
@@ -216,10 +225,10 @@ class RegisterCommand extends Command
     {
         try {
             $this->service_yaml['services'][$class] = [
-                'tags' => [
+                'tags' => [[
                     'name' => 'console.command',
                     'command' => $this->extractCommandName($class)
-                ]
+                ]]
             ];
         } catch (\Exception $e) {
             $this->output->writeln('<comment>' . $e->getMessage() . '</comment>');

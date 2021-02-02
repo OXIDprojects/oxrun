@@ -2,11 +2,10 @@
 
 namespace Oxrun\Command\Config;
 
-use Oxrun\Traits\OxrunConfigPool;
+use Oxrun\Core\OxrunContext;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Yaml;
 
@@ -36,7 +35,20 @@ use Symfony\Component\Yaml\Yaml;
  */
 class MultiSetCommand extends Command
 {
-    use OxrunConfigPool;
+
+    /**
+     * @var OxrunContext
+     */
+    private $context = null;
+
+    /**
+     * @inheritDoc
+     */
+    public function __construct(OxrunContext $context)
+    {
+        parent::__construct('config:multiset');
+        $this->context = $context;
+    }
 
     /**
      * Configures the current command.
@@ -49,10 +61,10 @@ class MultiSetCommand extends Command
             ->addArgument('configfile', InputArgument::REQUIRED, 'The file containing the config values, see example/malls.yml.dist. (e.g. dev.yml, stage.yml, prod.yml)');
 
         $help = <<<HELP
-The file path is relative to the shop installation_root_path/oxrun_config/.
+The file path is relative to the shop installation_root_path/var/oxrun_config/.
 You can also pass a YAML string on the command line.
 
-To create YAML use command `oxrun misc:generate:yaml:multiset --help`
+To create YAML use command `oe-console misc:generate:yaml:multiset --help`
 
 <info>YAML example:</info>
 ```yaml
@@ -80,7 +92,7 @@ config:
 If you want, you can also specify __a YAML string on the command line instead of a file__, e.g.:
 
 ```bash
-../vendor/bin/oxrun module:multiset $'config:\n  1:\n    foobar: barfoo\n' --shopId=1
+../vendor/bin/oe-console config:multiset $'config:\n  1:\n    foobar: barfoo\n' --shopId=1
 ```
 HELP;
         $this->setHelp($help);
@@ -98,7 +110,7 @@ HELP;
         $oxConfig = oxNew(\OxidEsales\Eshop\Core\Config::class);
 
         // now try to read YAML
-        $mallYml = $this->getConfigYaml($input->getArgument('configfile'));
+        $mallYml = $this->context->getConfigYaml($input->getArgument('configfile'));
         $mallValues = Yaml::parse($mallYml);
 
         if ($mallValues && is_array($mallValues['config'])) {
