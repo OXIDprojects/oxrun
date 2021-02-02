@@ -27,9 +27,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - New Command `db:info` Database Table Size (Issue #37).
   - ./bin/generate_service_yaml.php to generate `services.yaml` for `oe-console`
   - ./bin/oxrun-light.php small application with one command `misc:register:command`
+  - Command `misc:generate:yaml:config` has new Option `--list` to show all configrations
 
 ### Changed
   - Oxrun is now a [OXID eShop Component](https://docs.oxid-esales.com/developer/en/6.2/development/modules_components_themes/component.html)
+  - Moved `INSTALLATION_ROOT_PATH/oxrun_config/` to `var/` (`INSTALLATION_ROOT_PATH/var/oxrun_config/`)
   - Command `module:activate` is now `oe:module:activate`
   - Command `module:deactivate` is now `oe:module:deactivate`
   - Command `misc:phpstorm:metadata` updated to oxid namespace style and fill Module parent classes

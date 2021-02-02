@@ -1,49 +1,77 @@
 services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
     Oxrun\Command\Cache\ClearCommand:
-        tags: { name: console.command, command: 'cache:clear' }
+        tags:
+            - { name: console.command, command: 'cache:clear' }
     Oxrun\Command\Config\GetCommand:
-        tags: { name: console.command, command: 'config:get' }
+        tags:
+            - { name: console.command, command: 'config:get' }
     Oxrun\Command\Config\MultiSetCommand:
-        tags: { name: console.command, command: 'config:multiset' }
+        tags:
+            - { name: console.command, command: 'config:multiset' }
     Oxrun\Command\Config\SetCommand:
-        tags: { name: console.command, command: 'config:set' }
+        tags:
+            - { name: console.command, command: 'config:set' }
     Oxrun\Command\Config\ShopGetCommand:
-        tags: { name: console.command, command: 'config:shop:get' }
+        tags:
+            - { name: console.command, command: 'config:shop:get' }
     Oxrun\Command\Config\ShopSetCommand:
-        tags: { name: console.command, command: 'config:shop:set' }
+        tags:
+            - { name: console.command, command: 'config:shop:set' }
     Oxrun\Command\Database\AnonymizeCommand:
-        tags: { name: console.command, command: 'db:anonymize' }
+        tags:
+            - { name: console.command, command: 'db:anonymize' }
     Oxrun\Command\Database\DumpCommand:
-        tags: { name: console.command, command: 'db:dump' }
+        tags:
+            - { name: console.command, command: 'db:dump' }
     Oxrun\Command\Database\ImportCommand:
-        tags: { name: console.command, command: 'db:import' }
+        tags:
+            - { name: console.command, command: 'db:import' }
     Oxrun\Command\Database\Info:
-        tags: { name: console.command, command: 'db:info' }
+        tags:
+            - { name: console.command, command: 'db:info' }
     Oxrun\Command\Database\ListCommand:
-        tags: { name: console.command, command: 'db:list' }
+        tags:
+            - { name: console.command, command: 'db:list' }
     Oxrun\Command\Database\QueryCommand:
-        tags: { name: console.command, command: 'db:query' }
+        tags:
+            - { name: console.command, command: 'db:query' }
     Oxrun\Command\Misc\GenerateDocumentationCommand:
-        tags: { name: console.command, command: 'misc:generate:documentation' }
+        tags:
+            - { name: console.command, command: 'misc:generate:documentation' }
     Oxrun\Command\Misc\GenerateYamlConfigCommand:
-        tags: { name: console.command, command: 'misc:generate:yaml:config' }
+        tags:
+            - { name: console.command, command: 'misc:generate:yaml:config' }
     Oxrun\Command\Misc\PhpstormMetadataCommand:
-        tags: { name: console.command, command: 'misc:phpstorm:metadata' }
+        tags:
+            - { name: console.command, command: 'misc:phpstorm:metadata' }
     Oxrun\Command\Misc\RegisterCommand:
-        tags: { name: console.command, command: 'misc:register:command' }
+        tags:
+            - { name: console.command, command: 'misc:register:command' }
     Oxrun\Command\Module\GenerateCommand:
-        tags: { name: console.command, command: 'module:generate' }
+        tags:
+            - { name: console.command, command: 'module:generate' }
     Oxrun\Command\Module\ListCommand:
-        tags: { name: console.command, command: 'module:list' }
+        tags:
+            - { name: console.command, command: 'module:list' }
     Oxrun\Command\Module\ReloadCommand:
-        tags: { name: console.command, command: 'module:reload' }
+        tags:
+            - { name: console.command, command: 'module:reload' }
     Oxrun\Command\Oxid\ShopListCommand:
-        tags: { name: console.command, command: 'oxid:shops' }
+        tags:
+            - { name: console.command, command: 'oxid:shops' }
     Oxrun\Command\Route\DebugCommand:
-        tags: { name: console.command, command: 'route:debug' }
+        tags:
+            - { name: console.command, command: 'route:debug' }
     Oxrun\Command\User\CreateUserCommand:
-        tags: { name: console.command, command: 'user:create' }
+        tags:
+            - { name: console.command, command: 'user:create' }
     Oxrun\Command\User\PasswordCommand:
-        tags: { name: console.command, command: 'user:password' }
+        tags:
+            - { name: console.command, command: 'user:password' }
     Oxrun\Command\Views\UpdateCommand:
-        tags: { name: console.command, command: 'views:update' }
+        tags:
+            - { name: console.command, command: 'views:update' }
