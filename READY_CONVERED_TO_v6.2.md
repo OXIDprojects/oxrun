@@ -20,7 +20,7 @@ Commands that are successfully tested in the oxide v6.2.3.
 |`log:exceptionlog`            |  [removed]  | need refactoring     |
 |`misc:generate:documentation` |  [x]        |                      |
 |`misc:generate:yaml:config`   |  [x]        |                      |
-|`misc:generate:yaml:module`   |  [removed]  | oe:module:..         |
+|`misc:generate:yaml:module`   |  [x]        |                      |
 |`misc:phpstorm:metadata`      |  [x]        |                      |
 |`module:generate`             |  [x]        |                      |
 |`module:activate`             |  [replaced] | oe:module:activate   |
