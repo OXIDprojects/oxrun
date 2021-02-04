@@ -5,9 +5,6 @@ services:
     Oxrun\Command\Config\GetCommand:
         tags:
             - { name: console.command, command: 'config:get' }
-    Oxrun\Command\Config\MultiSetCommand:
-        tags:
-            - { name: console.command, command: 'config:multiset' }
     Oxrun\Command\Config\SetCommand:
         tags:
             - { name: console.command, command: 'config:set' }
@@ -38,9 +35,6 @@ services:
     Oxrun\Command\Misc\GenerateDocumentationCommand:
         tags:
             - { name: console.command, command: 'misc:generate:documentation' }
-    Oxrun\Command\Misc\GenerateYamlConfigCommand:
-        tags:
-            - { name: console.command, command: 'misc:generate:yaml:config' }
     Oxrun\Command\Misc\PhpstormMetadataCommand:
         tags:
             - { name: console.command, command: 'misc:phpstorm:metadata' }
@@ -71,3 +65,15 @@ services:
     Oxrun\Command\Views\UpdateCommand:
         tags:
             - { name: console.command, command: 'views:update' }
+    Oxrun\Command\Config\MultiSetCommand:
+        tags:
+            - { name: console.command }
+        autowire: true
+    Oxrun\Command\Misc\GenerateYamlConfigCommand:
+        tags:
+            - { name: console.command }
+        autowire: true
+    Oxrun\Command\Module\MultiActivatorCommand:
+        tags:
+            - { name: console.command }
+        autowire: true

@@ -26,7 +26,7 @@ Commands that are successfully tested in the oxide v6.2.3.
 |`module:activate`             |  [replaced] | oe:module:activate   |
 |`module:deactivate`           |  [replaced] | oe:module:deactivate |
 |`module:list`                 |  [x]        |                      |
-|`module:multiactivate`        |  [removed]  | oe:module:..         |
+|`module:multiactivate`        |  [renamed]  | module:multiactivator|
 |`module:reload`               |  [x]        |                      |
 |`oxid:shops`                  |  [x]        |                      |
 |`route:debug`                 |  [x]        |                      |
