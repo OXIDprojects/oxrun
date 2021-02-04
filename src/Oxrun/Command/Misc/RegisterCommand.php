@@ -113,8 +113,9 @@ class RegisterCommand extends Command
 
         $serviceYamlContent = $this->find($commandDir)->extract()->sort()->getServiceYaml();
 
+        $this->removeContainerCacheFile();
+
         $output->writeln('<info>' . $serviceYaml->getPathname() . ' was updated</info>');
-        $output->writeln('<comment>Please start command clear:cache</comment>');
 
         return file_put_contents($serviceYaml->getPathname(), $serviceYamlContent) !== false ? 0 : 2;
     }
@@ -194,7 +195,7 @@ class RegisterCommand extends Command
      */
     public function getServiceYaml(): string
     {
-        return \Symfony\Component\Yaml\Yaml::dump($this->service_yaml, $this->yamlInline);
+        return \Symfony\Component\Yaml\Yaml::dump($this->service_yaml, $this->yamlInline, 2);
     }
 
     /**
@@ -223,18 +224,18 @@ class RegisterCommand extends Command
      */
     private function addCommand($class)
     {
+        $tag = ['name' => 'console.command'];
+        $this->service_yaml['services'][$class] = ['tags' => [&$tag]];
+
         try {
-            $this->service_yaml['services'][$class] = [
-                'tags' => [[
-                    'name' => 'console.command',
-                    'command' => $this->extractCommandName($class)
-                ]]
-            ];
+            $tag['command'] = $this->extractCommandName($class);
         } catch (\Exception $e) {
             $this->output->writeln('<comment>' . $e->getMessage() . '</comment>');
-
+            unset($this->service_yaml['services'][$class]);
+        } catch (\Throwable $e) {
+            //The Cunstoruto need some thing
+            $this->service_yaml['services'][$class]['autowire'] = true;
         }
-
     }
 
     private function extractCommandName($class)
@@ -260,5 +261,13 @@ class RegisterCommand extends Command
         } catch (\Exception $exception) {
 
         }
+    }
+
+    /**
+     * @return bool
+     */
+    protected function removeContainerCacheFile(): bool
+    {
+        return @unlink($this->basicContext->getContainerCacheFilePath());
     }
 }

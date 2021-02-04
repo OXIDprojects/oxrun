@@ -1,8 +1,4 @@
 services:
-    _defaults:
-        autowire: true
-        autoconfigure: true
-
     Oxrun\Command\Cache\ClearCommand:
         tags:
             - { name: console.command, command: 'cache:clear' }
