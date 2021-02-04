@@ -37,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Command `misc:phpstorm:metadata` updated to oxid namespace style and fill Module parent classes
   - See more [details](READY_CONVERED_TO_v6.2.md) which command refactored
   - the option `--shopId` is changed to `--shop-id` and the shortcut `-m` is removed
+  - Command `module:multiactivate` renamed to `module:multiactivator` is copy from `proudcommerce/oxid-console-moduleactivator`
 
 ### Removed
   - `oxrun.phar` use ./vendor/bin/oe-console
@@ -44,7 +45,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Command `log:exceptionlog` the log - output has be changed
   - Command `list` don't show database errors
   - Command `misc:generate:yaml:module` oxid-esale has a new concept
-  - Command `module:multiactivate` oxid-esale has a new concept
 
 
 ## [v4.2.1] 2020-06-19
