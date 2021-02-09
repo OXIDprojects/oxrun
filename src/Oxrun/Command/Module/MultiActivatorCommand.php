@@ -5,7 +5,9 @@
 
 namespace Oxrun\Command\Module;
 
+use OxidEsales\Eshop\Core\Exception\StandardException;
 use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\Dao\ShopConfigurationDaoInterface;
+use OxidEsales\EshopCommunity\Internal\Framework\Module\MetaData\Dao\ModuleConfigurationDaoInterface;
 use OxidEsales\EshopCommunity\Internal\Framework\Module\Setup\Service\ModuleActivationServiceInterface;
 use OxidEsales\EshopCommunity\Internal\Framework\Module\State\ModuleStateServiceInterface;
 use OxidEsales\EshopCommunity\Internal\Transition\Utility\ContextInterface;
@@ -17,9 +19,9 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\Console\Input\ArrayInput;
-use Webmozart\PathUtil\Path;
 
 class MultiActivatorCommand extends Command
 {
@@ -30,6 +32,7 @@ class MultiActivatorCommand extends Command
      * @var array
      */
     private $aPriorities = [];
+
     /**
      * Shop ids in YAML
      *
@@ -51,14 +54,17 @@ class MultiActivatorCommand extends Command
      * @var ModuleActivationServiceInterface
      */
     private $moduleActivationService;
+
     /**
      * @var ModuleStateServiceInterface
      */
     private $stateService;
+
     /**
      * @var QueryBuilderFactoryInterface
      */
     private $queryBuilderFactory;
+
     /**
      * @var ModuleConfigurationInstallerInterface
      */
@@ -68,6 +74,21 @@ class MultiActivatorCommand extends Command
      * @var OxrunContext
      */
     private $oxrunContext;
+
+    /**
+     * @var ModuleConfigurationDaoInterface
+     */
+    private $moduleConfigurationDao;
+
+    /**
+     * @var array
+     */
+    private $moduleIds = null;
+
+    /**
+     * @var InputInterface
+     */
+    private $input;
 
     /**
      * @param ShopConfigurationDaoInterface $shopConfigurationDao
@@ -84,7 +105,8 @@ class MultiActivatorCommand extends Command
         ModuleStateServiceInterface $stateService,
         QueryBuilderFactoryInterface $queryBuilderFactory,
         ModuleConfigurationInstallerInterface $moduleConfigurationInstaller,
-        OxrunContext $oxrunContext
+        OxrunContext $oxrunContext,
+        ModuleConfigurationDaoInterface $ModuleConfigurationDao
     )
     {
         $this->shopConfigurationDao = $shopConfigurationDao;
@@ -94,6 +116,7 @@ class MultiActivatorCommand extends Command
         $this->queryBuilderFactory = $queryBuilderFactory;
         $this->moduleConfigurationInstaller = $moduleConfigurationInstaller;
         $this->oxrunContext = $oxrunContext;
+        $this->moduleConfigurationDao = $ModuleConfigurationDao;
         parent::__construct(null);
     }
 
@@ -120,19 +143,19 @@ Example:
 
 ```yaml
 whitelist:
-1:
-- ocb_cleartmp
-- moduleinternals
-#- ddoevisualcms
-#- ddoewysiwyg
-2:
-- ocb_cleartmp
+  1:
+    - ocb_cleartmp
+    - moduleinternals
+   #- ddoevisualcms
+   #- ddoewysiwyg
+  2:
+    - ocb_cleartmp
 priorities:
-1:
-moduleinternals:
-    1200
-ocb_cleartmp:
-    950
+  1:
+    moduleinternals:
+      1200
+   ocb_cleartmp:
+      950
 ```
 
 Supports either a __"whitelist"__ or a __"blacklist"__ entry with multiple shop ids and the desired module ids to activate (whitelist) or to exclude from activation (blacklist).
@@ -156,26 +179,26 @@ HELP;
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->input = $input;
+
         $activateShopId = $this->context->getCurrentShopId();
         $output->writeLn("<info>START module activator shop " . $activateShopId . "</info>");
-        $clearModuleData = $input->getOption('clearModuleData');
+        $clearModuleData = $this->input->getOption('clearModuleData');
         if ($clearModuleData) {
             $output->writeLn("<info>Clearing module data in DB!</info>");
             $this->clearModuleData($activateShopId);
         }
-        $skipDeactivation = $input->getOption('skipDeactivation');
+        $skipDeactivation = $this->input->getOption('skipDeactivation');
         $shopConfiguration = $this->shopConfigurationDao->get(
             $this->context->getCurrentShopId()
         );
 
         // now try to read YAML
-        $moduleYml = $this->oxrunContext->getConfigYaml($input->getArgument('yaml'));
+        $moduleYml = $this->oxrunContext->getConfigYaml($this->input->getArgument('yaml'));
 
         $moduleValues = Yaml::parse($moduleYml);
         if ($moduleValues && is_array($moduleValues)) {
-            // check if we also have to install modules first
-            $this->installModules($moduleValues, $input, $output);
-            $this->aPriorities = $this->getPriorities($moduleValues, $input, $output);
+            $this->aPriorities = $this->getPriorities($moduleValues, $this->input, $output);
             // use whitelist
             if (isset($moduleValues['whitelist'])) {
                 $this->aYamlShopIds = array_keys($moduleValues['whitelist']);
@@ -191,11 +214,21 @@ HELP;
                         $output->writeLn("<comment>Sorted module order:</comment>" . print_r($moduleIds, true));
                     }
 
+                    //Check is Module installed into Module Configuration
                     foreach ($moduleIds as $moduleId) {
                         if (!$this->isInstalled($moduleId)) {
-                            $output->writeLn('<error>Module not found: ' . $moduleId . '</error>');
-                            continue;
+                            try {
+                                $this->installModuleConfiguration($moduleId, $output);
+                            } catch (StandardException $e) {
+                                $output->writeln('<error>' . $e->getMessage() . '</error>');
+                                unset($moduleIds[$moduleId]);
+                                continue;
+                            }
                         }
+                    }
+
+                    //Activate Module
+                    foreach ($moduleIds as $moduleId) {
                         // activate
                         if (!$skipDeactivation) {
                             if ($this->stateService->isActive($moduleId, $shopId) === true) {
@@ -354,60 +387,27 @@ HELP;
      * @param array $moduleValues Yaml entries as array
      * @param InputInterface $input An InputInterface instance
      * @param OutputInterface $output An OutputInterface instance
-     *
-     * @return array
      */
-    private function installModules($moduleValues, $input, $output)
+    private function installModuleConfiguration($moduleId, $output)
     {
-        /* @var Symfony\Component\Console\Application $app */
+        /* @var \Symfony\Component\Console\Application $app */
         $app = $this->getApplication();
-        if (isset($moduleValues['installations'])) {
-            foreach ($moduleValues['installations'] as $moduleDir) {
-                $sourceDir = $moduleDir;
-                // target dir is optional, may be specified after ':' separator,
-                $targetDir = '';
-                if (strpos($moduleDir, ':') !== false) {
-                    $sourceTarget = explode(':', $moduleDir);
-                    $sourceDir = $sourceTarget[0];
-                    $targetDir = $sourceTarget[1];
-                }
-                $output->writeLn("<comment>Checking if module {$sourceDir} is installed ...</comment>");
-                $fullPath = $this->getAbsolutePath($sourceDir);
-                $fullTargetPath = $this->getAbsolutePath($targetDir);
-                if (!$this->moduleConfigurationInstaller->isInstalled($fullPath)) {
-                    // module configuration installer doesn't create folders
-                    if (!file_exists($fullTargetPath)) {
-                        try {
-                            mkdir($fullTargetPath, 0775, true);
-                        } catch (\Exception $ex) {
-                            $output->writeLn("<error>Unable to create folder {$fullTargetPath}!</error>");
-                        }
-                    }
-                    $arguments = [
-                        'command' => 'oe:module:install-configuration',
-                        'module-source-path' => $sourceDir,
-                        'module-target-path' => $targetDir
-                    ];
-                    $activateInput = new ArrayInput($arguments);
-                    $output->writeLn("<comment>Installing module {$sourceDir} ...</comment>");
-                    $app->find('oe:module:install-configuration')->run($activateInput, $output);
-                } else {
-                    $output->writeLn("<comment>Module {$sourceDir} is already installed!</comment>");
-                }
-            }
-        }
-    }
 
-    /**
-     * @param string $path
-     *
-     * @return string
-     */
-    private function getAbsolutePath(string $path): string
-    {
-        return Path::isRelative($path)
-            ? Path::makeAbsolute($path, getcwd())
-            : $path;
+        $sourceDir = $this->findModuleSourceDirById($moduleId, $output);
+
+        $output->write("<info>Checking</info> is module <comment>'{$moduleId}'</comment> installed ...");
+        if (!$this->moduleConfigurationInstaller->isInstalled($sourceDir)) {
+            $arguments = new ArrayInput([
+                'command' => 'oe:module:install-configuration',
+                '--shop-id' => $this->input->getOption('shop-id'),
+                'module-source-path' => $sourceDir,
+            ]);
+            $output->writeLn("<comment> No.</comment> Install 'oe:module:install-configuration' {$sourceDir}.");
+            $app->find('oe:module:install-configuration')->run($arguments, $output);
+
+        } else {
+            $output->writeLn("<info> is already installed.</info>");
+        }
     }
 
     /**
@@ -433,5 +433,29 @@ HELP;
             ->where("oxvarname IN('" . implode("','", array_values($aVarnames)) . "')")
             ->andWhere("oxshopid = " . $shopId)
             ->execute();
+    }
+
+    /**
+     * @param $moduleId
+     * @param OutputInterface $output
+     * @return string
+     */
+    private function findModuleSourceDirById($moduleId, OutputInterface $output): string
+    {
+        if ($this->moduleIds === null) {
+            $moduleIds = (new Finder())->files()->name('metadata.php')->depth(2)->in($this->context->getModulesPath());
+            /** @var /Symfony\Component\Finder\SplFileInfo $metadata */
+            foreach ($moduleIds as $metadata) {
+                $output->writeln('- Read Module ' . $metadata->getPath(), OutputInterface::VERBOSITY_VERBOSE);
+                $moduleConfiguratio = $this->moduleConfigurationDao->get($metadata->getPath());
+                $this->moduleIds[$moduleConfiguratio->getId()] = $metadata->getPath();
+            }
+        }
+
+        if (!isset($this->moduleIds[$moduleId])) {
+            throw new StandardException('Module not found ' . $moduleId);
+        }
+
+        return $this->moduleIds[$moduleId];
     }
 }
