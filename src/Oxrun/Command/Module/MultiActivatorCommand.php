@@ -420,12 +420,18 @@ HELP;
     private function clearModuleData($shopId = false)
     {
         $aVarnames = [
-            'aDisabledModules',
-            'aLegacyModules',
+            'aDisabledModules', // aus 6.1
+            'aLegacyModules', // aus 4.x
+            'activeModules',
+            'aModuleControllers',
+            'aModuleEvents',
+            'aModuleExtensions',
             'aModuleFiles',
             'aModulePaths',
             'aModules',
-            'aModuleTemplates'
+            'aModuleTemplates',
+            'aModuleVersions',
+            'moduleSmartyPluginDirectories',
         ];
         $queryBuilder = $this->queryBuilderFactory->create();
         $queryBuilder
