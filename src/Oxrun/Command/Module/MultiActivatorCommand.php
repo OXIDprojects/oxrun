@@ -91,6 +91,11 @@ class MultiActivatorCommand extends Command
     private $input;
 
     /**
+     * @var OutputInterface
+     */
+    private $output;
+
+    /**
      * @param ShopConfigurationDaoInterface $shopConfigurationDao
      * @param ContextInterface $context
      * @param ModuleActivationServiceInterface $moduleActivationService
@@ -180,12 +185,13 @@ HELP;
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->input = $input;
+        $this->output = $output;
 
         $activateShopId = $this->context->getCurrentShopId();
-        $output->writeLn("<info>START module activator shop " . $activateShopId . "</info>");
+        $this->output->writeLn("<info>START module activator shop " . $activateShopId . "</info>");
         $clearModuleData = $this->input->getOption('clearModuleData');
         if ($clearModuleData) {
-            $output->writeLn("<info>Clearing module data in DB!</info>");
+            $this->output->writeLn("<info>Clearing module data in DB!</info>");
             $this->clearModuleData($activateShopId);
         }
         $skipDeactivation = $this->input->getOption('skipDeactivation');
@@ -198,29 +204,29 @@ HELP;
 
         $moduleValues = Yaml::parse($moduleYml);
         if ($moduleValues && is_array($moduleValues)) {
-            $this->aPriorities = $this->getPriorities($moduleValues, $this->input, $output);
+            $this->aPriorities = $this->getPriorities($moduleValues);
             // use whitelist
             if (isset($moduleValues['whitelist'])) {
                 $this->aYamlShopIds = array_keys($moduleValues['whitelist']);
                 foreach ($moduleValues['whitelist'] as $shopId => $moduleIds) {
                     if ($activateShopId && $activateShopId != $shopId) {
-                        $output->writeLn("<comment>Skipping shop '$shopId'!</comment>");
+                        $this->output->writeLn("<comment>Skipping shop '$shopId'!</comment>");
                         continue;
                     }
 
                     if (count($this->aPriorities)) {
-                        $output->writeLn("<comment>Orig module order:</comment>" . print_r($moduleIds, true));
+                        $this->output->writeLn("<comment>Orig module order:</comment>" . print_r($moduleIds, true));
                         uasort($moduleIds, [$this, "sortModules"]);
-                        $output->writeLn("<comment>Sorted module order:</comment>" . print_r($moduleIds, true));
+                        $this->output->writeLn("<comment>Sorted module order:</comment>" . print_r($moduleIds, true));
                     }
 
                     //Check is Module installed into Module Configuration
                     foreach ($moduleIds as $moduleId) {
                         if (!$this->isInstalled($moduleId)) {
                             try {
-                                $this->installModuleConfiguration($moduleId, $output);
+                                $this->installModuleConfiguration($moduleId);
                             } catch (StandardException $e) {
-                                $output->writeln('<error>' . $e->getMessage() . '</error>');
+                                $this->output->writeln('<error>' . $e->getMessage() . '</error>');
                                 unset($moduleIds[$moduleId]);
                                 continue;
                             }
@@ -233,16 +239,16 @@ HELP;
                         if (!$skipDeactivation) {
                             if ($this->stateService->isActive($moduleId, $shopId) === true) {
                                 $this->moduleActivationService->deactivate($moduleId, $shopId);
-                                $output->writeLn("<info>Module '$moduleId' deactivated</info>");
+                                $this->output->writeLn("<info>Module '$moduleId' deactivated</info>");
                             } else {
-                                $output->writeLn("<comment>Module '$moduleId' not active</comment>");
+                                $this->output->writeLn("<comment>Module '$moduleId' not active</comment>");
                             }
                         }
                         if ($this->stateService->isActive($moduleId, $shopId) === false) {
                             $this->moduleActivationService->activate($moduleId, $shopId);
-                            $output->writeLn("<info>Module '$moduleId' activated</info>");
+                            $this->output->writeLn("<info>Module '$moduleId' activated</info>");
                         } else {
-                            $output->writeLn("<comment>Module '$moduleId' already active</comment>");
+                            $this->output->writeLn("<comment>Module '$moduleId' already active</comment>");
                         }
                     }
                 }
@@ -252,51 +258,51 @@ HELP;
                 $aModules = $shopConfiguration->getModuleConfigurations();
 
                 if (count($this->aPriorities)) {
-                    $output->writeLn("<comment>Orig module order:</comment>" . print_r(array_keys($aModules), true));
+                    $this->output->writeLn("<comment>Orig module order:</comment>" . print_r(array_keys($aModules), true));
                     uasort($aModules, [$this, "sortModules"]);
-                    $output->writeLn("<comment>Sorted module order:</comment>" . print_r(array_keys($aModules), true));
+                    $this->output->writeLn("<comment>Sorted module order:</comment>" . print_r(array_keys($aModules), true));
                 }
 
                 foreach ($aModules as $moduleConfiguration) {
                     $moduleId = $moduleConfiguration->getId();
                     foreach ($moduleValues['blacklist'] as $shopId => $moduleIds) {
                         if ($activateShopId && $activateShopId != $shopId) {
-                            $output->writeLn("<comment>Skipping shop '$shopId'!</comment>");
+                            $this->output->writeLn("<comment>Skipping shop '$shopId'!</comment>");
                             continue;
                         }
 
                         if (in_array($moduleId, $moduleIds)) {
-                            $output->writeLn("<comment>Module blacklisted: '$moduleId' - skipping!</comment>");
+                            $this->output->writeLn("<comment>Module blacklisted: '$moduleId' - skipping!</comment>");
                             continue 2;
                         }
                         if (!$this->isInstalled($moduleId)) {
-                            $output->writeLn('<error>Module not found: ' . $moduleId . '</error>');
+                            $this->output->writeLn('<error>Module not found: ' . $moduleId . '</error>');
                             continue 2;
                         }
                         // activate
                         if (!$skipDeactivation) {
                             if ($this->stateService->isActive($moduleId, $shopId) === true) {
                                 $this->moduleActivationService->deactivate($moduleId, $shopId);
-                                $output->writeLn("<info>Module '$moduleId' deactivated</info>");
+                                $this->output->writeLn("<info>Module '$moduleId' deactivated</info>");
                             } else {
-                                $output->writeLn("<comment>Module '$moduleId' not active</comment>");
+                                $this->output->writeLn("<comment>Module '$moduleId' not active</comment>");
                             }
                         }
                         if ($this->stateService->isActive($moduleId, $shopId) === false) {
                             $this->moduleActivationService->activate($moduleId, $shopId);
-                            $output->writeLn("<info>Module '$moduleId' activated</info>");
+                            $this->output->writeLn("<info>Module '$moduleId' activated</info>");
                         } else {
-                            $output->writeLn("<comment>Module '$moduleId' already active</comment>");
+                            $this->output->writeLn("<comment>Module '$moduleId' already active</comment>");
                         }
                     }
                 }
             } else {
-                $output->writeLn("<comment>No modules to activate for subshop " . $activateShopId . "!</comment>");
+                $this->output->writeLn("<comment>No modules to activate for subshop " . $activateShopId . "!</comment>");
             }
         } else {
-            $output->writeLn("<error>No valid YAML data found!</error>");
+            $this->output->writeLn("<error>No valid YAML data found!</error>");
         }
-        $output->writeLn("<info>END module activator shop " . $activateShopId . "</info>");
+        $this->output->writeLn("<info>END module activator shop " . $activateShopId . "</info>");
     }
 
     /**
@@ -356,12 +362,10 @@ HELP;
      * Get module priorities, if any
      *
      * @param array $moduleValues Yaml entries as array
-     * @param InputInterface $input An InputInterface instance
-     * @param OutputInterface $output An OutputInterface instance
      *
      * @return array
      */
-    private function getPriorities($moduleValues, $input, $output)
+    private function getPriorities($moduleValues)
     {
         $aPriorities = [];
         $activateShopId = $this->context->getCurrentShopId();
@@ -374,8 +378,8 @@ HELP;
             }
         }
         if (count($aPriorities)) {
-            $output->writeLn("<comment>Module Priorities:</comment>");
-            $output->writeLn(print_r($aPriorities, true));
+            $this->output->writeLn("<comment>Module Priorities:</comment>");
+            $this->output->writeLn(print_r($aPriorities, true));
         }
 
         return $aPriorities;
@@ -385,28 +389,26 @@ HELP;
      * Get module installations, if any, and install them
      *
      * @param array $moduleValues Yaml entries as array
-     * @param InputInterface $input An InputInterface instance
-     * @param OutputInterface $output An OutputInterface instance
      */
-    private function installModuleConfiguration($moduleId, $output)
+    private function installModuleConfiguration($moduleId)
     {
         /* @var \Symfony\Component\Console\Application $app */
         $app = $this->getApplication();
 
-        $sourceDir = $this->findModuleSourceDirById($moduleId, $output);
+        $sourceDir = $this->findModuleSourceDirById($moduleId);
 
-        $output->write("<info>Checking</info> is module <comment>'{$moduleId}'</comment> installed ...");
+        $this->output->write("<info>Checking</info> is module <comment>'{$moduleId}'</comment> installed ...");
         if (!$this->moduleConfigurationInstaller->isInstalled($sourceDir)) {
             $arguments = new ArrayInput([
                 'command' => 'oe:module:install-configuration',
                 '--shop-id' => $this->input->getOption('shop-id'),
                 'module-source-path' => $sourceDir,
             ]);
-            $output->writeLn("<comment> No.</comment> Install 'oe:module:install-configuration' {$sourceDir}.");
-            $app->find('oe:module:install-configuration')->run($arguments, $output);
+            $this->output->writeLn("<comment> No.</comment> Install 'oe:module:install-configuration' {$sourceDir}.");
+            $app->find('oe:module:install-configuration')->run($arguments, $this->output);
 
         } else {
-            $output->writeLn("<info> is already installed.</info>");
+            $this->output->writeLn("<info> is already installed.</info>");
         }
     }
 
@@ -443,16 +445,15 @@ HELP;
 
     /**
      * @param $moduleId
-     * @param OutputInterface $output
      * @return string
      */
-    private function findModuleSourceDirById($moduleId, OutputInterface $output): string
+    private function findModuleSourceDirById($moduleId): string
     {
         if ($this->moduleIds === null) {
             $moduleIds = (new Finder())->files()->name('metadata.php')->depth(2)->in($this->context->getModulesPath());
             /** @var /Symfony\Component\Finder\SplFileInfo $metadata */
             foreach ($moduleIds as $metadata) {
-                $output->writeln('- Read Module ' . $metadata->getPath(), OutputInterface::VERBOSITY_VERBOSE);
+                $this->output->writeln('- Read Module ' . $metadata->getPath(), OutputInterface::VERBOSITY_VERBOSE);
                 $moduleConfiguratio = $this->moduleConfigurationDao->get($metadata->getPath());
                 $this->moduleIds[$moduleConfiguratio->getId()] = $metadata->getPath();
             }
