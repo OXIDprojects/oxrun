@@ -239,16 +239,16 @@ HELP;
                         if (!$skipDeactivation) {
                             if ($this->stateService->isActive($moduleId, $shopId) === true) {
                                 $this->moduleActivationService->deactivate($moduleId, $shopId);
-                                $this->output->writeLn("<info>Module '$moduleId' deactivated</info>");
+                                $this->output->writeLn("<info>Module ($shopId) '$moduleId' deactivated</info>");
                             } else {
-                                $this->output->writeLn("<comment>Module '$moduleId' not active</comment>");
+                                $this->output->writeLn("<comment>Module ($shopId) '$moduleId' not active</comment>");
                             }
                         }
                         if ($this->stateService->isActive($moduleId, $shopId) === false) {
                             $this->moduleActivationService->activate($moduleId, $shopId);
-                            $this->output->writeLn("<info>Module '$moduleId' activated</info>");
+                            $this->output->writeLn("<info>Module ($shopId) '$moduleId' activated</info>");
                         } else {
-                            $this->output->writeLn("<comment>Module '$moduleId' already active</comment>");
+                            $this->output->writeLn("<comment>Module ($shopId) '$moduleId' already active</comment>");
                         }
                     }
                 }
