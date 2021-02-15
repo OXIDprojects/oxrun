@@ -62,7 +62,7 @@ class OxrunContext
             if (file_exists($ymlFile)) {
                 $ymlString = file_get_contents($ymlFile);
             } else {
-                throw new FileNotFoundException($ymlFile);
+                throw new FileNotFoundException(null, 0, null, $ymlFile);
             }
         }
 
