@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by oxrun.
- * Autor: Tobias Matthaiou <tm@loberon.de>
+ * Autor: Tobias Matthaiou <225997+TumTum@users.noreply.github.com>
  * Date: 12.11.18
  * Time: 10:32
  */
