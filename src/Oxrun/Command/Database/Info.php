@@ -1,7 +1,6 @@
 <?php
 /**
- * Created by LoberonEE.
- * Autor: Tobias Matthaiou <tm@loberon.de>
+ * Autor: Tobias Matthaiou <225997+TumTum@users.noreply.github.com>
  * Date: 01.02.21
  * Time: 14:07
  */
