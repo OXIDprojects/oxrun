@@ -159,6 +159,8 @@ class EnvironmentManager
                 $yaml->path,
                 Yaml::dump($yaml->content, 6, 2)
             );
+
+            $this->output->writeln("<comment>Update {$yaml->path}</comment>");
         }
     }
 

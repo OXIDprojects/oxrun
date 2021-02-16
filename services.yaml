@@ -81,3 +81,7 @@ services:
     tags:
       - { name: console.command }
     autowire: true
+  Oxrun\Command\Config\LinkEnvironment:
+    tags:
+      - { name: console.command }
+    autowire: true
