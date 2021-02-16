@@ -2,7 +2,7 @@
 
 namespace Oxrun\Command\Config;
 
-use OxidEsales\Eshop\Core\Registry;
+use Oxrun\Core\EnvironmentManager;
 use Oxrun\Core\OxrunContext;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -11,7 +11,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Yaml;
-use Webmozart\PathUtil\Path;
 
 /**
  * Class MultiSetCommand
@@ -27,7 +26,12 @@ class MultiSetCommand extends Command
     /**
      * @var OxrunContext
      */
-    private $context = null;
+    private $oxrunContext;
+
+    /**
+     * @var EnvironmentManager
+     */
+    private $environments;
 
     /**
      * @var ConsoleOutput
@@ -38,18 +42,18 @@ class MultiSetCommand extends Command
      * @var InputInterface
      */
     private $input;
-    private $environments;
 
     /**
      * @inheritDoc
      */
     public function __construct(
-        OxrunContext $context
-    )
-    {
-        $this->context = $context;
+        OxrunContext $context,
+        EnvironmentManager $environments
+    ) {
+        $this->oxrunContext = $context;
+        $this->environments = $environments;
 
-        parent::__construct('config:multiset');
+        parent::__construct();
     }
 
     /**
@@ -60,11 +64,9 @@ class MultiSetCommand extends Command
         $this
             ->setName('config:multiset')
             ->setDescription('Sets multiple config values from yaml file')
-            ->addOption('production', '', InputOption::VALUE_NONE, 'For "production" system')
-            ->addOption('staging', '', InputOption::VALUE_NONE, 'For "staging" system')
-            ->addOption('development', '', InputOption::VALUE_NONE, 'For "development" system')
-            ->addOption('testing', '', InputOption::VALUE_NONE, 'For "testing" system')
             ->addArgument('configfile', InputArgument::REQUIRED, 'The file containing the config values, see example/malls.yml.dist. (e.g. dev.yml, stage.yml, prod.yml)');
+
+        $this->environments->addOptionToCommand($this);
 
         $help = <<<HELP
 The file path is relative to the shop installation_root_path/var/oxrun_config/.
@@ -119,10 +121,11 @@ HELP;
     {
         $this->input = $input;
         $this->output = $output;
+        $this->environments->init($input, $output);
 
         // now try to read YAML
         try {
-            $mallYml = $this->context->getConfigYaml($this->input->getArgument('configfile'));
+            $mallYml = $this->oxrunContext->getConfigYaml($this->input->getArgument('configfile'));
             $mallValues = Yaml::parse($mallYml);
         } catch (\Exception $e) {
             $this->output->getErrorOutput()->writeln('<error>' . $e->getMessage() . '</error>');
@@ -134,101 +137,23 @@ HELP;
             return 1;
         }
 
-        // Read Configration Environments
+        // Read Configration EnvironmentManager
         $environments = [];
         if (isset($mallValues['environment']) && is_array($mallValues['environment'])) {
             $environments = $mallValues['environment'];
         }
-        $this->loadEnvironment($this->optionEnvironmentWith($environments));
+        $this->environments->load($this->environments->optionWith($environments));
 
         // Set configration
         if (is_array($mallValues['config'])) {
             $this->setConfigurations($mallValues['config']);
-            $this->saveEnvironments();
+            $this->environments->save();
         } else {
             $this->output->getErrorOutput()->writeln('<error>No `config:` found in ' . $this->input->getArgument('configfile') . '</error>');
             return 1;
         }
 
         return 0;
-    }
-
-    protected function loadEnvironment($environments)
-    {
-        if (empty($environments)) {
-            $this->loadProjectConfigurationEnvironment();
-            return;
-        }
-
-        $configurationDirectory = new \SplFileInfo(
-            Path::join($this->context->getConfigurationDirectoryPath(), 'environment')
-        );
-
-        if (!$configurationDirectory->isDir()) {
-            @mkdir($configurationDirectory->getPathname(), 775);
-        }
-
-        $shopids = [$this->input->getOption('shop-id')];
-        if ($this->input->getOption('shop-id') === null) {
-            $shopids = Registry::getConfig()->getShopIds();
-        }
-
-        foreach ($environments as $environment) {
-            foreach ($shopids as $shopid) {
-                $file = new \SplFileInfo(
-                    Path::join($configurationDirectory->getPathname(), sprintf('%s.%s.yaml', $environment, $shopid))
-                );
-                $this->addEnviromentYaml($file, $shopid);
-            }
-        }
-    }
-
-    protected function loadProjectConfigurationEnvironment()
-    {
-        $shopids = [$this->input->getOption('shop-id')];
-        if ($this->input->getOption('shop-id') === null) {
-            $shopids = Registry::getConfig()->getShopIds();
-        }
-
-        $configurationDirectory = new \SplFileInfo(
-            Path::join($this->context->getProjectConfigurationDirectory(), 'shops')
-        );
-
-        foreach ($shopids as $shopid) {
-            $file = new \SplFileInfo(
-                Path::join($configurationDirectory->getPathname(), "{$shopid}.yaml")
-            );
-            $this->addEnviromentYaml($file, $shopid);
-        }
-    }
-
-    /**
-     * @param \SplFileInfo $configurationDirectory
-     * @param $shopid
-     */
-    protected function addEnviromentYaml(\SplFileInfo $file, $shopid)
-    {
-        if ($file->isFile()) {
-            $content = Yaml::parse(file_get_contents($file->getPathname()));
-        } else {
-            $content = ['modules' => []];
-        }
-        $this->environments['list'][] =
-        $this->environments[$shopid][] =
-            (object)['path' => $file->getPathname(), 'content' => $content];
-    }
-
-    protected function optionEnvironmentWith($environments)
-    {
-        $optionNames = ['production', 'staging', 'development', 'testing'];
-        array_walk($optionNames,
-            function ($env) use (&$environments) {
-                if ($this->input->getOption($env) && !in_array($env, $environments)) {
-                    $environments[] = $env;
-                }
-            });
-
-        return $environments;
     }
 
     /**
@@ -260,7 +185,14 @@ HELP;
                 }
 
                 if ($moduleId) {
-                    $this->setEnvironmentConfigrationYaml($shopId, $moduleId, $configKey, $variableValue);
+                    list($devnull, $module) = explode(':', $moduleId);
+                    if (empty($module)) {
+                        $this->output->getErrorOutput()->writeln(sprintf(
+                            'ModuleId not can not be detacted ShopId: %s, ModuleId: %s, VariableName: %s, VariableValue: %s',
+                            $shopId, $moduleId, $configKey, $variableValue
+                        ));
+                    }
+                    $this->environments->set($shopId, $module, $configKey, $variableValue);
                 }
 
                 $oxConfig->saveShopConfVar(
@@ -276,41 +208,4 @@ HELP;
         }
     }
 
-    /**
-     * @param $shopId
-     * @param $moduleId
-     * @param $variableName
-     * @param $variableValue
-     */
-    protected function setEnvironmentConfigrationYaml($shopId, $moduleId, $variableName, $variableValue)
-    {
-        list($devnull, $module) = explode(':', $moduleId);
-        if (empty($module)) {
-            $this->output->getErrorOutput()->writeln(sprintf(
-                'ModuleId not can not be detacted ShopId: %s, ModuleId: %s, VariableName: %s, VariableValue: %s',
-                $shopId, $moduleId, $variableName, $variableValue
-            ));
-        }
-
-        if (isset($this->environments[$shopId])) {
-            foreach ($this->environments[$shopId] as $environmentYaml) {
-                $environmentYaml->content['modules'][$module]['moduleSettings'][$variableName]['value'] = $variableValue;
-            }
-        }
-    }
-
-    protected function saveEnvironments()
-    {
-        $environmentsYaml = $this->environments['list'];
-        if ($this->input->getOption('shop-id') !== null) {
-            $environmentsYaml = $this->environments[$this->input->getOption('shop-id')];
-        }
-
-        foreach ($environmentsYaml as $yaml) {
-            file_put_contents(
-                $yaml->path,
-                Yaml::dump($yaml->content, 6, 2)
-            );
-        }
-    }
 }

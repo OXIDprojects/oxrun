@@ -34,6 +34,22 @@ class OxrunContext
     }
 
     /**
+     * @return \SplFileInfo
+     */
+    public function getEnvironmentConfigurationDirectoryPath()
+    {
+        $configurationDirectory = new \SplFileInfo(
+            Path::join($this->basicContext->getConfigurationDirectoryPath(), 'environment')
+        );
+
+        if (!$configurationDirectory->isDir()) {
+            @mkdir($configurationDirectory->getPathname(), 0775);
+        }
+
+        return $configurationDirectory;
+    }
+
+    /**
      * INSTALLATION_ROOT_PATH/var/oxrun_config/
      *
      * @return string

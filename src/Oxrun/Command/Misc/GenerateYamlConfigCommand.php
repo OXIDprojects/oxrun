@@ -10,6 +10,7 @@ namespace Oxrun\Command\Misc;
 
 use OxidEsales\Eshop\Core\DatabaseProvider;
 use OxidEsales\Eshop\Core\Registry;
+use Oxrun\Core\EnvironmentManager;
 use Oxrun\Core\OxrunContext;
 use Oxrun\Helper\MulitSetConfigConverter;
 use Oxrun\Helper\MultiSetTranslator;
@@ -58,15 +59,24 @@ class GenerateYamlConfigCommand extends Command
     /**
      * @var OxrunContext
      */
-    private $context = null;
+    private $oxrunContext = null;
+
+    /**
+     * @var EnvironmentManager
+     */
+    private $environments;
 
     /**
      * @inheritDoc
      */
-    public function __construct(OxrunContext $context)
-    {
+    public function __construct(
+        OxrunContext $context,
+        EnvironmentManager $environmentManager
+
+    ) {
+        $this->oxrunContext = $context;
+        $this->environments = $environmentManager;
         parent::__construct('misc:generate:yaml:config');
-        $this->context = $context;
     }
 
 
@@ -80,14 +90,12 @@ class GenerateYamlConfigCommand extends Command
             ->addOption('configfile', 'c', InputOption::VALUE_REQUIRED, 'The Config file to change or create if not exits', 'dev_config.yml')
             ->addOption('oxvarname', '', InputOption::VALUE_REQUIRED, 'Dump configs by oxvarname. One name or as comma separated List')
             ->addOption('oxmodule', '', InputOption::VALUE_REQUIRED, 'Dump configs by oxmodule. One name or as comma separated List')
-            ->addOption('production', '', InputOption::VALUE_NONE, 'For "production" system')
-            ->addOption('staging', '', InputOption::VALUE_NONE, 'For "staging" system')
-            ->addOption('development', '', InputOption::VALUE_NONE, 'For "development" system')
-            ->addOption('testing', '', InputOption::VALUE_NONE, 'For "testing" system')
             ->addOption('no-descriptions', '-d', InputOption::VALUE_NONE, 'No descriptions are added.')
             ->addOption('language', '-l', InputOption::VALUE_REQUIRED, 'Speech selection of the descriptions.', 0)
             ->addOption('list', '', InputOption::VALUE_NONE, 'list all saved configrationen')
             ->setDescription('Generate a Yaml File for command `config:multiset`');
+
+        $this->environments->addOptionToCommand($this);
     }
 
     /**
@@ -103,6 +111,8 @@ class GenerateYamlConfigCommand extends Command
             return 0;
         }
 
+        $this->environments->init($input, $output);
+
         $yaml = ['environment' => [], 'config' => []];
 
         $path = $this->getSavePath($input);
@@ -110,7 +120,7 @@ class GenerateYamlConfigCommand extends Command
             $yaml = Yaml::parse(file_get_contents($path));
         }
 
-        $yaml['environment'] = $this->getEnvironmentOptions($input);
+        $yaml['environment'] = $this->environments->getOptions();
 
         $config = Registry::getConfig();
         $shopIds = $config->getShopIds();
@@ -141,19 +151,6 @@ class GenerateYamlConfigCommand extends Command
 
         $output->writeln("<comment>Config saved. use `oe-console config:multiset " . $input->getOption('configfile') . "`</comment>");
         return 0;
-    }
-
-    /**
-     * @param InputInterface $input
-     * @return array
-     */
-    protected function getEnvironmentOptions(InputInterface $input): array
-    {
-        $options = ['production', 'staging', 'development', 'testing'];
-
-        return array_filter($options, function ($name) use ($input) {
-            return $input->getOption($name);
-        });
     }
 
     /**
@@ -198,7 +195,7 @@ class GenerateYamlConfigCommand extends Command
     {
         $filename = $input->getOption('configfile');
 
-        $oxrunConfigPath = $this->context->getOxrunConfigPath();
+        $oxrunConfigPath = $this->oxrunContext->getOxrunConfigPath();
 
         if (false == preg_match('/\.ya?ml$/', $filename)) {
             $filename .= '.yml';
@@ -233,7 +230,7 @@ class GenerateYamlConfigCommand extends Command
      */
     protected function listfolder($output)
     {
-        $configPath = $this->context->getOxrunConfigPath();
+        $configPath = $this->oxrunContext->getOxrunConfigPath();
 
         $yamls = (new Finder())->files()->name('/\.ya?ml/i')->in($configPath);
 
