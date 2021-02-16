@@ -20,6 +20,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
+use Webmozart\PathUtil\Path;
 
 /**
  * Class GenerateYamlMultiSetCommand
@@ -29,7 +30,9 @@ class GenerateYamlConfigCommand extends Command
 {
 
     protected $ignoreVariablen = [
-        'aDisabledModules',
+        'aDisabledModules', // aus 6.1
+        'aLegacyModules', // aus 4.x
+        'activeModules',
         'aModuleControllers',
         'aModuleEvents',
         'aModuleExtensions',
@@ -77,6 +80,10 @@ class GenerateYamlConfigCommand extends Command
             ->addOption('configfile', 'c', InputOption::VALUE_REQUIRED, 'The Config file to change or create if not exits', 'dev_config.yml')
             ->addOption('oxvarname', '', InputOption::VALUE_REQUIRED, 'Dump configs by oxvarname. One name or as comma separated List')
             ->addOption('oxmodule', '', InputOption::VALUE_REQUIRED, 'Dump configs by oxmodule. One name or as comma separated List')
+            ->addOption('production', '', InputOption::VALUE_NONE, 'For "production" system')
+            ->addOption('staging', '', InputOption::VALUE_NONE, 'For "staging" system')
+            ->addOption('development', '', InputOption::VALUE_NONE, 'For "development" system')
+            ->addOption('testing', '', InputOption::VALUE_NONE, 'For "testing" system')
             ->addOption('no-descriptions', '-d', InputOption::VALUE_NONE, 'No descriptions are added.')
             ->addOption('language', '-l', InputOption::VALUE_REQUIRED, 'Speech selection of the descriptions.', 0)
             ->addOption('list', '', InputOption::VALUE_NONE, 'list all saved configrationen')
@@ -96,12 +103,14 @@ class GenerateYamlConfigCommand extends Command
             return 0;
         }
 
-        $yaml = ['config' => []];
+        $yaml = ['environment' => [], 'config' => []];
 
         $path = $this->getSavePath($input);
         if (file_exists($path)) {
             $yaml = Yaml::parse(file_get_contents($path));
         }
+
+        $yaml['environment'] = $this->getEnvironmentOptions($input);
 
         $config = Registry::getConfig();
         $shopIds = $config->getShopIds();
@@ -130,8 +139,21 @@ class GenerateYamlConfigCommand extends Command
 
         file_put_contents($path, $yamltxt);
 
-        $output->writeln("<comment>Config saved. use `oxrun config:multiset ".basename($path)."`</comment>");
+        $output->writeln("<comment>Config saved. use `oe-console config:multiset " . $input->getOption('configfile') . "`</comment>");
         return 0;
+    }
+
+    /**
+     * @param InputInterface $input
+     * @return array
+     */
+    protected function getEnvironmentOptions(InputInterface $input): array
+    {
+        $options = ['production', 'staging', 'development', 'testing'];
+
+        return array_filter($options, function ($name) use ($input) {
+            return $input->getOption($name);
+        });
     }
 
     /**
@@ -182,7 +204,9 @@ class GenerateYamlConfigCommand extends Command
             $filename .= '.yml';
         }
 
-        return $oxrunConfigPath . $filename;
+        $input->setOption('configfile', $filename);
+
+        return Path::join($oxrunConfigPath, $filename);
     }
 
     /**
