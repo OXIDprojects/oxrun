@@ -10,10 +10,10 @@ namespace Oxrun\Command;
 
 use OxidEsales\Eshop\Core\DatabaseProvider;
 use OxidEsales\Eshop\Core\Registry;
-use Oxrun\Application;
 use Oxrun\Command\Misc\GenerateYamlConfigCommand;
-use Oxrun\CommandCollection\EnableAdapter;
-use Oxrun\TestCase;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Yaml\Yaml;
 
@@ -28,9 +28,10 @@ class GenerateYamlConfigCommandTest extends TestCase
     public function testExecute()
     {
         $app = new Application();
-        $app->add(new EnableAdapter(new GenerateYamlConfigCommand()));
+        $app->add(new GenerateYamlConfigCommand());
 
         $command = $app->find('misc:generate:yaml:config');
+        $command->addOption('shop-id', '', InputOption::VALUE_REQUIRED, "Shop Id", 1);
 
         $commandTester = new CommandTester($command);
         $commandTester->execute(
@@ -41,14 +42,14 @@ class GenerateYamlConfigCommandTest extends TestCase
         );
         $expectPath = self::$unlinkFile = $app->getOxrunConfigPath() . 'shopConfigs.yml';
 
-        $this->assertContains('Config saved. use `oxrun config:multiset shopConfigs.yml`', $commandTester->getDisplay());
+        $this->assertStringContainsString('Config saved. use `oxrun config:multiset shopConfigs.yml`', $commandTester->getDisplay());
         $this->assertFileExists($expectPath);
     }
 
     public function testExportListOfVariabels()
     {
         $app = new Application();
-        $app->add(new EnableAdapter(new GenerateYamlConfigCommand()));
+        $app->add(new GenerateYamlConfigCommand());
 
         Registry::getConfig()->saveShopConfVar('str', 'unitVarB', 'abcd1');
         Registry::getConfig()->saveShopConfVar('str', 'unitVarC', 'cdef1');
@@ -82,7 +83,7 @@ class GenerateYamlConfigCommandTest extends TestCase
     public function testExportModullVariable()
     {
         $app = new Application();
-        $app->add(new EnableAdapter(new GenerateYamlConfigCommand()));
+        $app->add(new GenerateYamlConfigCommand());
         $app->setShopDir($this->fillShopDir([])->getVirtualBootstrap());
 
         Registry::getConfig()->saveShopConfVar('str', 'unitModuleB', 'abcd1', 1, 'module:unitTest');
@@ -120,7 +121,7 @@ class GenerateYamlConfigCommandTest extends TestCase
     public function testExportModulVariableNameAndShop2()
     {
         $app = new Application();
-        $app->add(new EnableAdapter(new GenerateYamlConfigCommand()));
+        $app->add(new GenerateYamlConfigCommand());
         $app->setShopDir($this->fillShopDir([])->getVirtualBootstrap());
 
         Registry::getConfig()->saveShopConfVar('str', 'unitSecondShopName', 'Mars', 2, 'module:unitMars');
@@ -156,7 +157,7 @@ class GenerateYamlConfigCommandTest extends TestCase
     public function testExportModullVariableOnlyModulname()
     {
         $app = new Application();
-        $app->add(new EnableAdapter(new GenerateYamlConfigCommand()));
+        $app->add(new GenerateYamlConfigCommand());
         $app->setShopDir($this->fillShopDir([])->getVirtualBootstrap());
 
 
@@ -193,7 +194,7 @@ class GenerateYamlConfigCommandTest extends TestCase
         $this->assertEquals($expect, $actual);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         if (self::$unlinkFile) {
             @unlink(self::$unlinkFile);

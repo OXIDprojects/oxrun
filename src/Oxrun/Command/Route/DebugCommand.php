@@ -1,26 +1,29 @@
 <?php
 /**
  * Created by oxrun.
- * Autor: Tobias Matthaiou <tm@loberon.de>
+ * Autor: Tobias Matthaiou <225997+TumTum@users.noreply.github.com>
  * Date: 23.09.17
  * Time: 23:04
  */
 
 namespace Oxrun\Command\Route;
 
-use Distill\Exception\IO\Exception;
-use Oxrun\Traits\NeedDatabase;
+use OxidEsales\Eshop\Core\SeoDecoder;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Helper\TableHelper;
+use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class DebugCommand extends Command implements \Oxrun\Command\EnableInterface
+/**
+ * Class DebugCommand
+ * @package Oxrun\Command\Route
+ */
+class DebugCommand extends Command
 {
-    use NeedDatabase;
+//    use NeedDatabase;
 
     /**
      * @var array
@@ -57,27 +60,28 @@ class DebugCommand extends Command implements \Oxrun\Command\EnableInterface
         $output->writeln("<info>Results for:</info> $url");
 
         /** @var \oxSeoDecoder $oxSeoDecoder */
-        $oxSeoDecoder = \oxNew('oxSeoDecoder');
+        $oxSeoDecoder = \oxNew(SeoDecoder::class);
         $aSeoURl = $oxSeoDecoder->decodeUrl($url);
 
         if ($aSeoURl == false) {
             $output->writeln('<error>URL not found in oxseo</error>');
-            return;
+            return 2;
         }
 
-        /** @var TableHelper $table */
-        $table = $this->getHelper('table');
+        $table = new Table($output);
 
         $this->addInfos($table, $aSeoURl);
         $this->addClassInfos($table, $aSeoURl);
 
-        $table->render($output);
+        $table->render();
 
         if ($input->getOption('copy')) {
             if ($this->copyFilePath()) {
                 $output->writeln('<comment>File path has been copied.</comment>');
             };
         }
+
+        return 0;
     }
 
     /**
@@ -94,7 +98,7 @@ class DebugCommand extends Command implements \Oxrun\Command\EnableInterface
     }
 
     /**
-     * @param TableHelper $table
+     * @param Table $table
      * @param $aSeoURl
      */
     protected function addInfos($table, $aSeoURl)
@@ -110,18 +114,19 @@ class DebugCommand extends Command implements \Oxrun\Command\EnableInterface
     }
 
     /**
-     * @param TableHelper $table
+     * @param Table $table
      * @param $aSeoURl
      */
     protected function addClassInfos($table, $aSeoURl)
     {
-        $shopDir = $this->getApplication()->getShopDir();
+        $shopDir = INSTALLATION_ROOT_PATH;
         $file = '';
         $reflectionClass = null;
 
         if (isset($aSeoURl['cl'])) {
             try {
-                $reflectionClass = new \ReflectionClass($aSeoURl['cl']);
+                $controllerClass = oxNew($aSeoURl['cl']);
+                $reflectionClass = new \ReflectionClass($controllerClass);
                 $fileName = $reflectionClass->getFileName();
                 $file = str_replace($shopDir, '', $fileName);
                 $this->filenametoCopy = $file;

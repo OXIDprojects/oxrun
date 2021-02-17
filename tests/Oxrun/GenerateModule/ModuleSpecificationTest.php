@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by oxrun.
- * Autor: Tobias Matthaiou <tm@loberon.de>
+ * Autor: Tobias Matthaiou <225997+TumTum@users.noreply.github.com>
  * Date: 09.11.18
  * Time: 22:19
  */
@@ -9,7 +9,7 @@
 namespace Oxrun\GenerateModule\Test;
 
 use Oxrun\GenerateModule\ModuleSpecification;
-use Oxrun\TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class ModuleSpecificationTest

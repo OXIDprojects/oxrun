@@ -2,8 +2,8 @@
 
 namespace Oxrun\Command\Views;
 
-use Oxrun\Application;
-use Oxrun\TestCase;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
 class UpdateCommandTest extends TestCase
@@ -23,6 +23,6 @@ class UpdateCommandTest extends TestCase
             )
         );
 
-        $this->assertContains('Views updated.', $commandTester->getDisplay());
+        $this->assertStringContainsString('Views updated.', $commandTester->getDisplay());
     }
 }

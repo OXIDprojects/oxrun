@@ -2,7 +2,7 @@
 
 namespace Oxrun\Command\Database;
 
-use Oxrun\Application;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
 class QueryCommandTest extends \PHPUnit\Framework\TestCase
@@ -22,7 +22,7 @@ class QueryCommandTest extends \PHPUnit\Framework\TestCase
             )
         );
 
-        $this->assertContains('oxdefaultadmin', $commandTester->getDisplay());
+        $this->assertStringContainsString('oxdefaultadmin', $commandTester->getDisplay());
     }
 
 }

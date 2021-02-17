@@ -2,9 +2,8 @@
 
 namespace Oxrun\Command\Config;
 
-use Oxrun\Application;
-use Oxrun\CommandCollection\EnableAdapter;
-use Oxrun\TestCase;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -16,7 +15,7 @@ class MultiSetCommandTest extends TestCase
     public function testExecute()
     {
         $app = new Application();
-        $app->add(new EnableAdapter(new MultiSetCommand()));
+        $app->add(new MultiSetCommand());
 
         $command = $app->find('config:multiset');
 
@@ -28,6 +27,6 @@ class MultiSetCommandTest extends TestCase
             )
         );
 
-        $this->assertContains("Config foobar for shop 1 set", $commandTester->getDisplay());
+        $this->assertEquals('Config foobar for shop 1 set to barfoo'. PHP_EOL, $commandTester->getDisplay());
     }
 }

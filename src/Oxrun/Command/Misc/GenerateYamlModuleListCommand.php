@@ -10,9 +10,13 @@ namespace Oxrun\Command\Misc;
 
 use OxidEsales\Eshop\Core\Module\ModuleList;
 use OxidEsales\Eshop\Core\Registry;
-use Oxrun\Command\EnableInterface;
-use Oxrun\Traits\ModuleListCheckTrait;
-use Oxrun\Traits\NeedDatabase;
+use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInterface;
+use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\Dao\ShopConfigurationDaoInterface;
+use OxidEsales\EshopCommunity\Internal\Framework\Module\Install\Service\ModuleConfigurationInstallerInterface;
+use OxidEsales\EshopCommunity\Internal\Framework\Module\Setup\Service\ModuleActivationServiceInterface;
+use OxidEsales\EshopCommunity\Internal\Framework\Module\State\ModuleStateServiceInterface;
+use OxidEsales\EshopCommunity\Internal\Transition\Utility\ContextInterface;
+use Oxrun\Core\OxrunContext;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -23,11 +27,21 @@ use Symfony\Component\Yaml\Yaml;
  * Class GenerateYamlModuleListCommand
  * @package Oxrun\Command\Misc
  */
-class GenerateYamlModuleListCommand extends Command implements EnableInterface
+class GenerateYamlModuleListCommand extends Command
 {
-    use NeedDatabase;
-    use ModuleListCheckTrait;
 
+    /**
+     * @var OxrunContext
+     */
+    private $oxrunContext;
+
+    public function __construct(
+        OxrunContext $oxrunContext
+    ) {
+        $this->oxrunContext = $oxrunContext;
+
+        parent::__construct();
+    }
     /**
      * Configure Command
      */
@@ -38,7 +52,7 @@ class GenerateYamlModuleListCommand extends Command implements EnableInterface
             ->addOption('configfile', 'c', InputOption::VALUE_REQUIRED, 'The Config file to change or create if not exits', 'dev_module.yml')
             ->addOption('whitelist', 'w', InputOption::VALUE_NONE, 'Takes modules that are always activated. All others remain deactive.')
             ->addOption('blacklist', 'b', InputOption::VALUE_NONE, 'Takes modules that always need to be disabled. All others are activated.')
-            ->setDescription('Generate a Yaml File for command `module:multiactivate`');
+            ->setDescription('Generate a Yaml File for command `module:multiactivator`');
     }
 
     /**
@@ -57,7 +71,7 @@ class GenerateYamlModuleListCommand extends Command implements EnableInterface
         $config = Registry::getConfig();
         $shopIds = $config->getShopIds();
 
-        if ($shopId = $input->getOption('shopId')) {
+        if ($shopId = $input->getOption('shop-id')) {
             $shopIds = [$shopId];
         }
 
@@ -87,7 +101,7 @@ class GenerateYamlModuleListCommand extends Command implements EnableInterface
 
         file_put_contents($path, Yaml::dump($yaml, 5, 2));
 
-        $output->writeln("<comment>Module saved use `oxrun module:multiactivate ".basename($path)."`</comment>");
+        $output->writeln("<comment>Module saved use `oe-console module:multiactivator ".basename($path)."`</comment>");
     }
 
     /**
@@ -97,7 +111,7 @@ class GenerateYamlModuleListCommand extends Command implements EnableInterface
      */
     protected function getActiveModules($shopId)
     {
-        $this->checkModulelist($shopId);
+        /** @var ModuleList $oxModuleList */
         $oxModuleList = Registry::get(ModuleList::class);
 
         return $activeModules = array_keys($oxModuleList->getActiveModuleInfo());
@@ -110,7 +124,7 @@ class GenerateYamlModuleListCommand extends Command implements EnableInterface
      */
     protected function getDeactiveModules($shopId)
     {
-        $this->checkModulelist($shopId);
+        /** @var ModuleList $oxModuleList */
         $oxModuleList = Registry::get(ModuleList::class);
 
         return $deactiveModules = $oxModuleList->getDisabledModules();
@@ -122,7 +136,7 @@ class GenerateYamlModuleListCommand extends Command implements EnableInterface
     public function getSavePath(InputInterface $input)
     {
         $filename = $input->getOption('configfile');
-        $oxrunConfigPath = $this->getApplication()->getOxrunConfigPath();
+        $oxrunConfigPath = $this->oxrunContext->getOxrunConfigPath();
         if (false == preg_match('/\.ya?ml$/', $filename)) {
             $filename .= '.yml';
         }

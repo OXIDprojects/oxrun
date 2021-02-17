@@ -10,25 +10,30 @@ namespace Oxrun\Command\Misc;
 
 use OxidEsales\Eshop\Core\DatabaseProvider;
 use OxidEsales\Eshop\Core\Registry;
+use Oxrun\Core\EnvironmentManager;
+use Oxrun\Core\OxrunContext;
 use Oxrun\Helper\MulitSetConfigConverter;
 use Oxrun\Helper\MultiSetTranslator;
-use Oxrun\Traits\NeedDatabase;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
+use Webmozart\PathUtil\Path;
 
 /**
  * Class GenerateYamlMultiSetCommand
  * @package Oxrun\Command\Misc
  */
-class GenerateYamlConfigCommand extends Command implements \Oxrun\Command\EnableInterface
+class GenerateYamlConfigCommand extends Command
 {
-    use NeedDatabase;
 
     protected $ignoreVariablen = [
-        'aDisabledModules',
+        'aDisabledModules', // aus 6.1
+        'aLegacyModules', // aus 4.x
+        'activeModules',
         'aModuleControllers',
         'aModuleEvents',
         'aModuleExtensions',
@@ -52,6 +57,30 @@ class GenerateYamlConfigCommand extends Command implements \Oxrun\Command\Enable
     ];
 
     /**
+     * @var OxrunContext
+     */
+    private $oxrunContext = null;
+
+    /**
+     * @var EnvironmentManager
+     */
+    private $environments;
+
+    /**
+     * @inheritDoc
+     */
+    public function __construct(
+        OxrunContext $context,
+        EnvironmentManager $environmentManager
+
+    ) {
+        $this->oxrunContext = $context;
+        $this->environments = $environmentManager;
+        parent::__construct('misc:generate:yaml:config');
+    }
+
+
+    /**
      * Configures the current command.
      */
     protected function configure()
@@ -63,8 +92,10 @@ class GenerateYamlConfigCommand extends Command implements \Oxrun\Command\Enable
             ->addOption('oxmodule', '', InputOption::VALUE_REQUIRED, 'Dump configs by oxmodule. One name or as comma separated List')
             ->addOption('no-descriptions', '-d', InputOption::VALUE_NONE, 'No descriptions are added.')
             ->addOption('language', '-l', InputOption::VALUE_REQUIRED, 'Speech selection of the descriptions.', 0)
-            ->setDescription('Generate a Yaml File for command `config:multiset`')
-            ->setAliases(['misc:generate:yaml:multiset']); /* @deprecated name: misc:generate:yaml:multiset */
+            ->addOption('list', '', InputOption::VALUE_NONE, 'list all saved configrationen')
+            ->setDescription('Generate a Yaml File for command `config:multiset`');
+
+        $this->environments->addOptionToCommand($this);
     }
 
     /**
@@ -75,17 +106,26 @@ class GenerateYamlConfigCommand extends Command implements \Oxrun\Command\Enable
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $yaml = ['config' => []];
+        if ($input->getOption('list')) {
+            $this->listfolder($output);
+            return 0;
+        }
+
+        $this->environments->init($input, $output);
+
+        $yaml = ['environment' => [], 'config' => []];
 
         $path = $this->getSavePath($input);
         if (file_exists($path)) {
             $yaml = Yaml::parse(file_get_contents($path));
         }
 
+        $yaml['environment'] = $this->environments->getOptions();
+
         $config = Registry::getConfig();
         $shopIds = $config->getShopIds();
 
-        if ($shopId = $input->getOption('shopId')) {
+        if ($shopId = $input->getOption('shop-id')) {
             $shopIds = [$shopId];
         }
 
@@ -109,7 +149,8 @@ class GenerateYamlConfigCommand extends Command implements \Oxrun\Command\Enable
 
         file_put_contents($path, $yamltxt);
 
-        $output->writeln("<comment>Config saved. use `oxrun config:multiset ".basename($path)."`</comment>");
+        $output->writeln("<comment>Config saved. use `oe-console config:multiset " . $input->getOption('configfile') . "`</comment>");
+        return 0;
     }
 
     /**
@@ -153,11 +194,16 @@ class GenerateYamlConfigCommand extends Command implements \Oxrun\Command\Enable
     public function getSavePath(InputInterface $input)
     {
         $filename = $input->getOption('configfile');
-        $oxrunConfigPath = $this->getApplication()->getOxrunConfigPath();
+
+        $oxrunConfigPath = $this->oxrunContext->getOxrunConfigPath();
+
         if (false == preg_match('/\.ya?ml$/', $filename)) {
             $filename .= '.yml';
         }
-        return $oxrunConfigPath . $filename;
+
+        $input->setOption('configfile', $filename);
+
+        return Path::join($oxrunConfigPath, $filename);
     }
 
     /**
@@ -177,5 +223,22 @@ class GenerateYamlConfigCommand extends Command implements \Oxrun\Command\Enable
         $list = implode(',', $list);
 
         return " AND $column IN ($list)";
+    }
+
+    /**
+     * @param $output
+     */
+    protected function listfolder($output)
+    {
+        $configPath = $this->oxrunContext->getOxrunConfigPath();
+
+        $yamls = (new Finder())->files()->name('/\.ya?ml/i')->in($configPath);
+
+        $table = new Table($output);
+        $table->setHeaders([$configPath]);
+        foreach ($yamls as $yaml) {
+            $table->addRow([str_replace($configPath, '', $yaml->getPathname())]);
+        }
+        $table->render();
     }
 }

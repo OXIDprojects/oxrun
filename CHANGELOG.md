@@ -6,6 +6,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+  - New Command `misc:register:command` to Register Command to service.yaml files.
+  - New Command `db:info` Database Table Size (Issue #37).
+  - New Command `config:link:environment` links the environment configration files. Ideal for CI/CD.
+  - New Command `config:update:yaml` update the module configuration yaml with the data from the database.
+  - ./bin/generate_service_yaml.php to generate `services.yaml` for `oe-console`
+  - ./bin/oxrun-light.php small application with one command `misc:register:command`
+  - Command `misc:generate:yaml:config` has new Option `--list` to show all configrations
+  - Command `misc:generate:yaml:config` has new Options `--production` `--staging` `--development` `--testing`
+
+### Changed
+  - Oxrun is now a [OXID eShop Component](https://docs.oxid-esales.com/developer/en/6.2/development/modules_components_themes/component.html)
+  - Moved `INSTALLATION_ROOT_PATH/oxrun_config/` to `var/` (`INSTALLATION_ROOT_PATH/var/oxrun_config/`)
+  - Command `module:activate` is now `oe:module:activate`
+  - Command `module:deactivate` is now `oe:module:deactivate`
+  - Command `misc:phpstorm:metadata` updated to oxid namespace style and fill Module parent classes
+  - See more [details](READY_CONVERED_TO_v6.2.md) which command refactored
+  - the option `--shopId` is changed to `--shop-id` and the shortcut `-m` is removed
+  - Command `module:multiactivate` renamed to `module:multiactivator` is copy from `proudcommerce/oxid-console-moduleactivator`
+  - Command `config:multiset` updates the [module configuration](https://docs.oxid-esales.com/developer/en/6.2/development/modules_components_themes/project/module_configuration/modules_configuration_deployment.html) includes also the environments.
+
+### Removed
+  - `oxrun.phar` use ./vendor/bin/oe-console
+  - Command `cms:update`
+  - Command `log:exceptionlog` the log - output has be changed
+  - Command `list` don't show database errors
+
 ## [v4.2.1] 2020-06-19
 
 ### Fixed
@@ -42,7 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Option `--oxmodule` of command `misc:generate:yaml:config` can only take the module name or completely written out.
   `--oxmodule=module:myModule` and `--oxmodule=myModule` are same.
-- Rename command `misc:generate:yaml:multiset` to `misc:generate:yaml:config` to better distinguish 
+- Rename command `misc:generate:yaml:multiset` to `misc:generate:yaml:config` to better distinguish
   between `yaml:modules` and `yaml:multiset`.
 - Find now several ways to find the oxid eshop directory.
 
@@ -50,9 +77,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - If there are errors in the DI container. It will be tried to recreate it automatically.
 - Modules that extend the OxidEsales\Eshop\Core\Cache\Generic\Cache class are considered.
-  
+
 ### Deprecated
-  
+
 - command `misc:generate:yaml:multiset` was replaced by `misc:generate:yaml:config`
 
 ## [v4.0.0] 2019-03-24
@@ -70,7 +97,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- There are three methods to add your own command. 
+- There are three methods to add your own command.
 - new option for every command `--shopId` or `-m` select a shop for oxrun
 - command `cache:clear` can now clear the GenericCache and DynamicContentCache in a EE version.
 
@@ -79,10 +106,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - When generating a module, the Composer.json file is now edited with the original classe.
 - oxrun can now use in EE
 - The file docker-compose.yml has been prepared to install an EE. You have to deposit the access data and change it to ee manuel.
-- Security risk: Better keep the config files outside of the public `source/` folder. 
+- Security risk: Better keep the config files outside of the public `source/` folder.
   The YAML files are searched under the directory: `INSTALLATION_ROOT_PATH/oxrun_config/`. In the same level as `source/` and `vendor/` folder.
 - Deployment Docker. The OXID eSale source code is outside of the Container.
-- Now starts 2x faster. The first start will collect the command and save it as a DI container in `oxide-esale/vendor/oxideprojects/OxrunCommands.php`. 
+- Now starts 2x faster. The first start will collect the command and save it as a DI container in `oxide-esale/vendor/oxideprojects/OxrunCommands.php`.
 - README.md has now a "table of content" a list of commands. And will autogenerate by travis.
 
 ### Fixed
@@ -96,7 +123,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- oxrun can share his command with other cli tools like [ps:console](https://github.com/OXIDprojects/oxid-console), [oxid:console](https://github.com/OXID-eSales/oxideshop_ce/tree/b-6.x-introduce_console-OXDEV-1580) 
+- oxrun can share his command with other cli tools like [ps:console](https://github.com/OXIDprojects/oxid-console), [oxid:console](https://github.com/OXID-eSales/oxideshop_ce/tree/b-6.x-introduce_console-OXDEV-1580)
 
 ### Removed
 
