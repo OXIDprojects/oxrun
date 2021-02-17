@@ -1,33 +1,32 @@
 cd #!/usr/bin/env bash
 
-ln -fs /oxrun/bin/oxrun /usr/local/bin
+ln -fs ${DOCKER_DOCUMENT_ROOT}"/vendor/bin/oe-console" /usr/local/bin
 
-if [ ! -d "/oxrun/vendor" ]; then
-    echo "Install oxrun composer packages" && \
-    pushd /oxrun/ && \
-    composer install --no-interaction && \
-    popd;
-fi
 
 if [ ! -f "${DOCKER_DOCUMENT_ROOT}/source/config.inc.php" ]; then
-
-    /usr/local/bin/composer selfupdate
 
     echo "Install Shop";
 
     install_dir=${DOCKER_DOCUMENT_ROOT}
     source_dir=${DOCKER_DOCUMENT_ROOT}"/source"
+    composer=$(which composer1)
 
     echo "Download 'oxid-esales/oxideshop-project:${COMPILATION_VERSION}'";
 
-
-    php -d memory_limit=4G /usr/local/bin/composer create-project --no-dev --keep-vcs --working-dir=/tmp \
+    php -d memory_limit=4G $composer create-project --no-dev --keep-vcs --working-dir=/tmp \
         oxid-esales/oxideshop-project /tmp/preinstall \
         ${COMPILATION_VERSION}
 
+    echo "Install ${install_dir}"
     chown -R www-data: "/tmp/preinstall" && \
     rsync -ap /tmp/preinstall/ ${install_dir} && \
     rm -rf /tmp/preinstall
+
+    echo "composer require oxidprojects/oxrun:^0.1@RC"
+    cd ${install_dir}
+    $composer --no-plugins config --file=${install_dir}'/composer.json' repositories.oxrun path '/oxrun' && \
+    php -d memory_limit=4G  $composer require --no-interaction oxidprojects/oxrun:^0.1@RC
+    cd -;
 
     echo "Configure OXID eShop ...";
     sed -i "s/<dbHost>/${MYSQL_HOST}/" ${source_dir}/config.inc.php && \
@@ -53,8 +52,8 @@ if [ ! -f "${DOCKER_DOCUMENT_ROOT}/source/config.inc.php" ]; then
     ${install_dir}/vendor/bin/oe-eshop-db_views_generate
 fi
 
-echo ""
+echo "";
 echo "WebSeite: ${OXID_SHOP_URL}";
-echo ""
+echo "";
 
 docker-php-entrypoint php-fpm

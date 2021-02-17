@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   oxid_php:
-    image: oxidesales/oxideshop-docker-php:7.1
+    image: oxidesales/oxideshop-docker-php:7.2
     restart: always
     container_name: oxid_php
     command: installOxid
