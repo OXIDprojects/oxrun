@@ -5,6 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [v4.3.0] 2021-02-18
+
+### Add
+
+- New command (`config:oxid62:modules-configuration`) to create modules configration files in the OXID version 6.1 in preparation to use them later in 6.2
+
+### Change
+
+- Update local docker-composer
 
 ## [v4.2.1] 2020-06-19
 
