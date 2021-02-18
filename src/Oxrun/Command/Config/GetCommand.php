@@ -2,8 +2,9 @@
 
 namespace Oxrun\Command\Config;
 
-use OxidEsales\Eshop\Core\Config;
+use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
+use OxidEsales\EshopCommunity\Internal\Framework\Console\Executor;
 use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -22,6 +23,21 @@ class GetCommand extends Command
 //    use NeedDatabase;
 
     /**
+     * @var QueryBuilderFactoryInterface
+     */
+    protected $queryBuilderFactory;
+
+    /**
+     * GetCommand constructor.
+     * @param QueryBuilderFactoryInterface $queryBuilderFactory
+     */
+    public function __construct(QueryBuilderFactoryInterface $queryBuilderFactory)
+    {
+        $this->queryBuilderFactory = $queryBuilderFactory;
+        parent::__construct();
+    }
+
+    /**
      * Configures the current command.
      */
     protected function configure()
@@ -30,7 +46,7 @@ class GetCommand extends Command
             ->setName('config:get')
             ->setDescription('Gets a config value')
             ->addArgument('variableName', InputArgument::REQUIRED, 'Variable name')
-            ->addOption('moduleId', null, InputOption::VALUE_OPTIONAL, '')
+            ->addOption('moduleId', null, InputOption::VALUE_OPTIONAL, '', '')
             ->addOption('json', null, InputOption::VALUE_NONE, 'Output as json')
             ->addOption('yaml', null, InputOption::VALUE_NONE, 'Output as YAML (default)');
     }
@@ -43,11 +59,11 @@ class GetCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $oxConfig = oxNew(Config::class);
+        $oxConfig = Registry::getConfig();
 
         $varName = $input->getArgument('variableName');
 
-        $shopId = $input->getOption('shop-id');
+        $shopId = $input->hasOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME) ? $input->getOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME) : null;
         $moduleId = $input->getOption('moduleId');
 
         $shopConfVar = $oxConfig->getShopConfVar(
@@ -55,6 +71,7 @@ class GetCommand extends Command
             $shopId,
             $moduleId
         );
+
 
         if ($shopConfVar === null) {
             $output->writeln("<error>$varName not found.</error>");
@@ -85,14 +102,14 @@ class GetCommand extends Command
 
     public function findType($varName)
     {
-        $qb = ContainerFactory::getInstance()->getContainer()->get(QueryBuilderFactoryInterface::class)->create();
+        $qb = $this->queryBuilderFactory->create();
         $qb->select('oxvartype' )
             ->from('oxconfig')
             ->where('OXVARNAME = :oxvarname')
             ->setParameter('oxvarname', $varName)
             ->setMaxResults(1);
 
-        $firstColumn = $qb->execute()->fetchFirstColumn();
-        return array_shift($firstColumn);
+        $firstColumn = $qb->execute()->fetchColumn();
+        return $firstColumn;
     }
 }

@@ -8,6 +8,7 @@
 
 namespace Oxrun\Command\Module;
 
+use OxidEsales\EshopCommunity\Internal\Framework\Console\Executor;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
@@ -67,13 +68,18 @@ class ReloadCommand extends Command
      */
     protected function createInputArray($command, $input, $extraOption = [])
     {
-        //default --sho-id
-        $command->getDefinition()->addOption(new InputOption('--shop-id', '', InputOption::VALUE_REQUIRED));
 
-        $parameters = array_merge(
-            ['--shop-id' => $input->getOption('shop-id')],
-            $extraOption
-        );
+        $parameters = $extraOption;
+
+        //default --shop-id
+        if ($input->hasOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME)) {
+            $command->getDefinition()->addOption(new InputOption('--' . Executor::SHOP_ID_PARAMETER_OPTION_NAME, '', InputOption::VALUE_REQUIRED));
+            $parameters = array_merge(
+                ['--' . Executor::SHOP_ID_PARAMETER_OPTION_NAME => $input->getOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME)],
+                $extraOption
+            );
+        }
+
 
         return new ArrayInput(
             $parameters,

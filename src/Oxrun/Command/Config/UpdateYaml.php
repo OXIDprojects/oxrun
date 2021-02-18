@@ -3,8 +3,10 @@
 namespace Oxrun\Command\Config;
 
 
+use Doctrine\DBAL\FetchMode;
 use OxidEsales\Eshop\Application\Controller\Admin\ShopConfiguration;
 use OxidEsales\Eshop\Core\Registry;
+use OxidEsales\EshopCommunity\Internal\Framework\Console\Executor;
 use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInterface;
 use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\Dao\ShopConfigurationDaoInterface;
 use Oxrun\Core\EnvironmentManager;
@@ -101,8 +103,8 @@ class UpdateYaml extends Command
 
         $shopConfigurations = [];
 
-        if ($input->getOption('shop-id') !== null) {
-            $shopId = $input->getOption('shop-id');
+        if ($input->hasOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME) && $input->getOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME) !== null) {
+            $shopId = $input->getOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME);
             $shopConfigurations[$shopId] = $this->shopConfigurationDao->get($shopId);
         } else {
             $shopConfigurations = $this->shopConfigurationDao->getAll();
@@ -144,12 +146,12 @@ class UpdateYaml extends Command
             return;
         }
 
-        $result = array_shift($result->fetchAllAssociative());
+        $result = $result->fetchAll(\Doctrine\DBAL\FetchMode::ASSOCIATIVE);
+        $rawValue = array_shift($result);
 
+        $value = $rawValue['OXVARVALUE'];
 
-        $value = $result['OXVARVALUE'];
-
-        switch ($result['OXVARTYPE']) {
+        switch ($rawValue['OXVARTYPE']) {
             case 'arr':
             case 'aarr':
                 $value = unserialize($value);

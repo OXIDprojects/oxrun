@@ -2,6 +2,7 @@
 
 namespace Oxrun\Command\Config;
 
+use OxidEsales\EshopCommunity\Internal\Framework\Console\Executor;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -35,11 +36,14 @@ class ShopGetCommand extends Command
     {
         // Shop config
         $oxShop = oxNew(\OxidEsales\Eshop\Application\Model\Shop::class);
-        if ($oxShop->load($input->getOption('shop-id'))) {
+
+        $shopId = $input->hasOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME) ? $input->getOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME) : 1;
+
+        if ($oxShop->load($shopId)) {
             $varibaleValue = $oxShop->getFieldData($input->getArgument('variableName'));
             $output->writeln("Shopconfig <info>{$input->getArgument('variableName')}</info> has value <comment>$varibaleValue</comment>");
         } else {
-            $output->writeln("<error>Shop Id: {$input->getOption('shop-id')} don't exits</error>");
+            $output->writeln("<error>Shop Id: {$shopId} don't exits</error>");
             return 2;
         }
         return 0;

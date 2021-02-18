@@ -3,6 +3,7 @@
 namespace Oxrun\Command\Config;
 
 use OxidEsales\Eshop\Core\Registry;
+use OxidEsales\EshopCommunity\Internal\Framework\Console\Executor;
 use Oxrun\Core\EnvironmentManager;
 use Oxrun\Core\OxrunContext;
 use Symfony\Component\Console\Command\Command;
@@ -78,9 +79,9 @@ class LinkEnvironment extends Command
         $this->output = $output;
         $this->environments->init($input, $output);
 
-        $shopIds = [$this->input->getOption('shop-id')];
-        if ($this->input->getOption('shop-id') === null) {
-            $shopIds = Registry::getConfig()->getShopIds();
+        $shopIds = Registry::getConfig()->getShopIds();
+        if ($this->input->hasOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME) && $this->input->getOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME) !== null) {
+            $shopIds = [$this->input->getOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME)];
         }
 
         $environment = $this->environments->getActiveOption();

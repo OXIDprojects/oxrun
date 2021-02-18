@@ -3,6 +3,7 @@
 namespace Oxrun\Core;
 
 use OxidEsales\Eshop\Core\Registry;
+use OxidEsales\EshopCommunity\Internal\Framework\Console\Executor;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -117,10 +118,7 @@ class EnvironmentManager
 
         $configurationDirectory = $this->oxrunContext->getEnvironmentConfigurationDirectoryPath();
 
-        $shopids = [$this->input->getOption('shop-id')];
-        if ($this->input->getOption('shop-id') === null) {
-            $shopids = Registry::getConfig()->getShopIds();
-        }
+        $shopids = $this->getArgumentShopId();
 
         foreach ($environments as $environment) {
             foreach ($shopids as $shopid) {
@@ -150,8 +148,9 @@ class EnvironmentManager
     public function save()
     {
         $environmentsYaml = $this->environments['list'];
-        if ($this->input->getOption('shop-id') !== null) {
-            $environmentsYaml = $this->environments[$this->input->getOption('shop-id')];
+
+        if ($this->input->hasOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME) && $this->input->getOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME) !== null) {
+            $environmentsYaml = $this->environments[$this->input->getOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME)];
         }
 
         foreach ($environmentsYaml as $yaml) {
@@ -166,10 +165,7 @@ class EnvironmentManager
 
     protected function loadProjectConfigurationEnvironment()
     {
-        $shopids = [$this->input->getOption('shop-id')];
-        if ($this->input->getOption('shop-id') === null) {
-            $shopids = Registry::getConfig()->getShopIds();
-        }
+        $shopids = $this->getArgumentShopId();
 
         $configurationDirectory = new \SplFileInfo(
             Path::join($this->oxrunContext->getProjectConfigurationDirectory(), 'shops')
@@ -198,5 +194,19 @@ class EnvironmentManager
         $this->environments['list'][] =
         $this->environments[$shopid][] =
             (object)['path' => $file->getPathname(), 'content' => $content];
+    }
+
+    /**
+     * @return array
+     */
+    protected function getArgumentShopId(): array
+    {
+        $shopids = Registry::getConfig()->getShopIds();
+
+        if ($this->input->hasOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME) && $this->input->getOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME) !== null) {
+            $shopids = [$this->input->getOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME)];
+        }
+
+        return $shopids;
     }
 }
