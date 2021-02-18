@@ -2,6 +2,7 @@
 
 namespace Oxrun\Command\Config;
 
+use OxidEsales\EshopCommunity\Internal\Framework\Console\Executor;
 use Oxrun\Core\EnvironmentManager;
 use Oxrun\Core\OxrunContext;
 use Symfony\Component\Console\Command\Command;
@@ -163,7 +164,7 @@ HELP;
     {
         // do not use the registry pattern (\OxidEsales\Eshop\Core\Registry::getConfig()) here, so we do not have any caches (breaks unit tests)
         $oxConfig = oxNew(\OxidEsales\Eshop\Core\Config::class);
-        $consoleShopId = $this->input->getOption('shop-id');
+        $consoleShopId = $this->input->hasOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME) ? $this->input->getOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME) : 1;
 
         foreach ($mallSettings as $shopId => $configData) {
             if ($consoleShopId !== null && $shopId != $consoleShopId) {

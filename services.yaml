@@ -4,10 +4,12 @@ services:
       - { name: console.command, command: 'cache:clear' }
   Oxrun\Command\Config\GetCommand:
     tags:
-      - { name: console.command, command: 'config:get' }
+      - { name: console.command }
+    autowire: true
   Oxrun\Command\Config\SetCommand:
     tags:
-      - { name: console.command, command: 'config:set' }
+      - { name: console.command }
+    autowire: true
   Oxrun\Command\Config\ShopGetCommand:
     tags:
       - { name: console.command, command: 'config:shop:get' }

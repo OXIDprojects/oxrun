@@ -10,6 +10,7 @@ namespace Oxrun\Command\Misc;
 
 use OxidEsales\Eshop\Core\DatabaseProvider;
 use OxidEsales\Eshop\Core\Registry;
+use OxidEsales\EshopCommunity\Internal\Framework\Console\Executor;
 use Oxrun\Core\EnvironmentManager;
 use Oxrun\Core\OxrunContext;
 use Oxrun\Helper\MulitSetConfigConverter;
@@ -125,7 +126,7 @@ class GenerateYamlConfigCommand extends Command
         $config = Registry::getConfig();
         $shopIds = $config->getShopIds();
 
-        if ($shopId = $input->getOption('shop-id')) {
+        if ($input->hasOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME) && $shopId = $input->getOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME)) {
             $shopIds = [$shopId];
         }
 

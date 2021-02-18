@@ -6,6 +6,7 @@
 namespace Oxrun\Command\Module;
 
 use OxidEsales\Eshop\Core\Exception\StandardException;
+use OxidEsales\EshopCommunity\Internal\Framework\Console\Executor;
 use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\Dao\ShopConfigurationDaoInterface;
 use OxidEsales\EshopCommunity\Internal\Framework\Module\MetaData\Dao\ModuleConfigurationDaoInterface;
 use OxidEsales\EshopCommunity\Internal\Framework\Module\Setup\Service\ModuleActivationServiceInterface;
@@ -399,11 +400,14 @@ HELP;
 
         $this->output->write("<info>Checking</info> is module <comment>'{$moduleId}'</comment> installed ...");
         if (!$this->moduleConfigurationInstaller->isInstalled($sourceDir)) {
-            $arguments = new ArrayInput([
-                'command' => 'oe:module:install-configuration',
-                '--shop-id' => $this->input->getOption('shop-id'),
-                'module-source-path' => $sourceDir,
-            ]);
+
+            $arguments['command'] = 'oe:module:install-configuration';
+            if ($this->input->hasOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME)) {
+                $arguments['--shop-id'] = $this->input->getOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME);
+            }
+            $arguments['module-source-path'] = $sourceDir;
+
+            $arguments = new ArrayInput($arguments);
             $this->output->writeLn("<comment> No.</comment> Install 'oe:module:install-configuration' {$sourceDir}.");
             $app->find('oe:module:install-configuration')->run($arguments, $this->output);
 

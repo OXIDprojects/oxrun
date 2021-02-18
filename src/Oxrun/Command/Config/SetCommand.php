@@ -5,6 +5,7 @@ namespace Oxrun\Command\Config;
 use Doctrine\DBAL\Query\QueryBuilder;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
+use OxidEsales\EshopCommunity\Internal\Framework\Console\Executor;
 use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -19,7 +20,21 @@ use Symfony\Component\Console\Output\OutputInterface;
 class SetCommand extends Command
 {
 
-//    use NeedDatabase;
+    /**
+     * @var QueryBuilderFactoryInterface
+     */
+    protected $queryBuilderFactory;
+
+    /**
+     * SetCommand constructor.
+     * @param QueryBuilderFactoryInterface $queryBuilderFactory
+     */
+    public function __construct(QueryBuilderFactoryInterface $queryBuilderFactory)
+    {
+        $this->queryBuilderFactory = $queryBuilderFactory;
+        parent::__construct();
+    }
+
 
     /**
      * Configures the current command.
@@ -49,15 +64,14 @@ class SetCommand extends Command
         if ($input->getOption('variableType')) {
             $variableType = $input->getOption('variableType');
         } else {
-            /** @var QueryBuilder $qb */
-            $qb = ContainerFactory::getInstance()->getContainer()->get(QueryBuilderFactoryInterface::class)->create();
+            $qb = $this->queryBuilderFactory->create();
             $qb->select('oxvartype' )
                 ->from('oxconfig')
                 ->where('OXVARNAME = :oxvarname')
                 ->setParameter('oxvarname', $input->getArgument('variableName'))
                 ->setMaxResults(1);
 
-            $firstColumn = $qb->execute()->fetchFirstColumn();
+            $firstColumn = $qb->execute()->fetchColumn();
             $variableType = array_shift($firstColumn);
         }
 
@@ -71,7 +85,7 @@ class SetCommand extends Command
             $variableType,
             $input->getArgument('variableName'),
             $variableValue,
-            $input->getOption('shop-id'),
+            $input->hasOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME) ? $input->getOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME) : null,
             $input->getOption('moduleId')
         );
 

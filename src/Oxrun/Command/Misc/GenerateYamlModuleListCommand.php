@@ -10,6 +10,7 @@ namespace Oxrun\Command\Misc;
 
 use OxidEsales\Eshop\Core\Module\ModuleList;
 use OxidEsales\Eshop\Core\Registry;
+use OxidEsales\EshopCommunity\Internal\Framework\Console\Executor;
 use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInterface;
 use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\Dao\ShopConfigurationDaoInterface;
 use OxidEsales\EshopCommunity\Internal\Framework\Module\Install\Service\ModuleConfigurationInstallerInterface;
@@ -71,7 +72,7 @@ class GenerateYamlModuleListCommand extends Command
         $config = Registry::getConfig();
         $shopIds = $config->getShopIds();
 
-        if ($shopId = $input->getOption('shop-id')) {
+        if ($input->hasOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME) && $shopId = $input->getOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME)) {
             $shopIds = [$shopId];
         }
 

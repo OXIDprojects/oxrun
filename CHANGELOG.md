@@ -42,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - the option `--shopId` is changed to `--shop-id` and the shortcut `-m` is removed
   - Command `module:multiactivate` renamed to `module:multiactivator` is copy from `proudcommerce/oxid-console-moduleactivator`
   - Command `config:multiset` updates the [module configuration](https://docs.oxid-esales.com/developer/en/6.2/development/modules_components_themes/project/module_configuration/modules_configuration_deployment.html) includes also the environments.
+  - Commands made functional under CE.
 
 ### Removed
   - `oxrun.phar` use ./vendor/bin/oe-console
