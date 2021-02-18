@@ -2,24 +2,26 @@ cd #!/usr/bin/env bash
 
 ln -fs /oxrun/bin/oxrun /usr/local/bin
 
+composer=$(which composer)
+
 if [ ! -f "/oxrun/vendor" ]; then
     pushd /oxrun/ && \
-    composer install --no-interaction && \
+    $composer install --no-interaction && \
     popd;
 fi
 
 if [ ! -f "${DOCKER_DOCUMENT_ROOT}/config.inc.php" ]; then
 
-    /usr/local/bin/composer selfupdate
-
     echo "Install Shop";
 
     install_dir=$(dirname ${DOCKER_DOCUMENT_ROOT})
 
+    $composer selfupdate && \
+    $composer selfupdate --1
+
     echo "Download 'oxid-esales/oxideshop-project:${OXID_SHOP_VERSION}'";
 
-
-    php -d memory_limit=4G /usr/local/bin/composer create-project --no-dev --keep-vcs --working-dir=/tmp \
+    php -d memory_limit=4G $composer create-project --no-dev --keep-vcs --working-dir=/tmp \
         oxid-esales/oxideshop-project /tmp/preinstall \
         ${OXID_SHOP_VERSION}
 
