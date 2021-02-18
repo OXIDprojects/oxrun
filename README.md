@@ -166,6 +166,7 @@ Available commands
 ##### config
   - [config:get](#configget)   Gets a config value
   - [config:multiset](#configmultiset)   Sets multiple config values from yaml file
+  - [config:oxid62:modules-configuration](#configoxid62modules-configuration)   Creates the modules configurations for OXID eSale v6.2.x. Ideal for upgrade
   - [config:set](#configset)   Sets a config value
   - [config:shop:get](#configshopget)   Sets a shop config value
   - [config:shop:set](#configshopset)   Sets a shop config value
@@ -343,6 +344,53 @@ If you want, you can also specify __a YAML string on the command line instead of
 * Description: The file containing the config values, see example/malls.yml.dist. (e.g. dev.yml, stage.yml, prod.yml)
 
 ### Options:
+
+config:oxid62:modules-configuration
+-----------------------------------
+
+* Description: Creates the modules configurations for OXID eSale v6.2.x. Ideal for upgrade
+* Usage:
+
+  * `config:oxid62:modules-configuration [--production] [--staging] [--development] [--testing]`
+
+With this command modules-configuration can be created.. 
+Which will be needed later when updating to >6.2
+Otherwise the settings will be lost.
+See https://docs.oxid-esales.com/developer/en/6.2/development/modules_components_themes/project/module_configuration/modules_configuration.html
+
+### Options:
+
+**production:**
+
+* Name: `--production`
+* Accept value: no
+* Is value required: no
+* Description: Valid for "production" system
+* Default: `false`
+
+**staging:**
+
+* Name: `--staging`
+* Accept value: no
+* Is value required: no
+* Description: Valid for "staging" system
+* Default: `false`
+
+**development:**
+
+* Name: `--development`
+* Accept value: no
+* Is value required: no
+* Description: Valid for "development" system
+* Default: `false`
+
+**testing:**
+
+* Name: `--testing`
+* Accept value: no
+* Is value required: no
+* Description: Valid for "testing" system
+* Default: `false`
 
 config:set
 ----------
