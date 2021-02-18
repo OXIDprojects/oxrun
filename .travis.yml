@@ -15,6 +15,7 @@ cache:
 
 before_script:
   - mkdir -p build/logs
+  - composer self-update --1
   - composer install
   - mysql -e 'CREATE DATABASE IF NOT EXISTS `oxid`;'
   - composer create-project --keep-vcs oxid-esales/oxideshop-project oxid-esale ${OXID_VERSION}
