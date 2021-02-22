@@ -72,7 +72,7 @@ class Oxid62ModulesConfigrationCommand extends Command implements \Oxrun\Command
         $this
             ->setName('config:oxid62:modules-configuration')
             ->setDescription('Creates the modules configurations for OXID eSale v6.2.x. Ideal for upgrade')
-            ->addOption('force', '', InputOption::VALUE_NONE, 'Trozdem Einstellungen Speichern, wenn sie nicht vorhanden sind in den Module Settings')
+            ->addOption('force', '', InputOption::VALUE_NONE, 'However, save settings if they are not present in the Module Settings.')
             ->setHelp(
                 'With this command modules-configuration can be created.. ' . PHP_EOL .
                 'Which will be needed later when updating to >6.2' . PHP_EOL .
