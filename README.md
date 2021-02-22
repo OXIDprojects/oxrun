@@ -351,14 +351,22 @@ config:oxid62:modules-configuration
 * Description: Creates the modules configurations for OXID eSale v6.2.x. Ideal for upgrade
 * Usage:
 
-  * `config:oxid62:modules-configuration [--production] [--staging] [--development] [--testing]`
+  * `config:oxid62:modules-configuration [--force] [--production] [--staging] [--development] [--testing]`
 
 With this command modules-configuration can be created.. 
 Which will be needed later when updating to >6.2
 Otherwise the settings will be lost.
-See https://docs.oxid-esales.com/developer/en/6.2/development/modules_components_themes/project/module_configuration/modules_configuration.html
+See [Module configuration deployment](https://docs.oxid-esales.com/developer/en/6.2/development/modules_components_themes/project/module_configuration/modules_configuration_deployment.html)
 
 ### Options:
+
+**force:**
+
+* Name: `--force`
+* Accept value: no
+* Is value required: no
+* Description: Trozdem Einstellungen Speichern, wenn sie nicht vorhanden sind in den Module Settings
+* Default: `false`
 
 **production:**
 
