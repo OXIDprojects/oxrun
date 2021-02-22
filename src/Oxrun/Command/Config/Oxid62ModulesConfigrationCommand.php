@@ -10,6 +10,8 @@ namespace Oxrun\Command\Config;
 
 use OxidEsales\Eshop\Core\DatabaseProvider;
 use OxidEsales\Eshop\Core\Registry;
+use Oxrun\Application;
+use Oxrun\Helper\AnalyzeModuleMetadata;
 use Oxrun\Traits\NeedDatabase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -53,6 +55,16 @@ class Oxid62ModulesConfigrationCommand extends Command implements \Oxrun\Command
     private $envDir;
 
     /**
+     * @var AnalyzeModuleMetadata
+     */
+    private $analyzeModuleMetadata;
+
+    /**
+     * @var array
+     */
+    private $messages = [];
+
+    /**
      * @inheritDoc
      */
     protected function configure()
@@ -60,11 +72,12 @@ class Oxid62ModulesConfigrationCommand extends Command implements \Oxrun\Command
         $this
             ->setName('config:oxid62:modules-configuration')
             ->setDescription('Creates the modules configurations for OXID eSale v6.2.x. Ideal for upgrade')
+            ->addOption('force', '', InputOption::VALUE_NONE, 'Trozdem Einstellungen Speichern, wenn sie nicht vorhanden sind in den Module Settings')
             ->setHelp(
                 'With this command modules-configuration can be created.. ' . PHP_EOL .
                 'Which will be needed later when updating to >6.2' . PHP_EOL .
                 'Otherwise the settings will be lost.' . PHP_EOL .
-                'See https://docs.oxid-esales.com/developer/en/6.2/development/modules_components_themes/project/module_configuration/modules_configuration.html'
+                'See [Module configuration deployment](https://docs.oxid-esales.com/developer/en/6.2/development/modules_components_themes/project/module_configuration/modules_configuration_deployment.html)'
             );
 
         array_map(function ($name) {
@@ -85,9 +98,13 @@ class Oxid62ModulesConfigrationCommand extends Command implements \Oxrun\Command
             $this->output->getErrorOutput()->writeln('<error>Please use one of this option --' . join(' --', $this->optionNames) . '</error>');
             return 1;
         }
+        $this->initModuleMetadata();
+
         $this->initEnviromentDir();
 
         $this->loadModuleConfigrations();
+
+        $this->showMessages();
 
         return $this->saveEnviroments($enviromentOptions) ? 0 : 1;
     }
@@ -100,6 +117,14 @@ class Oxid62ModulesConfigrationCommand extends Command implements \Oxrun\Command
         return array_filter($this->optionNames, function ($name) {
             return $this->input->getOption($name);
         });
+    }
+
+    protected function initModuleMetadata()
+    {
+        /** @var Application $application */
+        $application = $this->getApplication();
+
+        $this->analyzeModuleMetadata = new AnalyzeModuleMetadata($application->getShopDir() . '/modules');
     }
 
     /**
@@ -128,9 +153,64 @@ class Oxid62ModulesConfigrationCommand extends Command implements \Oxrun\Command
 
         foreach ($result as $rowconfig) {
             $moduleId = $this->convertModuleId($rowconfig['OXMODULE']);
+
+            if ($this->analyzeModuleMetadata->existsModule($moduleId) == false) {
+                $this->addMessage('noModule', [$moduleId]);
+                if ($this->input->getOption('force') == false) {
+                    continue;
+                }
+            }
+
+            if ($this->analyzeModuleMetadata->existsModuleSetting($moduleId, $rowconfig['OXVARNAME']) == false) {
+                $this->addMessage('noSetting', [$moduleId, $rowconfig['OXVARNAME']]);
+                if ($this->input->getOption('force') == false) {
+                    continue;
+                }
+            }
+
             $variableValue = $this->valueConvert($rowconfig['OXVARTYPE'], $rowconfig['OXVARVALUE']);
-            $this->addModuleConfigration($rowconfig['OXSHOPID'], $moduleId, $rowconfig['OXVARNAME'], $variableValue);
+
+            $this->addModuleConfigration($rowconfig['OXSHOPID'], $moduleId, $rowconfig['OXVARNAME'], $rowconfig['OXVARTYPE'], $variableValue);
         }
+    }
+
+    protected function addMessage($key, $values)
+    {
+        $value = join('::', $values);
+        if (!isset($this->messages[$key]) || !in_array($value, $this->messages[$key])) {
+            $this->messages[$key][] = $value;
+        }
+    }
+
+    protected function showMessages()
+    {
+        if (empty($this->messages)) {
+            return;
+        }
+
+        if (!empty($this->messages['noModule'])) {
+            $this->output->writeln('WARN: We have module settings in the DB and no a module exits for them.');
+            $this->output->writeln('  - Module Setting: '.join(PHP_EOL . "  - Module Setting: ", $this->messages['noModule']));
+            $sql = 'DELETE FROM oxconfig WHERE OXMODULE IN ("module:'. join('", "module:', $this->messages['noModule'] ).'");';
+            $this->output->writeln("Use SQL to fix: <comment>$sql</comment>");
+        }
+
+        if (!empty($this->messages['noSetting'])) {
+            $this->output->writeln('WARN: We have settings in the DB where are no in module used.');
+            $this->output->writeln('  - Module Setting: '.join(PHP_EOL . "  - Module Setting: ", $this->messages['noSetting']));
+            $wheres = [];
+            foreach ($this->messages['noSetting'] as $noSetting) {
+                list($moduleId, $moduleSetting) = explode('::', $noSetting);
+                $wheres[] = "(OXMODULE = 'module:{$moduleId}' AND OXVARNAME = '{$moduleSetting}')";
+            }
+            $sql = 'DELETE FROM oxconfig WHERE ' . join(' OR ', $wheres) . ';';
+            $this->output->writeln("Use SQL to fix: <comment>$sql</comment>");
+        }
+
+        if ($this->input->getOption('force')) {
+            $this->output->writeln('These settings were recorded anyway');
+        }
+
     }
 
     /**
@@ -175,13 +255,13 @@ class Oxid62ModulesConfigrationCommand extends Command implements \Oxrun\Command
      * @param $variableName
      * @param $variableValue
      */
-    public function addModuleConfigration($shopId, $moduleId, $variableName, $variableValue)
+    public function addModuleConfigration($shopId, $moduleId, $variableName, $variableType, $variableValue)
     {
         if (!isset($this->moduleConfigrations[$shopId])) {
             $this->moduleConfigrations[$shopId] = ['modules' => []];
         }
 
-        $this->moduleConfigrations[$shopId]['modules'][$moduleId]['moduleSettings'][$variableName]['value'] = $variableValue;
+        $this->moduleConfigrations[$shopId]['modules'][$moduleId]['moduleSettings'][$variableName] = ['type'=> $variableType, 'value' => $variableValue];
     }
 
     /**
