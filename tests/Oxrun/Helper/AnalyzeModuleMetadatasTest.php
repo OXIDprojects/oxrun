@@ -13,7 +13,6 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class AnalyzeModuleMetadatasTest
  * @package Oxrun\Helper
- * @group active
  */
 class AnalyzeModuleMetadatasTest extends TestCase
 {
