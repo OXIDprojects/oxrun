@@ -365,7 +365,7 @@ See [Module configuration deployment](https://docs.oxid-esales.com/developer/en/
 * Name: `--force`
 * Accept value: no
 * Is value required: no
-* Description: Trozdem Einstellungen Speichern, wenn sie nicht vorhanden sind in den Module Settings
+* Description: However, save settings if they are not present in the Module Settings.
 * Default: `false`
 
 **production:**
