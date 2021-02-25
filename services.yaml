@@ -2,14 +2,6 @@ services:
   Oxrun\Command\Cache\ClearCommand:
     tags:
       - { name: console.command, command: 'cache:clear' }
-  Oxrun\Command\Config\GetCommand:
-    tags:
-      - { name: console.command }
-    autowire: true
-  Oxrun\Command\Config\SetCommand:
-    tags:
-      - { name: console.command }
-    autowire: true
   Oxrun\Command\Config\ShopGetCommand:
     tags:
       - { name: console.command, command: 'config:shop:get' }
@@ -67,15 +59,7 @@ services:
   Oxrun\Command\Views\UpdateCommand:
     tags:
       - { name: console.command, command: 'views:update' }
-  Oxrun\Command\Config\UpdateYaml:
-    tags:
-      - { name: console.command }
-    autowire: true
-  Oxrun\Command\Config\MultiSetCommand:
-    tags:
-      - { name: console.command }
-    autowire: true
-  Oxrun\Command\Misc\GenerateYamlConfigCommand:
+  Oxrun\Command\Config\SetCommand:
     tags:
       - { name: console.command }
     autowire: true
@@ -87,7 +71,23 @@ services:
     tags:
       - { name: console.command }
     autowire: true
+  Oxrun\Command\Misc\GenerateYamlConfigCommand:
+    tags:
+      - { name: console.command }
+    autowire: true
+  Oxrun\Command\Config\GetCommand:
+    tags:
+      - { name: console.command }
+    autowire: true
   Oxrun\Command\Config\LinkEnvironment:
+    tags:
+      - { name: console.command }
+    autowire: true
+  Oxrun\Command\Config\MultiSetCommand:
+    tags:
+      - { name: console.command }
+    autowire: true
+  Oxrun\Command\Config\UpdateYamlCommand:
     tags:
       - { name: console.command }
     autowire: true

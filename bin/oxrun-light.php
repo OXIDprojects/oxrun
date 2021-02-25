@@ -10,7 +10,10 @@
 namespace Oxrun;
 
 $search_autoloader = [
+    "/var/www/oxideshop/vendor/autoload.php", //Docker of Deployment Repo
     __DIR__ . "/../vendor/autoload.php",
+    __DIR__ . "/../../vendor/autoload.php",
+    __DIR__ . "/../../../vendor/autoload.php",
     __DIR__ . "/../../../../vendor/autoload.php",
 ];
 
