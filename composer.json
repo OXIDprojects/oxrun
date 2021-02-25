@@ -3,7 +3,6 @@
   "description": "Oxrun provides a cli toolset for the OXID eShop v6.x",
   "license": "MIT",
   "type": "oxideshop-component",
-  "version": "0.1RC1",
   "support": {
     "issues": "https://github.com/oxidprojects/oxrun/issues"
   },
