@@ -46,6 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
   - `oxrun.phar` use ./vendor/bin/oe-console
+  - Command `config:multiset` Don't save Module setting to databases. That confuses the quite behaved. Therefore this changes the yaml files.
   - Command `cms:update`
   - Command `log:exceptionlog` the log - output has be changed
   - Command `list` don't show database errors
