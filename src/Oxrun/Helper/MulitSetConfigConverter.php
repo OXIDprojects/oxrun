@@ -8,6 +8,8 @@
 
 namespace Oxrun\Helper;
 
+use OxidEsales\EshopCommunity\Internal\Framework\Config\Utility\ShopSettingEncoderInterface;
+
 /**
  * Class MulitSetConfigConverter
  * @package Oxrun\Helper
@@ -15,13 +17,27 @@ namespace Oxrun\Helper;
 class MulitSetConfigConverter
 {
     /**
+     * @var ShopSettingEncoderInterface
+     */
+    private $shopSettingEncoder;
+
+    /**
+     * MulitSetConfigConverter constructor.
+     */
+    public function __construct(
+        ShopSettingEncoderInterface $shopSettingEncoder
+    ) {
+        $this->shopSettingEncoder = $shopSettingEncoder;
+    }
+
+    /**
      * @param array $config
      * @return array
      */
     public function convert($config)
     {
         $newconfig['variableType'] = $config['oxvartype'];
-        $newconfig['variableValue'] = $this->convertValue($config['oxvartype'], $config['oxvarvalue']);
+        $newconfig['variableValue'] = $this->shopSettingEncoder->decode($config['oxvartype'], $config['oxvarvalue']);
 
         if (isset($config['oxmodule']) && $config['oxmodule']) {
             $newconfig['moduleId'] = $config['oxmodule'];
@@ -36,23 +52,5 @@ class MulitSetConfigConverter
             'key' => $config['oxvarname'],
             'value' => $newconfig
         ];
-    }
-
-    /**
-     * @param $type
-     * @param $value
-     * @return mixed
-     */
-    protected function convertValue($type, $value)
-    {
-        switch (true) {
-            case $type == 'bool':
-                return (bool)$value;
-            case $type == 'arr':
-            case $type == 'aarr':
-                return (array)unserialize($value);
-            default:
-                return $value;
-        }
     }
 }
