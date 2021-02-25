@@ -45,6 +45,11 @@ class MultiSetCommand extends Command
     private $input;
 
     /**
+     * @var bool
+     */
+    private $isChangeModuleSettings = false;
+
+    /**
      * @inheritDoc
      */
     public function __construct(
@@ -64,12 +69,15 @@ class MultiSetCommand extends Command
     {
         $this
             ->setName('config:multiset')
-            ->setDescription('Sets multiple config values from yaml file')
+            ->setDescription('Sets multiple configuration values that are not in module settings')
             ->addArgument('configfile', InputArgument::REQUIRED, 'The file containing the config values, see example/malls.yml.dist. (e.g. dev.yml, stage.yml, prod.yml)');
 
         $this->environments->addOptionToCommand($this);
 
         $help = <<<HELP
+This command can import settings into the database that are not found in the module settings.
+If they are module settings, they are stored in the module configuration yaml, not in the database.
+
 The file path is relative to the shop installation_root_path/var/oxrun_config/.
 You can also pass a YAML string on the command line.
 
@@ -87,26 +95,18 @@ config:
     blReverseProxyActive:
       variableType: bool
       variableValue: false
-    # simple string type
     sMallShopURL: http://myshop.dev.local
     sMallSSLShopURL: http://myshop.dev.local
-    myMultiVal:
-      variableType: aarr
-      variableValue:
-        - /foo/bar/
-        - /bar/foo/
-      # optional module id
-      moduleId: my_module
   2:
     blReverseProxyActive:
-...
+    ...
 ```
 [Example: malls.yml.dist](example/malls.yml.dist)
 
 If you want, you can also specify __a YAML string on the command line instead of a file__, e.g.:
 
 ```bash
-../vendor/bin/oe-console config:multiset $'config:\n  1:\n    foobar: barfoo\n' --shopId=1
+../vendor/bin/oe-console config:multiset $'config:\n  1:\n    foobar: barfoo\n' --shop-id=1
 ```
 HELP;
         $this->setHelp($help);
@@ -148,7 +148,7 @@ HELP;
         // Set configration
         if (is_array($mallValues['config'])) {
             $this->setConfigurations($mallValues['config']);
-            $this->environments->save();
+            $this->saveModuleConfigationYaml();
         } else {
             $this->output->getErrorOutput()->writeln('<error>No `config:` found in ' . $this->input->getArgument('configfile') . '</error>');
             return 1;
@@ -171,15 +171,15 @@ HELP;
                 $this->output->writeln('<commit>Skip configration for Shop: ' . $shopId . '</commit>');
                 continue;
             }
-            foreach ($configData as $configKey => $configValue) {
+            foreach ($configData as $varName => $configValue) {
                 $moduleId = '';
                 if (!is_array($configValue)) {
                     // assume simple string
-                    $variableType = 'str';
-                    $variableValue = $configValue;
+                    $varType = 'str';
+                    $varValue = $configValue;
                 } else {
-                    $variableType = $configValue['variableType'];
-                    $variableValue = $configValue['variableValue'];
+                    $varType = $configValue['variableType'];
+                    $varValue = $configValue['variableValue'];
                     if (isset($configValue['moduleId'])) {
                         $moduleId = $configValue['moduleId'];
                     }
@@ -190,23 +190,33 @@ HELP;
                     if (empty($module)) {
                         $this->output->getErrorOutput()->writeln(sprintf(
                             'ModuleId not can not be detacted ShopId: %s, ModuleId: %s, VariableName: %s, VariableValue: %s',
-                            $shopId, $moduleId, $configKey, $variableValue
+                            $shopId, $moduleId, $varName, $varValue
                         ));
                     }
-                    $this->environments->set($shopId, $module, $configKey, $variableValue);
+                    $this->environments->set($shopId, $module, $varType, $varName, $varValue);
+                    $this->output->writeln("({$shopId}) Module Config <info>".trim(trim(Yaml::dump([$varName => $varValue], 0, 1), '{}'))."</info> will be saved.");
+                    $this->isChangeModuleSettings = true;
+                    //Do not save module configs in the database. Otherwise there is a huge chaos.
+                    continue;
                 }
 
                 $oxConfig->saveShopConfVar(
-                    $variableType,
-                    $configKey,
-                    $variableValue,
-                    $shopId,
-                    $moduleId
+                    $varType,
+                    $varName,
+                    $varValue,
+                    $shopId
                 );
+                $this->output->writeln("({$shopId}) Config <info>".trim(trim(Yaml::dump([$varName => $varValue], 0, 1), '{}'))."</info> write into Database.");
 
-                $this->output->writeln("<info>Config {$configKey} for shop {$shopId} set to " . print_r($variableValue, true) . "</info>");
             }
         }
     }
 
+    protected function saveModuleConfigationYaml(): void
+    {
+        if ($this->isChangeModuleSettings ) {
+            $this->environments->save();
+            $this->output->writeln("<info>run now:</info> <comment>oe-console oe:module:apply-configuration</comment>");
+        }
+    }
 }

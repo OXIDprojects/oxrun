@@ -141,7 +141,8 @@ class EnvironmentManager
     {
         if (isset($this->environments[$shopId])) {
             foreach ($this->environments[$shopId] as $environmentYaml) {
-                $environmentYaml->content['modules'][$moduleId]['moduleSettings'][$variableName]= ['type' => $variableType, 'value' => $variableValue];
+                $environmentYaml->content['modules'][$moduleId]['moduleSettings'][$variableName]['type'] = $variableType;
+                $environmentYaml->content['modules'][$moduleId]['moduleSettings'][$variableName]['value'] = $variableValue;
             }
         }
     }
@@ -160,7 +161,7 @@ class EnvironmentManager
                 Yaml::dump($yaml->content, 6, 2)
             );
 
-            $this->output->writeln("<comment>Update {$yaml->path}</comment>");
+            $this->output->writeln("<info>updated:</info> <comment>{$yaml->path}</comment>");
         }
     }
 
