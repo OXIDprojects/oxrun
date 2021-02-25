@@ -8,9 +8,10 @@
 
 namespace Oxrun\Command\Misc;
 
-use OxidEsales\Eshop\Core\DatabaseProvider;
+use Doctrine\DBAL\Connection;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\EshopCommunity\Internal\Framework\Console\Executor;
+use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInterface;
 use Oxrun\Core\EnvironmentManager;
 use Oxrun\Core\OxrunContext;
 use Oxrun\Helper\MulitSetConfigConverter;
@@ -68,15 +69,29 @@ class GenerateYamlConfigCommand extends Command
     private $environments;
 
     /**
+     * @var QueryBuilderFactoryInterface
+     */
+    private $queryBuilderFactory;
+
+    /**
+     * @var MulitSetConfigConverter
+     */
+    private $mulitSetConfigConverter;
+
+    /**
      * @inheritDoc
      */
     public function __construct(
         OxrunContext $context,
-        EnvironmentManager $environmentManager
-
+        EnvironmentManager $environmentManager,
+        QueryBuilderFactoryInterface $queryBuilderFactory,
+        MulitSetConfigConverter $mulitSetConfigConverter
     ) {
         $this->oxrunContext = $context;
         $this->environments = $environmentManager;
+        $this->queryBuilderFactory = $queryBuilderFactory;
+        $this->mulitSetConfigConverter = $mulitSetConfigConverter;
+
         parent::__construct('misc:generate:yaml:config');
     }
 
@@ -161,31 +176,40 @@ class GenerateYamlConfigCommand extends Command
     {
         $decodeValueQuery = Registry::getConfig()->getDecodeValueQuery();
 
-        $SQL = "SELECT oxvarname, oxvartype, {$decodeValueQuery} as oxvarvalue, oxmodule
-                    FROM oxconfig
-                    WHERE oxshopid = ?";
+        $qb = $this->queryBuilderFactory->create();
 
+        $qb->select("oxvarname, oxvartype, {$decodeValueQuery} as oxvarvalue, oxmodule")
+            ->from('oxconfig')
+            ->where('OXSHOPID = :oxshopid')
+            ->setParameter('oxshopid', $shopId);
+
+        //--oxvarname
         if ($option = $input->getOption('oxvarname')) {
-            $SQL .= $this->andWhere('oxvarname', $option);
+            $list = $this->convertParamList($option);
+            $qb->andWhere("oxvarname IN (:oxvarname)")
+                ->setParameter('oxvarname', $list, Connection::PARAM_STR_ARRAY);
         } else {
-            $ignore = implode("', '", $this->ignoreVariablen);
-            $SQL .= " AND NOT oxvarname IN ('$ignore')";
+            $qb->andWhere('NOT oxvarname IN (:oxvarname)')
+                ->setParameter('oxvarname', $this->ignoreVariablen, Connection::PARAM_STR_ARRAY);
         }
 
+        //--oxmodule
         if ($option = $input->getOption('oxmodule')) {
-            $SQL .= $this->andWhere('oxmodule', $option, 'module:');
+            $list = $this->convertParamList($option, 'module:');
+            $qb->andWhere("oxmodule IN (:oxmodule)")
+                ->setParameter('oxmodule', $list, Connection::PARAM_STR_ARRAY);
         }
 
-        $dbConf = DatabaseProvider::getDb(DatabaseProvider::FETCH_MODE_ASSOC)->getAll($SQL, [$shopId]);
         $yamlConf = [];
+        $dbConf = $qb->execute()->fetchAll();
 
-        $map = new MulitSetConfigConverter();
-        array_map(function ($row) use (&$yamlConf, $map) {
-            $converd = $map->convert($row);
+        array_map(function ($row) use (&$yamlConf) {
+            $converd = $this->mulitSetConfigConverter->convert($row);
             $yamlConf[$converd['key']] = $converd['value'];
         }, $dbConf);
 
         ksort($yamlConf);
+
         return $yamlConf;
     }
 
@@ -208,22 +232,19 @@ class GenerateYamlConfigCommand extends Command
     }
 
     /**
-     * @param string $column
-     * @param string $input
-     * @param string $prefix Automatically sets a prefix if it does not exist.
-     * @return string
+     * @param $input
+     * @param string $prefix
+     * @return array|string[]
      */
-    protected function andWhere($column, $input, $prefix = '')
+    protected function convertParamList($input, $prefix = '')
     {
         $list = explode(',', $input);
         $list = array_map('trim', $list);
         if ($prefix) {
             $list = array_map(function ($item) use ($prefix) { return strpos($item, $prefix) === false ? $prefix . $item : $item; }, $list);
         }
-        $list = DatabaseProvider::getDb()->quoteArray($list);
-        $list = implode(',', $list);
 
-        return " AND $column IN ($list)";
+        return $list;
     }
 
     /**
