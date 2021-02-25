@@ -3,9 +3,8 @@
 namespace Oxrun\Command\Config;
 
 
-use Doctrine\DBAL\FetchMode;
-use OxidEsales\Eshop\Application\Controller\Admin\ShopConfiguration;
 use OxidEsales\Eshop\Core\Registry;
+use OxidEsales\EshopCommunity\Internal\Framework\Config\Utility\ShopSettingEncoderInterface;
 use OxidEsales\EshopCommunity\Internal\Framework\Console\Executor;
 use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInterface;
 use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\Dao\ShopConfigurationDaoInterface;
@@ -17,10 +16,10 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class UpdateYaml
+ * Class UpdateYamlCommand
  * @package Oxrun\Command\Config
  */
-class UpdateYaml extends Command
+class UpdateYamlCommand extends Command
 {
 
     /**
@@ -32,6 +31,11 @@ class UpdateYaml extends Command
      * @var \OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\Dao\ShopConfigurationDao
      */
     private $shopConfigurationDao;
+
+    /**
+     * @var ShopSettingEncoderInterface
+     */
+    private $shopSettingEncoder;
 
     /**
      * @var QueryBuilderFactoryInterface
@@ -61,11 +65,13 @@ class UpdateYaml extends Command
     public function __construct(
         OxrunContext $oxrunContext,
         ShopConfigurationDaoInterface $shopConfigurationDao,
+        ShopSettingEncoderInterface $shopSettingEncoder,
         QueryBuilderFactoryInterface $queryBuilderFactory,
         EnvironmentManager $environments
     ) {
         $this->oxrunContext = $oxrunContext;
         $this->shopConfigurationDao = $shopConfigurationDao;
+        $this->shopSettingEncoder = $shopSettingEncoder;
         $this->queryBuilderFactory = $queryBuilderFactory;
         $this->environments = $environments;
 
@@ -127,7 +133,7 @@ class UpdateYaml extends Command
     {
         $oxvarvalue = Registry::getConfig()->getDecodeValueQuery('OXVARVALUE');
 
-        $result = $this->queryBuilderFactory->create()
+        $qr = $this->queryBuilderFactory->create()
             ->select("OXVARTYPE, $oxvarvalue as OXVARVALUE")
             ->from('oxconfig')
             ->where('OXSHOPID = :oxshopid')
@@ -137,8 +143,8 @@ class UpdateYaml extends Command
             ->setParameter('oxmodule', "module:$moduleId")
             ->setParameter('oxvarname', $valueName)
             ->setMaxResults(1)
-            ->execute()
         ;
+        $result = $qr->execute();
 
         $rowCount = $result->rowCount();
         if ($rowCount == 0) {
@@ -149,18 +155,8 @@ class UpdateYaml extends Command
         $result = $result->fetchAll(\Doctrine\DBAL\FetchMode::ASSOCIATIVE);
         $rawValue = array_shift($result);
 
-        $value = $rawValue['OXVARVALUE'];
+        $value = $this->shopSettingEncoder->decode($rawValue['OXVARTYPE'], $rawValue['OXVARVALUE']);
 
-        switch ($rawValue['OXVARTYPE']) {
-            case 'arr':
-            case 'aarr':
-                $value = unserialize($value);
-                break;
-            case 'bool':
-                $value = (bool)($value == 'true' || $value == '1');
-                break;
-        }
-
-        $this->environments->set($shopId, $moduleId, $valueName, $value);
+        $this->environments->set($shopId, $moduleId, $rawValue['OXVARTYPE'], $valueName, $value);
     }
 }

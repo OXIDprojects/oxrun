@@ -133,14 +133,15 @@ class EnvironmentManager
     /**
      * @param $shopId
      * @param $moduleId
+     * @param $variableType
      * @param $variableName
      * @param $variableValue
      */
-    public function set($shopId, $moduleId, $variableName, $variableValue)
+    public function set($shopId, $moduleId, $variableType, $variableName, $variableValue)
     {
         if (isset($this->environments[$shopId])) {
             foreach ($this->environments[$shopId] as $environmentYaml) {
-                $environmentYaml->content['modules'][$moduleId]['moduleSettings'][$variableName]['value'] = $variableValue;
+                $environmentYaml->content['modules'][$moduleId]['moduleSettings'][$variableName]= ['type' => $variableType, 'value' => $variableValue];
             }
         }
     }
