@@ -79,6 +79,16 @@ class GenerateYamlConfigCommand extends Command
     private $mulitSetConfigConverter;
 
     /**
+     * @var OutputInterface
+     */
+    private $output;
+
+    /**
+     * @var InputInterface
+     */
+    private $input;
+
+    /**
      * @inheritDoc
      */
     public function __construct(
@@ -109,7 +119,11 @@ class GenerateYamlConfigCommand extends Command
             ->addOption('no-descriptions', '-d', InputOption::VALUE_NONE, 'No descriptions are added.')
             ->addOption('language', '-l', InputOption::VALUE_REQUIRED, 'Speech selection of the descriptions.', 0)
             ->addOption('list', '', InputOption::VALUE_NONE, 'list all saved configrationen')
-            ->setDescription('Generate a Yaml File for command `config:multiset`');
+            ->setDescription('Generate a Yaml with configuration from Database.')
+            ->setHelp(
+                'Configration that is not included in the modules can be saved. ' .
+                'With the command: config:multiset they can be read again')
+            ;
 
         $this->environments->addOptionToCommand($this);
     }
@@ -122,6 +136,9 @@ class GenerateYamlConfigCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->output = $output;
+        $this->input = $input;
+
         if ($input->getOption('list')) {
             $this->listfolder($output);
             return 0;
@@ -131,7 +148,7 @@ class GenerateYamlConfigCommand extends Command
 
         $yaml = ['environment' => [], 'config' => []];
 
-        $path = $this->getSavePath($input);
+        $path = $this->getSavePath();
         if (file_exists($path)) {
             $yaml = Yaml::parse(file_get_contents($path));
         }
@@ -150,7 +167,7 @@ class GenerateYamlConfigCommand extends Command
                 $yaml['config'][$id] = [];
             }
 
-            $dbConfig = $this->getConfigFromShop($id, $input);
+            $dbConfig = $this->getConfigFromShop($id);
             $yaml['config'][$id] = array_merge($yaml['config'][$id], $dbConfig);
             ksort($yaml['config'][$id]);
         }
@@ -172,7 +189,7 @@ class GenerateYamlConfigCommand extends Command
     /**
      * @param $shopId
      */
-    protected function getConfigFromShop($shopId, InputInterface $input)
+    protected function getConfigFromShop($shopId)
     {
         $decodeValueQuery = Registry::getConfig()->getDecodeValueQuery();
 
@@ -184,7 +201,7 @@ class GenerateYamlConfigCommand extends Command
             ->setParameter('oxshopid', $shopId);
 
         //--oxvarname
-        if ($option = $input->getOption('oxvarname')) {
+        if ($option = $this->input->getOption('oxvarname')) {
             $list = $this->convertParamList($option);
             $qb->andWhere("oxvarname IN (:oxvarname)")
                 ->setParameter('oxvarname', $list, Connection::PARAM_STR_ARRAY);
@@ -194,7 +211,7 @@ class GenerateYamlConfigCommand extends Command
         }
 
         //--oxmodule
-        if ($option = $input->getOption('oxmodule')) {
+        if ($option = $this->input->getOption('oxmodule')) {
             $list = $this->convertParamList($option, 'module:');
             $qb->andWhere("oxmodule IN (:oxmodule)")
                 ->setParameter('oxmodule', $list, Connection::PARAM_STR_ARRAY);
@@ -202,6 +219,8 @@ class GenerateYamlConfigCommand extends Command
 
         $yamlConf = [];
         $dbConf = $qb->execute()->fetchAll();
+
+        $this->output->writeln(sprintf("(%s) <info>%s configs found</info>", $shopId, count($dbConf)));
 
         array_map(function ($row) use (&$yamlConf) {
             $converd = $this->mulitSetConfigConverter->convert($row);
@@ -216,9 +235,9 @@ class GenerateYamlConfigCommand extends Command
     /**
      * @return string
      */
-    public function getSavePath(InputInterface $input)
+    public function getSavePath()
     {
-        $filename = $input->getOption('configfile');
+        $filename = $this->input->getOption('configfile');
 
         $oxrunConfigPath = $this->oxrunContext->getOxrunConfigPath();
 
@@ -226,7 +245,7 @@ class GenerateYamlConfigCommand extends Command
             $filename .= '.yml';
         }
 
-        $input->setOption('configfile', $filename);
+        $this->input->setOption('configfile', $filename);
 
         return Path::join($oxrunConfigPath, $filename);
     }
