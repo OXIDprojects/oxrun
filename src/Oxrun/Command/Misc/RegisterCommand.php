@@ -9,7 +9,8 @@
 
 namespace Oxrun\Command\Misc;
 
-use OxidEsales\EshopCommunity\Internal\Transition\Utility\BasicContext;
+use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
+use OxidEsales\EshopCommunity\Internal\Transition\Utility\BasicContextInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -46,16 +47,32 @@ class RegisterCommand extends Command
     private $output;
 
     /**
-     * @var BasicContext
+     * @var BasicContextInterface
      */
     private $basicContext;
+
+
+    /**
+     * RegisterCommand constructor.
+     *
+     * @param BasicContextInterface $basicContext
+     */
+    public function __construct(BasicContextInterface $basicContext = null)
+    {
+        $this->basicContext = $basicContext;
+        if ($basicContext === null) {
+            $this->basicContext = ContainerFactory::getInstance()->getContainer()->get(BasicContextInterface::class);
+        }
+
+        parent::__construct();
+    }
+
 
     /**
      * @inheritDoc
      */
     protected function configure()
     {
-        $this->basicContext = new BasicContext();
         $this->setName('misc:register:command')
             ->setDescription(
             'Extends the service.yaml file with the commands. So that they are found in oe-console.')
