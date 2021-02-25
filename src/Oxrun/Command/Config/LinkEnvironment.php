@@ -8,6 +8,7 @@ use Oxrun\Core\EnvironmentManager;
 use Oxrun\Core\OxrunContext;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Webmozart\PathUtil\Path;
@@ -60,6 +61,7 @@ class LinkEnvironment extends Command
         $this
             ->setName('config:link:environment')
             ->setDescription('Links the environment configration files. Ideal for CI/CD')
+            ->addOption('rm', '', InputOption::VALUE_NONE, 'Remove the links')
             ->setHelp("In files structure you has multiple files per shop in var/configuration/environment directory. e.g. production.1.yaml, staging.1.yaml" . PHP_EOL .
                             "This might be useful when deploying files to some specific environment." . PHP_EOL .
                             "@see: [Modules configuration deployment](https://docs.oxid-esales.com/developer/en/6.2/development/modules_components_themes/project/module_configuration/modules_configuration_deployment.html#dealing-with-environment-files)");
@@ -82,6 +84,11 @@ class LinkEnvironment extends Command
         $shopIds = Registry::getConfig()->getShopIds();
         if ($this->input->hasOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME) && $this->input->getOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME) !== null) {
             $shopIds = [$this->input->getOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME)];
+        }
+
+        if ($input->getOption('rm')) {
+            $this->removeLinks($shopIds);
+            return 0;
         }
 
         $environment = $this->environments->getActiveOption();
@@ -113,5 +120,26 @@ class LinkEnvironment extends Command
             };
         }
 
+    }
+
+    /**
+     * @param array $shopIds
+     */
+    protected function removeLinks(array $shopIds)
+    {
+        $configrationDirector = $this->oxrunContext->getEnvironmentConfigurationDirectoryPath()->getPathname();
+        $removed = false;
+        foreach ($shopIds as $shopId) {
+            $YamlFile = new \SplFileInfo(Path::join($configrationDirector, "$shopId.yaml"));
+            if ($YamlFile->isFile()) {
+                @unlink($YamlFile->getPathname());
+                $this->output->writeln('<info>Removed "environment/'. $YamlFile->getBasename() . '"</info>');
+                $removed = true;
+            }
+        }
+
+        if ($removed == false) {
+            $this->output->writeln('<comment>Nothing removed</comment>');
+        }
     }
 }
