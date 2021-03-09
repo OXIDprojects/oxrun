@@ -22,8 +22,8 @@
     "phpunit/phpunit": "^9",
     "phpspec/prophecy-phpunit": "^2",
     "php-coveralls/php-coveralls": "^2",
-    "symfony/var-dumper": "^3",
-    "mikey179/vfsstream": "^1.6"
+    "symfony/var-dumper": "*",
+    "mikey179/vfsstream": "*"
   },
   "autoload": {
     "psr-4": {
