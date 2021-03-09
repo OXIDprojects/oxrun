@@ -14,6 +14,7 @@ use OxidEsales\EshopCommunity\Internal\Framework\Console\Executor;
 use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInterface;
 use Oxrun\Core\EnvironmentManager;
 use Oxrun\Core\OxrunContext;
+use Oxrun\Helper\FileStorage;
 use Oxrun\Helper\MulitSetConfigConverter;
 use Oxrun\Helper\MultiSetTranslator;
 use Symfony\Component\Console\Command\Command;
@@ -79,6 +80,11 @@ class GenerateYamlConfigCommand extends Command
     private $mulitSetConfigConverter;
 
     /**
+     * @var FileStorage
+     */
+    private $fileStorage;
+
+    /**
      * @var OutputInterface
      */
     private $output;
@@ -95,12 +101,14 @@ class GenerateYamlConfigCommand extends Command
         OxrunContext $context,
         EnvironmentManager $environmentManager,
         QueryBuilderFactoryInterface $queryBuilderFactory,
-        MulitSetConfigConverter $mulitSetConfigConverter
+        MulitSetConfigConverter $mulitSetConfigConverter,
+        FileStorage $fileStorage
     ) {
         $this->oxrunContext = $context;
         $this->environments = $environmentManager;
         $this->queryBuilderFactory = $queryBuilderFactory;
         $this->mulitSetConfigConverter = $mulitSetConfigConverter;
+        $this->fileStorage = $fileStorage;
 
         parent::__construct('misc:generate:yaml:config');
     }
@@ -151,7 +159,7 @@ class GenerateYamlConfigCommand extends Command
 
         $path = $this->getSavePath();
         if (file_exists($path)) {
-            $yaml = Yaml::parse(file_get_contents($path));
+            $yaml = Yaml::parse($this->fileStorage->getContent($path));
         }
 
         $yaml['environment'] = $this->environments->getOptions();
@@ -181,7 +189,7 @@ class GenerateYamlConfigCommand extends Command
             $yamltxt = $multiSetTranslator->configFile($yamltxt, $input->getOption('language'));
         }
 
-        file_put_contents($path, $yamltxt);
+        $this->fileStorage->save($path, $yamltxt);
 
         $output->writeln("<comment>Config saved. use `oe-console config:multiset " . $input->getOption('configfile') . "`</comment>");
         return 0;
@@ -204,6 +212,7 @@ class GenerateYamlConfigCommand extends Command
         //--update
         if ($this->input->getOption('update')) {
             $extraVarnames = $this->findVarnamesConfigFile($shopId);
+            $this->fileStorage->noUseGlobalArgv();
             $this->output->writeln("({$shopId}) Varnames: <comment>{$extraVarnames}</comment>", OutputInterface::VERBOSITY_VERBOSE);
         }
 

@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Command `misc:generate:yaml:config` has new Option `--list` to show all configrations
   - Command `misc:generate:yaml:config` has new Options `--production` `--staging` `--development` `--testing`
   - Command `misc:generate:yaml:config` can now update an exited config file `--update`
+  - Command `misc:generate:yaml:config` save in the firstline the command unix call of oe-console
 
 ### Changed
   - Oxrun is now a [OXID eShop Component](https://docs.oxid-esales.com/developer/en/6.2/development/modules_components_themes/component.html)
