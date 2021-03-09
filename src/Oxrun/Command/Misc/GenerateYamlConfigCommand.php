@@ -113,7 +113,8 @@ class GenerateYamlConfigCommand extends Command
     {
         $this
             ->setName('misc:generate:yaml:config')
-            ->addOption('configfile', 'c', InputOption::VALUE_REQUIRED, 'The Config file to change or create if not exits', 'dev_config.yml')
+            ->addOption('update', 'u', InputOption::VALUE_NONE, 'Update an exited config file, with data from DB')
+            ->addOption('configfile', 'c', InputOption::VALUE_REQUIRED, 'The config file to update or create if not exits', 'dev_config.yml')
             ->addOption('oxvarname', '', InputOption::VALUE_REQUIRED, 'Dump configs by oxvarname. One name or as comma separated List')
             ->addOption('oxmodule', '', InputOption::VALUE_REQUIRED, 'Dump configs by oxmodule. One name or as comma separated List')
             ->addOption('no-descriptions', '-d', InputOption::VALUE_NONE, 'No descriptions are added.')
@@ -122,8 +123,8 @@ class GenerateYamlConfigCommand extends Command
             ->setDescription('Generate a Yaml with configuration from Database.')
             ->setHelp(
                 'Configration that is not included in the modules can be saved. ' .
-                'With the command: config:multiset they can be read again')
-            ;
+                'With the command: config:multiset they can be read again'
+            );
 
         $this->environments->addOptionToCommand($this);
     }
@@ -200,8 +201,15 @@ class GenerateYamlConfigCommand extends Command
             ->where('OXSHOPID = :oxshopid')
             ->setParameter('oxshopid', $shopId);
 
+        //--update
+        if ($this->input->getOption('update')) {
+            $extraVarnames = $this->findVarnamesConfigFile($shopId);
+            $this->output->writeln("({$shopId}) Varnames: <comment>{$extraVarnames}</comment>", OutputInterface::VERBOSITY_VERBOSE);
+        }
+
         //--oxvarname
-        if ($option = $this->input->getOption('oxvarname')) {
+        if (($option = $this->input->getOption('oxvarname')) || $extraVarnames !== null) {
+            $option = trim($option . ',' . $extraVarnames, ',');
             $list = $this->convertParamList($option);
             $qb->andWhere("oxvarname IN (:oxvarname)")
                 ->setParameter('oxvarname', $list, Connection::PARAM_STR_ARRAY);
@@ -218,6 +226,7 @@ class GenerateYamlConfigCommand extends Command
         }
 
         $yamlConf = [];
+
         $dbConf = $qb->execute()->fetchAll();
 
         $this->output->writeln(sprintf("(%s) <info>%s configs found</info>", $shopId, count($dbConf)));
@@ -233,19 +242,48 @@ class GenerateYamlConfigCommand extends Command
     }
 
     /**
+     * @param $shopId
+     * @return string|null
+     */
+    protected function findVarnamesConfigFile($shopId)
+    {
+        try {
+            $path = $this->getSavePath();
+            $yaml = Yaml::parseFile($path);
+        } catch (\Exception $e) {
+            return null;
+        }
+
+        if (isset($yaml['config']) == false || isset($yaml['config'][$shopId]) == false) {
+            return null;
+        }
+
+        $varnames = [];
+
+        foreach ($yaml['config'][$shopId] as $varname => $varvalue) {
+            $varnames[] = $varname;
+        }
+
+        if (empty($varname)) {
+            return "empty_list_oxrun_configuration";
+        }
+
+        return join(',', $varnames);
+    }
+
+    /**
      * @return string
      */
     public function getSavePath()
     {
         $filename = $this->input->getOption('configfile');
 
-        $oxrunConfigPath = $this->oxrunContext->getOxrunConfigPath();
-
         if (false == preg_match('/\.ya?ml$/', $filename)) {
             $filename .= '.yml';
+            $this->input->setOption('configfile', $filename);
         }
 
-        $this->input->setOption('configfile', $filename);
+        $oxrunConfigPath = $this->oxrunContext->getOxrunConfigPath();
 
         return Path::join($oxrunConfigPath, $filename);
     }
