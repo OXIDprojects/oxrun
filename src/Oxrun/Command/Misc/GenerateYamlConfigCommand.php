@@ -203,6 +203,7 @@ class GenerateYamlConfigCommand extends Command
         $decodeValueQuery = Registry::getConfig()->getDecodeValueQuery();
 
         $qb = $this->queryBuilderFactory->create();
+        $queryVarnameModule = '';
 
         $qb->select("oxvarname, oxvartype, {$decodeValueQuery} as oxvarvalue, oxmodule")
             ->from('oxconfig')
@@ -220,8 +221,8 @@ class GenerateYamlConfigCommand extends Command
         if (($option = $this->input->getOption('oxvarname')) || $extraVarnames !== null) {
             $option = trim($option . ',' . $extraVarnames, ',');
             $list = $this->convertParamList($option);
-            $qb->andWhere("oxvarname IN (:oxvarname)")
-                ->setParameter('oxvarname', $list, Connection::PARAM_STR_ARRAY);
+            $queryVarnameModule = $qb->expr()->in("oxvarname", ":oxvarname");
+            $qb->setParameter('oxvarname', $list, Connection::PARAM_STR_ARRAY);
         } else {
             $qb->andWhere('NOT oxvarname IN (:oxvarname)')
                 ->setParameter('oxvarname', $this->ignoreVariablen, Connection::PARAM_STR_ARRAY);
@@ -230,12 +231,16 @@ class GenerateYamlConfigCommand extends Command
         //--oxmodule
         if ($option = $this->input->getOption('oxmodule')) {
             $list = $this->convertParamList($option, 'module:');
-            $qb->andWhere("oxmodule IN (:oxmodule)")
-                ->setParameter('oxmodule', $list, Connection::PARAM_STR_ARRAY);
+            $queryVarnameModule .= $queryVarnameModule ? " OR " : "";
+            $queryVarnameModule .= $qb->expr()->in("oxmodule", ":oxmodule");
+            $qb->setParameter('oxmodule', $list, Connection::PARAM_STR_ARRAY);
+        }
+
+        if ($queryVarnameModule) {
+            $qb->andWhere($queryVarnameModule);
         }
 
         $yamlConf = [];
-
         $dbConf = $qb->execute()->fetchAll();
 
         $this->output->writeln(sprintf("(%s) <info>%s configs found</info>", $shopId, count($dbConf)));
