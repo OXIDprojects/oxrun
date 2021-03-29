@@ -63,6 +63,10 @@ services:
     tags:
       - { name: console.command }
     autowire: true
+  Oxrun\Command\Deploy\ModuleApplyConfigurationLightCommand:
+    tags:
+      - { name: console.command }
+    autowire: true
   Oxrun\Command\Deploy\ModuleActivatorCommand:
     tags:
       - { name: console.command }
