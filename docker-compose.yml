@@ -14,7 +14,7 @@ services:
     links:
       - oxid_db
     environment:
-      COMPILATION_VERSION: "dev-b-6.2-rc-ce"
+      COMPILATION_VERSION: "dev-b-6.2-ce"
       DOCKER_DOCUMENT_ROOT: /var/www/oxideshop
       MYSQL_HOST: oxid_db
       MYSQL_DATABASE: 'oxid'
