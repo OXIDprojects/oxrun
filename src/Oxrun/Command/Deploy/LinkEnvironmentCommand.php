@@ -1,6 +1,6 @@
 <?php
 
-namespace Oxrun\Command\Config;
+namespace Oxrun\Command\Deploy;
 
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\EshopCommunity\Internal\Framework\Console\Executor;
@@ -14,10 +14,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Webmozart\PathUtil\Path;
 
 /**
- * Class LinkEnvironment
+ * Class LinkEnvironmentCommand
  * @package Oxrun\Command\Config
  */
-class LinkEnvironment extends Command
+class LinkEnvironmentCommand extends Command
 {
     /**
      * @var OxrunContext
@@ -40,7 +40,7 @@ class LinkEnvironment extends Command
     private $output;
 
     /**
-     * LinkEnvironment constructor.
+     * LinkEnvironmentCommand constructor.
      * @param OxrunContext $context
      */
     public function __construct(
@@ -59,7 +59,7 @@ class LinkEnvironment extends Command
     protected function configure()
     {
         $this
-            ->setName('config:link:environment')
+            ->setName('deploy:link:environment')
             ->setDescription('Links the environment configration files. Ideal for CI/CD')
             ->addOption('rm', '', InputOption::VALUE_NONE, 'Remove the links')
             ->setHelp("In files structure you has multiple files per shop in var/configuration/environment directory. e.g. production.1.yaml, staging.1.yaml" . PHP_EOL .

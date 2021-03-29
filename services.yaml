@@ -59,19 +59,11 @@ services:
   Oxrun\Command\Views\UpdateCommand:
     tags:
       - { name: console.command, command: 'views:update' }
-  Oxrun\Command\Config\SetCommand:
+  Oxrun\Command\Deploy\UpdateModuleConfigCommand:
     tags:
       - { name: console.command }
     autowire: true
-  Oxrun\Command\Module\MultiActivatorCommand:
-    tags:
-      - { name: console.command }
-    autowire: true
-  Oxrun\Command\Misc\GenerateYamlModuleListCommand:
-    tags:
-      - { name: console.command }
-    autowire: true
-  Oxrun\Command\Misc\GenerateYamlConfigCommand:
+  Oxrun\Command\Deploy\ModuleActivatorCommand:
     tags:
       - { name: console.command }
     autowire: true
@@ -79,15 +71,23 @@ services:
     tags:
       - { name: console.command }
     autowire: true
-  Oxrun\Command\Config\LinkEnvironment:
+  Oxrun\Command\Deploy\GenerateModuleActivatorCommand:
     tags:
       - { name: console.command }
     autowire: true
-  Oxrun\Command\Config\MultiSetCommand:
+  Oxrun\Command\Deploy\GenerateConfigrationCommand:
     tags:
       - { name: console.command }
     autowire: true
-  Oxrun\Command\Config\UpdateYamlCommand:
+  Oxrun\Command\Deploy\ConfigCommand:
+    tags:
+      - { name: console.command }
+    autowire: true
+  Oxrun\Command\Config\SetCommand:
+    tags:
+      - { name: console.command }
+    autowire: true
+  Oxrun\Command\Deploy\LinkEnvironmentCommand:
     tags:
       - { name: console.command }
     autowire: true

@@ -25,15 +25,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
   - New Command `misc:register:command` to Register Command to service.yaml files.
   - New Command `db:info` Database Table Size (Issue #37).
-  - New Command `config:link:environment` links the environment configration files. Ideal for CI/CD.
-  - New Command `config:update:yaml` update the module configuration yaml with the data from the database.
+  - New Command `deploy:link:environment` links the environment configration files. Ideal for CI/CD.
+  - New Command `deploy:update-module-config` update the module configuration yaml with the data from the database.
   - ./bin/generate_service_yaml.php to generate `services.yaml` for `oe-console`
   - ./bin/oxrun-light.php small application with one command `misc:register:command`
-  - Command `misc:generate:yaml:config` has new Option `--list` to show all configrations
-  - Command `misc:generate:yaml:config` has new Options `--production` `--staging` `--development` `--testing`
-  - Command `misc:generate:yaml:config` can now update an exited config file `--update`
-  - Command `misc:generate:yaml:config` save in the firstline the command unix call of oe-console
-  - Command `config:multiset` has a Option `--force-db` that save module configration into yaml and database, too.
+  - Command `deploy:generate:configration` has new Option `--list` to show all configrations
+  - Command `deploy:generate:configration` has new Options `--production` `--staging` `--development` `--testing`
+  - Command `deploy:generate:configration` can now update an exited config file `--update`
+  - Command `deploy:generate:configration` save in the firstline the command unix call of oe-console
+  - Command `deploy:config` has a Option `--force-db` that save module configration into yaml and database, too.
 
 ### Changed
   - Oxrun is now a [OXID eShop Component](https://docs.oxid-esales.com/developer/en/6.2/development/modules_components_themes/component.html)
@@ -43,15 +43,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Command `misc:phpstorm:metadata` updated to oxid namespace style and fill Module parent classes
   - See more [details](READY_CONVERED_TO_v6.2.md) which command refactored
   - the option `--shopId` is changed to `--shop-id` and the shortcut `-m` is removed
-  - Command `module:multiactivate` renamed to `module:multiactivator` is copy from `proudcommerce/oxid-console-moduleactivator`
-  - Command `config:multiset` updates the [module configuration](https://docs.oxid-esales.com/developer/en/6.2/development/modules_components_themes/project/module_configuration/modules_configuration_deployment.html) includes also the environments.
+  - Command `module:multiactivate` renamed to `deploy:module-activator` is copy from `proudcommerce/oxid-console-moduleactivator`
+  - Command `deploy:config` updates the [module configuration](https://docs.oxid-esales.com/developer/en/6.2/development/modules_components_themes/project/module_configuration/modules_configuration_deployment.html) includes also the environments.
   - Commands made functional under CE.
+  - Create a new command group `deploy:` with commands that are needed for a deployment.
+    - the following commands have been renamed there
+    - `config:multiset` is now `deploy:config`
+    - `misc:generate:yaml:config` is now `deploy:generate:configration`
+    - `misc:generate:yaml:module` is now `deploy:generate:module-activator`
+    - `module:multiactivator` is now `deploy:module-activator` 
 
 ### Removed
   - `oxrun.phar` use ./vendor/bin/oe-console
   - Command `cms:update`
   - Command `log:exceptionlog` the log - output has be changed
-  - Command `list` don't show database errors
+  - Command `list` don't show message with database errors
 
 ## [v4.2.1] 2020-06-19
 

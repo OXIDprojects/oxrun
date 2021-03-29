@@ -6,7 +6,7 @@
  * Time: 16:39
  */
 
-namespace Oxrun\Command\Misc;
+namespace Oxrun\Command\Deploy;
 
 use Doctrine\DBAL\Connection;
 use OxidEsales\Eshop\Core\Registry;
@@ -30,7 +30,7 @@ use Webmozart\PathUtil\Path;
  * Class GenerateYamlMultiSetCommand
  * @package Oxrun\Command\Misc
  */
-class GenerateYamlConfigCommand extends Command
+class GenerateConfigrationCommand extends Command
 {
 
     protected $ignoreVariablen = [
@@ -120,7 +120,8 @@ class GenerateYamlConfigCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('misc:generate:yaml:config')
+            ->setName('deploy:generate:configration')
+            ->setAliases(['misc:generate:yaml:config'])
             ->addOption('update', 'u', InputOption::VALUE_NONE, 'Update an exited config file, with data from DB')
             ->addOption('configfile', 'c', InputOption::VALUE_REQUIRED, 'The config file to update or create if not exits', 'dev_config.yml')
             ->addOption('oxvarname', '', InputOption::VALUE_REQUIRED, 'Dump configs by oxvarname. One name or as comma separated List')
@@ -128,10 +129,10 @@ class GenerateYamlConfigCommand extends Command
             ->addOption('no-descriptions', '-d', InputOption::VALUE_NONE, 'No descriptions are added.')
             ->addOption('language', '-l', InputOption::VALUE_REQUIRED, 'Speech selection of the descriptions.', 0)
             ->addOption('list', '', InputOption::VALUE_NONE, 'list all saved configrationen')
-            ->setDescription('Generate a Yaml with configuration from Database.')
+            ->setDescription('Generate a yaml with configuration from Database. For command `deploy:config`')
             ->setHelp(
                 'Configration that is not included in the modules can be saved. ' .
-                'With the command: config:multiset they can be read again'
+                'With the command: deploy:config they can be read again'
             );
 
         $this->environments->addOptionToCommand($this);
@@ -191,7 +192,7 @@ class GenerateYamlConfigCommand extends Command
 
         $this->fileStorage->save($path, $yamltxt);
 
-        $output->writeln("<comment>Config saved. use `oe-console config:multiset " . $input->getOption('configfile') . "`</comment>");
+        $output->writeln("<comment>Config saved. use `oe-console deploy:config " . $input->getOption('configfile') . "`</comment>");
         return 0;
     }
 

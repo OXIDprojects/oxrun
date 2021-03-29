@@ -3,7 +3,7 @@
  * Autor: ProudCommerce
  */
 
-namespace Oxrun\Command\Module;
+namespace Oxrun\Command\Deploy;
 
 use OxidEsales\Eshop\Core\Exception\StandardException;
 use OxidEsales\EshopCommunity\Internal\Framework\Console\Executor;
@@ -24,7 +24,7 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\Console\Input\ArrayInput;
 
-class MultiActivatorCommand extends Command
+class ModuleActivatorCommand extends Command
 {
 
     /**
@@ -133,7 +133,8 @@ class MultiActivatorCommand extends Command
      */
     protected function configure()
     {
-        $this->setName('module:multiactivator')
+        $this->setName('deploy:module-activator')
+            ->setAliases(['module:multiactivator'])
             ->setDescription('Activates multiple modules, based on a YAML file')
             ->addOption('skipDeactivation', 's', InputOption::VALUE_NONE, "Skip deactivation of modules, only activate.")
             ->addOption('clearModuleData', 'd', InputOption::VALUE_NONE, "Clear module data in oxconfig.")
@@ -141,7 +142,7 @@ class MultiActivatorCommand extends Command
 
         $help = <<<HELP
 <info>usage:</info>
-<comment>oe-console module:multiactivator modules.yml</comment>
+<comment>oe-console deploy:module-activator modules.yml</comment>
 - to activate all modules defined in the YAML file based
 on a white- or blacklist
 
@@ -171,7 +172,7 @@ With "priorities", you can define the order (per subshop) in which the modules w
 If you want, you can also specify __a YAML string on the command line instead of a file__, e.g.:
 
 ```bash
-oe-console module:multiactivator $'whitelist:\n  1:\n    - oepaypal\n' --shop-id=1
+oe-console deploy:module-activator $'whitelist:\n  1:\n    - oepaypal\n' --shop-id=1
 ```
 HELP;
         $this->setHelp($help);

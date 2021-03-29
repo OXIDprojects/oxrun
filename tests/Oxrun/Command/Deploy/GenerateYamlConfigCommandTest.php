@@ -6,11 +6,10 @@
  * Time: 17:50
  */
 
-namespace Oxrun\Command;
+namespace Oxrun\Command\Deploy;
 
 use OxidEsales\Eshop\Core\DatabaseProvider;
 use OxidEsales\Eshop\Core\Registry;
-use Oxrun\Command\Misc\GenerateYamlConfigCommand;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputOption;
@@ -21,14 +20,14 @@ use Symfony\Component\Yaml\Yaml;
  * Class GenerateYamlMultiSetCommandTest
  * @package Oxrun\Command
  */
-class GenerateYamlConfigCommandTest extends TestCase
+class GenerateConfigrationCommandTest extends TestCase
 {
     protected static $unlinkFile = null;
 
     public function testExecute()
     {
         $app = new Application();
-        $app->add(new GenerateYamlConfigCommand());
+        $app->add(new GenerateConfigrationCommand());
 
         $command = $app->find('misc:generate:yaml:config');
         $command->addOption('shop-id', '', InputOption::VALUE_REQUIRED, "Shop Id", 1);
@@ -49,7 +48,7 @@ class GenerateYamlConfigCommandTest extends TestCase
     public function testExportListOfVariabels()
     {
         $app = new Application();
-        $app->add(new GenerateYamlConfigCommand());
+        $app->add(new GenerateConfigrationCommand());
 
         Registry::getConfig()->saveShopConfVar('str', 'unitVarB', 'abcd1');
         Registry::getConfig()->saveShopConfVar('str', 'unitVarC', 'cdef1');
@@ -83,7 +82,7 @@ class GenerateYamlConfigCommandTest extends TestCase
     public function testExportModullVariable()
     {
         $app = new Application();
-        $app->add(new GenerateYamlConfigCommand());
+        $app->add(new GenerateConfigrationCommand());
         $app->setShopDir($this->fillShopDir([])->getVirtualBootstrap());
 
         Registry::getConfig()->saveShopConfVar('str', 'unitModuleB', 'abcd1', 1, 'module:unitTest');
@@ -121,7 +120,7 @@ class GenerateYamlConfigCommandTest extends TestCase
     public function testExportModulVariableNameAndShop2()
     {
         $app = new Application();
-        $app->add(new GenerateYamlConfigCommand());
+        $app->add(new GenerateConfigrationCommand());
         $app->setShopDir($this->fillShopDir([])->getVirtualBootstrap());
 
         Registry::getConfig()->saveShopConfVar('str', 'unitSecondShopName', 'Mars', 2, 'module:unitMars');
@@ -157,7 +156,7 @@ class GenerateYamlConfigCommandTest extends TestCase
     public function testExportModullVariableOnlyModulname()
     {
         $app = new Application();
-        $app->add(new GenerateYamlConfigCommand());
+        $app->add(new GenerateConfigrationCommand());
         $app->setShopDir($this->fillShopDir([])->getVirtualBootstrap());
 
 
