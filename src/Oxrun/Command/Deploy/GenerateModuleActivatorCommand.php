@@ -6,7 +6,7 @@
  * Time: 23:17
  */
 
-namespace Oxrun\Command\Misc;
+namespace Oxrun\Command\Deploy;
 
 use OxidEsales\Eshop\Core\Module\ModuleList;
 use OxidEsales\Eshop\Core\Registry;
@@ -19,10 +19,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * Class GenerateYamlModuleListCommand
+ * Class GenerateModuleActivatorCommand
  * @package Oxrun\Command\Misc
  */
-class GenerateYamlModuleListCommand extends Command
+class GenerateModuleActivatorCommand extends Command
 {
 
     /**
@@ -43,11 +43,12 @@ class GenerateYamlModuleListCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('misc:generate:yaml:module')
+            ->setName('deploy:generate:module-activator')
+            ->setAliases(['misc:generate:yaml:module'])
             ->addOption('configfile', 'c', InputOption::VALUE_REQUIRED, 'The Config file to change or create if not exits', 'dev_module.yml')
             ->addOption('whitelist', 'w', InputOption::VALUE_NONE, 'Takes modules that are always activated. All others remain deactive.')
             ->addOption('blacklist', 'b', InputOption::VALUE_NONE, 'Takes modules that always need to be disabled. All others are activated.')
-            ->setDescription('Generate a Yaml File for command `module:multiactivator`');
+            ->setDescription('Generate a yaml file for command `deploy:module-activator`');
     }
 
     /**
@@ -96,7 +97,7 @@ class GenerateYamlModuleListCommand extends Command
 
         file_put_contents($path, Yaml::dump($yaml, 5, 2));
 
-        $output->writeln("<comment>Module saved use `oe-console module:multiactivator ".basename($path)."`</comment>");
+        $output->writeln("<comment>Module saved use `oe-console deploy:module-activator ".basename($path)."`</comment>");
     }
 
     /**

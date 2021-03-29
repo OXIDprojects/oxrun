@@ -1,6 +1,6 @@
 <?php
 
-namespace Oxrun\Command\Config;
+namespace Oxrun\Command\Deploy;
 
 use OxidEsales\EshopCommunity\Internal\Framework\Console\Executor;
 use Oxrun\Core\EnvironmentManager;
@@ -14,14 +14,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * Class MultiSetCommand
+ * Class ConfigCommand
  * Can be used to set multiple oxconfig values for multiple subshops by providing a
  * YAML file containing the values per shop id.
  *
  * @package Oxrun\Command\Config
  * @see example/malls.yml.dist
  */
-class MultiSetCommand extends Command
+class ConfigCommand extends Command
 {
 
     /**
@@ -68,7 +68,8 @@ class MultiSetCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('config:multiset')
+            ->setName('deploy:config')
+            ->setAliases(['config:multiset'])
             ->setDescription('Sets multiple configuration values that are not in module settings')
             ->addArgument('configfile', InputArgument::REQUIRED, 'The file containing the config values, see example/malls.yml.dist. (e.g. dev.yml, stage.yml, prod.yml)')
             ->addOption('--force-db', 'f' , InputOption::VALUE_NONE, 'Still write everything into the database.');
@@ -82,7 +83,7 @@ If they are module settings, they are stored in the module configuration yaml, n
 The file path is relative to the shop installation_root_path/var/oxrun_config/.
 You can also pass a YAML string on the command line.
 
-To create YAML use command `oe-console misc:generate:yaml:multiset --help`
+To create YAML use command `oe-console deploy:generate:configration --help`
 
 <info>YAML example:</info>
 ```yaml
@@ -107,7 +108,7 @@ config:
 If you want, you can also specify __a YAML string on the command line instead of a file__, e.g.:
 
 ```bash
-../vendor/bin/oe-console config:multiset $'config:\n  1:\n    foobar: barfoo\n' --shop-id=1
+../vendor/bin/oe-console deploy:config $'config:\n  1:\n    foobar: barfoo\n' --shop-id=1
 ```
 HELP;
         $this->setHelp($help);
@@ -204,9 +205,8 @@ HELP;
 
                     //Default: Do not save module configs in the database.
                     if ($this->input->getOption('force-db') == false) {
-                    continue;
-                }
-
+                        continue;
+                    }
                 }
 
                 $oxConfig->saveShopConfVar(

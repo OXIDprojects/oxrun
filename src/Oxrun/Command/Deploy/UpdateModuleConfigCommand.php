@@ -1,6 +1,6 @@
 <?php
 
-namespace Oxrun\Command\Config;
+namespace Oxrun\Command\Deploy;
 
 
 use OxidEsales\Eshop\Core\Registry;
@@ -16,10 +16,10 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class UpdateYamlCommand
+ * Class UpdateModuleConfigCommand
  * @package Oxrun\Command\Config
  */
-class UpdateYamlCommand extends Command
+class UpdateModuleConfigCommand extends Command
 {
 
     /**
@@ -85,7 +85,7 @@ class UpdateYamlCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('config:update:yaml')
+            ->setName('deploy:update-module-config')
             ->setDescription('Update the module configuration yaml with the data from the database')
             ->setHelp('Is the reverse command from `oe:module:apply-configuration`.')
         ;

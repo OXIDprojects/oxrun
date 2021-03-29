@@ -1,21 +1,21 @@
 <?php
 
-namespace Oxrun\Command\Config;
+namespace Oxrun\Command\Deploy;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
- * Class MultiSetCommandTest
+ * Class ConfigCommandTest
  * @package Oxrun\Command\Config
  */
-class MultiSetCommandTest extends TestCase
+class ConfigCommandTest extends TestCase
 {
     public function testExecute()
     {
         $app = new Application();
-        $app->add(new MultiSetCommand());
+        $app->add(new ConfigCommand());
 
         $command = $app->find('config:multiset');
 
