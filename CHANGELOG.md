@@ -34,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Command `deploy:generate:configration` can now update an exited config file `--update`
   - Command `deploy:generate:configration` save in the firstline the command unix call of oe-console
   - Command `deploy:config` has a Option `--force-db` that save module configration into yaml and database, too.
+  - Command `deploy:module-apply-configuration-light` that is faster as the origin as make this same.
 
 ### Changed
   - Oxrun is now a [OXID eShop Component](https://docs.oxid-esales.com/developer/en/6.2/development/modules_components_themes/component.html)
