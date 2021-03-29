@@ -70,7 +70,8 @@ class MultiSetCommand extends Command
         $this
             ->setName('config:multiset')
             ->setDescription('Sets multiple configuration values that are not in module settings')
-            ->addArgument('configfile', InputArgument::REQUIRED, 'The file containing the config values, see example/malls.yml.dist. (e.g. dev.yml, stage.yml, prod.yml)');
+            ->addArgument('configfile', InputArgument::REQUIRED, 'The file containing the config values, see example/malls.yml.dist. (e.g. dev.yml, stage.yml, prod.yml)')
+            ->addOption('--force-db', 'f' , InputOption::VALUE_NONE, 'Still write everything into the database.');
 
         $this->environments->addOptionToCommand($this);
 
@@ -173,6 +174,7 @@ HELP;
             }
             foreach ($configData as $varName => $configValue) {
                 $moduleId = '';
+
                 if (!is_array($configValue)) {
                     // assume simple string
                     $varType = 'str';
@@ -194,17 +196,25 @@ HELP;
                         ));
                     }
                     $this->environments->set($shopId, $module, $varType, $varName, $varValue);
-                    $this->output->writeln("({$shopId}) Module Config <info>".trim(trim(Yaml::dump([$varName => $varValue], 0, 1), '{}'))."</info> will be saved.");
                     $this->isChangeModuleSettings = true;
-                    //Do not save module configs in the database. Otherwise there is a huge chaos.
+
+                    $this->output->writeln(
+                        "({$shopId}) Module Config <info>" . trim(trim(Yaml::dump([$varName => $varValue], 0, 1), '{}')) . "</info> will be saved"
+                    );
+
+                    //Default: Do not save module configs in the database.
+                    if ($this->input->getOption('force-db') == false) {
                     continue;
+                }
+
                 }
 
                 $oxConfig->saveShopConfVar(
                     $varType,
                     $varName,
                     $varValue,
-                    $shopId
+                    $shopId,
+                    $moduleId
                 );
                 $this->output->writeln("({$shopId}) Config <info>".trim(trim(Yaml::dump([$varName => $varValue], 0, 1), '{}'))."</info> write into Database.");
 
