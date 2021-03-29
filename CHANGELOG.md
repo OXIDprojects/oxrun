@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Command `misc:generate:yaml:config` has new Options `--production` `--staging` `--development` `--testing`
   - Command `misc:generate:yaml:config` can now update an exited config file `--update`
   - Command `misc:generate:yaml:config` save in the firstline the command unix call of oe-console
+  - Command `config:multiset` has a Option `--force-db` that save module configration into yaml and database, too.
 
 ### Changed
   - Oxrun is now a [OXID eShop Component](https://docs.oxid-esales.com/developer/en/6.2/development/modules_components_themes/component.html)
@@ -48,7 +49,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
   - `oxrun.phar` use ./vendor/bin/oe-console
-  - Command `config:multiset` Don't save Module setting to databases. That confuses the quite behaved. Therefore this changes the yaml files.
   - Command `cms:update`
   - Command `log:exceptionlog` the log - output has be changed
   - Command `list` don't show database errors
