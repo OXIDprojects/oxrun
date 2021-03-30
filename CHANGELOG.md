@@ -51,6 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
         - "In one yaml can use blacklist and whitelist"
         - "work in EE with all subshop or with one shop id"
         - "Bug fix in blacklist mode, will module deactive if tha on blacklist"
+        - "the list will be saved var/oxrun_config/"
   - Command `deploy:config` updates the [module configuration](https://docs.oxid-esales.com/developer/en/6.2/development/modules_components_themes/project/module_configuration/modules_configuration_deployment.html) includes also the environments.
   - Commands made functional under CE.
   - Create a new command group `deploy:` with commands that are needed for a deployment.
