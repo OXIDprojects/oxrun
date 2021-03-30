@@ -45,6 +45,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - See more [details](READY_CONVERED_TO_v6.2.md) which command refactored
   - the option `--shopId` is changed to `--shop-id` and the shortcut `-m` is removed
   - Command `module:multiactivate` renamed to `deploy:module-activator` is copy from `proudcommerce/oxid-console-moduleactivator`
+     - and updated with feature:
+        - "Auto module installation into oe:module:configuration:yaml"
+        - "Check is module active in DB and in oe:module:configuration:yaml"
+        - "In one yaml can use blacklist and whitelist"
+        - "work in EE with all subshop or with one shop id"
+        - "Bug fix in blacklist mode, will module deactive if tha on blacklist"
   - Command `deploy:config` updates the [module configuration](https://docs.oxid-esales.com/developer/en/6.2/development/modules_components_themes/project/module_configuration/modules_configuration_deployment.html) includes also the environments.
   - Commands made functional under CE.
   - Create a new command group `deploy:` with commands that are needed for a deployment.
