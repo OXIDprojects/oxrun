@@ -30,7 +30,7 @@ use Webmozart\PathUtil\Path;
  * Class GenerateYamlMultiSetCommand
  * @package Oxrun\Command\Misc
  */
-class GenerateConfigrationCommand extends Command
+class GenerateConfigurationCommand extends Command
 {
 
     protected $ignoreVariablen = [

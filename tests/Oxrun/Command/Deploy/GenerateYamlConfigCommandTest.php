@@ -20,14 +20,14 @@ use Symfony\Component\Yaml\Yaml;
  * Class GenerateYamlMultiSetCommandTest
  * @package Oxrun\Command
  */
-class GenerateConfigrationCommandTest extends TestCase
+class GenerateConfigurationCommandTest extends TestCase
 {
     protected static $unlinkFile = null;
 
     public function testExecute()
     {
         $app = new Application();
-        $app->add(new GenerateConfigrationCommand());
+        $app->add(new GenerateConfigurationCommand());
 
         $command = $app->find('misc:generate:yaml:config');
         $command->addOption('shop-id', '', InputOption::VALUE_REQUIRED, "Shop Id", 1);
@@ -48,7 +48,7 @@ class GenerateConfigrationCommandTest extends TestCase
     public function testExportListOfVariabels()
     {
         $app = new Application();
-        $app->add(new GenerateConfigrationCommand());
+        $app->add(new GenerateConfigurationCommand());
 
         Registry::getConfig()->saveShopConfVar('str', 'unitVarB', 'abcd1');
         Registry::getConfig()->saveShopConfVar('str', 'unitVarC', 'cdef1');
@@ -82,7 +82,7 @@ class GenerateConfigrationCommandTest extends TestCase
     public function testExportModullVariable()
     {
         $app = new Application();
-        $app->add(new GenerateConfigrationCommand());
+        $app->add(new GenerateConfigurationCommand());
         $app->setShopDir($this->fillShopDir([])->getVirtualBootstrap());
 
         Registry::getConfig()->saveShopConfVar('str', 'unitModuleB', 'abcd1', 1, 'module:unitTest');
@@ -120,7 +120,7 @@ class GenerateConfigrationCommandTest extends TestCase
     public function testExportModulVariableNameAndShop2()
     {
         $app = new Application();
-        $app->add(new GenerateConfigrationCommand());
+        $app->add(new GenerateConfigurationCommand());
         $app->setShopDir($this->fillShopDir([])->getVirtualBootstrap());
 
         Registry::getConfig()->saveShopConfVar('str', 'unitSecondShopName', 'Mars', 2, 'module:unitMars');
@@ -156,7 +156,7 @@ class GenerateConfigrationCommandTest extends TestCase
     public function testExportModullVariableOnlyModulname()
     {
         $app = new Application();
-        $app->add(new GenerateConfigrationCommand());
+        $app->add(new GenerateConfigurationCommand());
         $app->setShopDir($this->fillShopDir([])->getVirtualBootstrap());
 
 
