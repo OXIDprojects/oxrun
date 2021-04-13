@@ -79,7 +79,7 @@ services:
     tags:
       - { name: console.command }
     autowire: true
-  Oxrun\Command\Deploy\GenerateConfigrationCommand:
+  Oxrun\Command\Deploy\GenerateConfigurationCommand:
     tags:
       - { name: console.command }
     autowire: true

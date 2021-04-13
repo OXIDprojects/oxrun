@@ -161,7 +161,7 @@ TAG
     {
         foreach ($shopConfiguration->getModuleConfigurations() as $moduleConfiguration) {
             $this->output->writeln(
-                "<info>[ligth] ($shopId) Applying configuration for module with id "
+                "<info>[light] ($shopId) Applying configuration for module with id "
                 . $moduleConfiguration->getId()
                 . '</info>'
             );
