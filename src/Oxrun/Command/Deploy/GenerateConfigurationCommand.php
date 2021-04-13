@@ -120,7 +120,7 @@ class GenerateConfigurationCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('deploy:generate:configration')
+            ->setName('deploy:generate:configuration')
             ->setAliases(['misc:generate:yaml:config'])
             ->addOption('update', 'u', InputOption::VALUE_NONE, 'Update an exited config file, with data from DB')
             ->addOption('configfile', 'c', InputOption::VALUE_REQUIRED, 'The config file to update or create if not exits', 'dev_config.yml')
@@ -328,11 +328,15 @@ class GenerateConfigurationCommand extends Command
 
         $yamls = (new Finder())->files()->name('/\.ya?ml/i')->in($configPath);
 
+        $list = [];
+        foreach ($yamls as $yaml) {
+            $list[] = [str_replace($configPath, '', $yaml->getPathname())];
+        }
+        natsort($list);
+
         $table = new Table($output);
         $table->setHeaders([$configPath]);
-        foreach ($yamls as $yaml) {
-            $table->addRow([str_replace($configPath, '', $yaml->getPathname())]);
-        }
+        $table->setRows($list);
         $table->render();
     }
 }
