@@ -332,7 +332,7 @@ class GenerateConfigurationCommand extends Command
         foreach ($yamls as $yaml) {
             $list[] = [str_replace($configPath, '', $yaml->getPathname())];
         }
-        natsort($list);
+        sort($list);
 
         $table = new Table($output);
         $table->setHeaders([$configPath]);
