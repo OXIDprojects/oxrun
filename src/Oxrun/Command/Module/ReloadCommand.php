@@ -28,7 +28,8 @@ class ReloadCommand extends Command
             ->setName('module:reload')
             ->setDescription('Deactivate and activate a module')
             ->addArgument('module', InputArgument::REQUIRED, 'Module name')
-            ->addOption('force', 'f',InputOption::VALUE_NONE, 'Force reload Module');
+            ->addOption('force-cache', 'f',InputOption::VALUE_NONE, 'cache:clear with --force option')
+        ;
     }
 
     /**
@@ -49,7 +50,7 @@ class ReloadCommand extends Command
         $argvInputDeactivate = $this->createInputArray($deactivateCommand, $input, ['module-id' => $input->getArgument('module')]);
         $argvInputActivate   = $this->createInputArray($activateCommand, $input, ['module-id' => $input->getArgument('module')]);
 
-        if ($input->getOption('force')) {
+        if ($input->getOption('force-cache')) {
             $argvInputClearCache->setOption('force', true);
         }
 
