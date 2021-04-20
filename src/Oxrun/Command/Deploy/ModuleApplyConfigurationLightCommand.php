@@ -82,9 +82,11 @@ class ModuleApplyConfigurationLightCommand extends Command
         $this->setName('deploy:module-apply-configuration-light')
             ->setDescription('It the same as `oe:module:apply-configuration` but faster.')
             ->setHelp(<<<TAG
-The module configurations will only written into the database. 
+The module configurations will ONLY written into the database.
 - Without deactivating or activating the modules
 - Without rewrite module configration yaml's
+
+WARNING: If you make changes on metadata.php::controllers|::extend then this command doesn't work.
 
 That automatic activate or deactive module with the param `configured: true|false`.
 It the same as `oe:module:apply-configuration` but faster!

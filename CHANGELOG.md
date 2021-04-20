@@ -35,6 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Command `deploy:generate:configration` save in the firstline the command unix call of oe-console
   - Command `deploy:config` has a Option `--force-db` that save module configration into yaml and database, too.
   - Command `deploy:module-apply-configuration-light` that is faster as the origin as make this same.
+  - Command `module:reload` has new option `--skip-cache-clear` to skip cache clear
+  - Command `module:reload` has new option `--based-on-config` to reload a module only if that allow in a deploy:module-activator configration yaml.
 
 ### Changed
   - Oxrun is now a [OXID eShop Component](https://docs.oxid-esales.com/developer/en/6.2/development/modules_components_themes/component.html)
@@ -59,7 +61,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `config:multiset` is now `deploy:config`
     - `misc:generate:yaml:config` is now `deploy:generate:configration`
     - `misc:generate:yaml:module` is now `deploy:generate:module-activator`
-    - `module:multiactivator` is now `deploy:module-activator` 
+    - `module:multiactivator` is now `deploy:module-activator`
 
 ### Removed
   - `oxrun.phar` use ./vendor/bin/oe-console
