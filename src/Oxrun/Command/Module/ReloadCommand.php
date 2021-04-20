@@ -73,7 +73,7 @@ class ReloadCommand extends Command
         $parameters = $extraOption;
 
         //default --shop-id
-        if ($input->hasOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME)) {
+        if ($input->hasOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME) && $input->getOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME)) {
             $command->getDefinition()->addOption(new InputOption('--' . Executor::SHOP_ID_PARAMETER_OPTION_NAME, '', InputOption::VALUE_REQUIRED));
             $parameters = array_merge(
                 ['--' . Executor::SHOP_ID_PARAMETER_OPTION_NAME => $input->getOption(Executor::SHOP_ID_PARAMETER_OPTION_NAME)],
