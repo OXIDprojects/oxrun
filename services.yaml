@@ -43,7 +43,8 @@ services:
       - { name: console.command, command: 'module:list' }
   Oxrun\Command\Module\ReloadCommand:
     tags:
-      - { name: console.command, command: 'module:reload' }
+      - { name: console.command }
+    autowire: true
   Oxrun\Command\Oxid\ShopListCommand:
     tags:
       - { name: console.command, command: 'oxid:shops' }
