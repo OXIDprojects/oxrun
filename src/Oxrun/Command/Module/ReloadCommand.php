@@ -29,6 +29,7 @@ class ReloadCommand extends Command
             ->setDescription('Deactivate and activate a module')
             ->addArgument('module', InputArgument::REQUIRED, 'Module name')
             ->addOption('force-cache', 'f',InputOption::VALUE_NONE, 'cache:clear with --force option')
+            ->addOption('skip-cache-clear', 's',InputOption::VALUE_NONE, 'skip cache:clear command')
         ;
     }
 
@@ -41,6 +42,7 @@ class ReloadCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $app = $this->getApplication();
+        $skipCacheClear = (bool)$input->getOption('skip-cache-clear');
 
         $clearCommand      = $app->find('cache:clear');
         $deactivateCommand = $app->find('oe:module:deactivate');
@@ -55,9 +57,14 @@ class ReloadCommand extends Command
         }
 
         //Run Command
-        $clearCommand->execute($argvInputClearCache, $output);
+        if (!$skipCacheClear) {
+            $clearCommand->execute($argvInputClearCache, $output);
+        }
         $deactivateCommand->execute($argvInputDeactivate, $output);
-        $clearCommand->execute($argvInputClearCache, $output);
+
+        if (!$skipCacheClear) {
+            $clearCommand->execute($argvInputClearCache, $output);
+        }
         $activateCommand->execute($argvInputActivate, $output);
 
         return 0;
