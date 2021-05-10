@@ -37,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Command `deploy:module-apply-configuration-light` that is faster as the origin as make this same.
   - Command `module:reload` has new option `--skip-cache-clear` to skip cache clear
   - Command `module:reload` has new option `--based-on-config` to reload a module only if that allow in a deploy:module-activator configration yaml.
+  - Command `oxid:shops` has new option `--only-ids` with that will be all Shop Id's are listed. With this can work well with xargs `oe-console oxid:shops --only-ids | xargs -tn1 oe-console ... --shop-id`
 
 ### Changed
   - Oxrun is now a [OXID eShop Component](https://docs.oxid-esales.com/developer/en/6.2/development/modules_components_themes/component.html)
