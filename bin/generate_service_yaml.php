@@ -8,4 +8,4 @@ $argv = [
     escapeshellarg(__DIR__ . '/../src/Oxrun/Command'),
 ];
 
-passthru( __DIR__ . '/oxrun-light.php ' . join(' ', $argv));
+passthru( __DIR__ . '/oxrun-light ' . join(' ', $argv));

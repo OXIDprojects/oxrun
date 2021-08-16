@@ -60,11 +60,18 @@ class RegisterCommand extends Command
     public function __construct(BasicContextInterface $basicContext = null)
     {
         $this->basicContext = $basicContext;
-        if ($basicContext === null) {
+        parent::__construct();
+    }
+
+    /**
+     * @return BasicContextInterface
+     */
+    public function getBasicContext(): mixed
+    {
+        if ($this->basicContext === null) {
             $this->basicContext = ContainerFactory::getInstance()->getContainer()->get(BasicContextInterface::class);
         }
-
-        parent::__construct();
+        return $this->basicContext;
     }
 
 
@@ -91,7 +98,6 @@ class RegisterCommand extends Command
                 's',
                 InputOption::VALUE_REQUIRED,
                 'The service.yaml file that will be updated (default: var/configuration/configurable_services.yaml)',
-                $this->basicContext->getConfigurableServicesFilePath()
             )
             ->addOption(
                 'yaml-inline',
@@ -108,7 +114,7 @@ class RegisterCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $commandDir = $input->getArgument('command-dir');
-        $serviceYaml = $input->getOption('service-yaml');
+        $serviceYaml = $input->getOption('service-yaml') ?? $this->getBasicContext()->getConfigurableServicesFilePath();
         $this->yamlInline = $input->getOption('yaml-inline');
         $this->output = $output;
 
@@ -139,7 +145,7 @@ class RegisterCommand extends Command
 
     private function moduleContext($commandDir)
     {
-        $moduleDir = $this->basicContext->getModulesPath() . DIRECTORY_SEPARATOR . $commandDir;
+        $moduleDir = $this->getBasicContext()->getModulesPath() . DIRECTORY_SEPARATOR . $commandDir;
         $serviceYaml = $moduleDir . DIRECTORY_SEPARATOR .'services.yaml';
 
         $moduleDirCommands = (new Finder())
@@ -285,6 +291,6 @@ class RegisterCommand extends Command
      */
     protected function removeContainerCacheFile(): bool
     {
-        return @unlink($this->basicContext->getContainerCacheFilePath());
+        return @unlink($this->getBasicContext()->getContainerCacheFilePath());
     }
 }

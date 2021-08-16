@@ -7,6 +7,10 @@
  * Time: 16:25
  */
 
+/**
+ * Is a command line tool that no need a running OXID eSale Database
+ */
+
 namespace Oxrun;
 
 $search_autoloader = [
@@ -30,6 +34,4 @@ if ($isAutoloaderFound === null) {
     exit(2);
 }
 
-$application = new \Symfony\Component\Console\Application('oxrun-light', '0.1');
-$application->add(new \Oxrun\Command\Misc\RegisterCommand);
-$application->run();
+include __DIR__ . '/../src/Oxrun/Application/oxrun-light.php';

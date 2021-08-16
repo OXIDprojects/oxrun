@@ -52,5 +52,8 @@
     }
   ],
   "suggest": {},
-  "bin": ["bin/oxrun"]
+  "bin": [
+      "bin/oxrun",
+      "bin/oxrun-light"
+  ]
 }

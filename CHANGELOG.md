@@ -38,6 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Command `module:reload` has new option `--skip-cache-clear` to skip cache clear
   - Command `module:reload` has new option `--based-on-config` to reload a module only if that allow in a deploy:module-activator configration yaml.
   - Command `oxid:shops` has new option `--only-ids` with that will be all Shop Id's are listed. With this can work well with xargs `oe-console oxid:shops --only-ids | xargs -tn1 oe-console ... --shop-id`
+  - New Tool `oxrun-light` has commands that are not need a OXID Database connection.
+  - The output from command `misc:phpstorm:metadata` are ideal for `phpstan` or `psalm`.
 
 ### Changed
   - Oxrun is now a [OXID eShop Component](https://docs.oxid-esales.com/developer/en/6.2/development/modules_components_themes/component.html)
@@ -45,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Command `module:activate` is now `oe:module:activate`
   - Command `module:deactivate` is now `oe:module:deactivate`
   - Command `misc:phpstorm:metadata` updated to oxid namespace style and fill Module parent classes
+  - Command `misc:phpstorm:metadata` make two files. 1. `oxid_esale.meta.php` for autocomplete oxNew() and Registry::get() 2. `oxid_module_chain.meta.php` create a module chain
   - See more [details](READY_CONVERED_TO_v6.2.md) which command refactored
   - the option `--shopId` is changed to `--shop-id` and the shortcut `-m` is removed
   - Command `module:multiactivate` renamed to `deploy:module-activator` is copy from `proudcommerce/oxid-console-moduleactivator`

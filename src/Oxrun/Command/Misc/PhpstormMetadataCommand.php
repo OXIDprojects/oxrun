@@ -2,10 +2,13 @@
 
 namespace Oxrun\Command\Misc;
 
+use OxidEsales\Facts\Facts;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Webmozart\PathUtil\Path;
 
 /**
  * Class PhpstormMetadataCommand
@@ -20,12 +23,18 @@ class PhpstormMetadataCommand extends Command
     protected $namespace = [];
 
     /**
+     * @var Facts
+     */
+    protected $fact = null;
+
+    /**
      * Configures the current command.
      */
     protected function configure()
     {
         $this->setName('misc:phpstorm:metadata')->setDescription(
-                'Generate a PhpStorm metadata file for auto-completion.'
+                'Generate a PhpStorm metadata file for auto-completion and a oxid module chain.' .
+                'Ideal for psalm or phpstan'
             )->addOption(
                 'output-dir',
                 'o',
@@ -35,26 +44,51 @@ class PhpstormMetadataCommand extends Command
     }
 
     /**
+     * @return Facts
+     */
+    public function getFact(): Facts
+    {
+        if ($this->fact === null) {
+            $this->fact = new Facts();
+        }
+
+        return $this->fact;
+    }
+
+    /**
      * Executes the current command.
      *
      * @param InputInterface  $input  An InputInterface instance
-     * @param OutputInterface $output An OutputInterface instance
+     * @param ConsoleOutput $output An OutputInterface instance
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $modulePath = Path::join($this->getFact()->getSourcePath(), 'modules');
         $metadates = (new \Symfony\Component\Finder\Finder())
-            ->in(OX_BASE_PATH . 'modules')
+            ->in($modulePath)
             ->name('/metadata.php/')
             ->depth(2)
             ->files();
 
 
-        foreach($metadates as $file) {
+        foreach ($metadates as $file) {
             $realPath = $file->getRealPath();
 
-            $output->writeln("<info>". str_replace(OX_BASE_PATH . 'modules', '', $realPath) . '</info>');
-
-            include $realPath;
+            try {
+                @include $realPath;
+                $output->writeln("<info>" . str_replace($modulePath, '', $realPath) . '</info>');
+            } catch (\Throwable $throwable) {
+                $output->getErrorOutput()->writeln(sprintf(
+                    '<comment>[WARN]</comment> <info>%s</info> could not be read',
+                    str_replace($modulePath, '', $realPath)
+                ));
+                $output->getErrorOutput()->writeln(sprintf(
+                    "<comment>[WARN]</comment> <error>%s</error> %s:%s",
+                    $throwable->getMessage(),
+                    str_replace($modulePath, '', $throwable->getFile()),
+                    $throwable->getLine()
+                ));
+            }
 
             if (!isset($aModule['extend'])) {
                 continue;
@@ -69,11 +103,13 @@ class PhpstormMetadataCommand extends Command
             }
         }
 
-        $phpstormMetaFile = $this->createSavePlace($input);
+        $metaFiles = $this->createSavePlace($input);
 
-        $this->saveDataInto($phpstormMetaFile);
+        $this->saveDataInto($metaFiles->oxid_module_chain);
+        $this->saveOxideShop($metaFiles->oxid_esale);
 
-        $output->writeln("PHPStormMetaFile is saved: $phpstormMetaFile");
+        $output->writeln("OXID eShop Cheats is saved: $metaFiles->oxid_esale");
+        $output->writeln("OXID Module Chain is saved: $metaFiles->oxid_module_chain");
 
         return 0;
     }
@@ -124,7 +160,16 @@ class PhpstormMetadataCommand extends Command
 
     private function saveDataInto($phpFile)
     {
-        $script = [$this->getMetaHeader()];
+        $script = [
+            '<?php',
+            '/**',
+             '* Builds the module chain that the OXID eShop framework creates at runtime.',
+             '* ideal for phpstan.',
+             '*',
+             '* @generated oxidprojects/oxrun command: ' . $this->getName(),
+             '*/',
+            '',
+        ];
 
         unset($this->namespace['']); // legasy Klassen müssen raus
 
@@ -141,12 +186,10 @@ class PhpstormMetadataCommand extends Command
             ->dumpFile($phpFile, implode(PHP_EOL, $script));
     }
 
-    /**
-     * @return string
-     */
-    private function getMetaHeader()
+    private function saveOxideShop($phpFile)
     {
-        return <<<'EOT'
+        (new \Symfony\Component\Filesystem\Filesystem())
+            ->dumpFile($phpFile, <<<'EOT'
 <?php
 
 /**
@@ -164,23 +207,25 @@ namespace PHPSTORM_META {
     override(Registry::get(0),type(0));
 }
 
-EOT;
+EOT
+            );
     }
 
     /**
      * @param InputInterface $input
      * @return string
      */
-    private function createSavePlace(InputInterface $input)
+    private function createSavePlace(InputInterface $input): \stdClass
     {
-        $outputDir = INSTALLATION_ROOT_PATH;
+        $outputDir = $this->getFact()->getShopRootPath();
 
         if ($input->hasOption('output-dir') && (null !== $input->getOption('output-dir'))) {
             $outputDir = $input->getOption('output-dir');
         }
 
         $phpstormMetaDir = "{$outputDir}/.phpstorm.meta.php";
-        $phpstormMetaFile = "{$phpstormMetaDir}/oxid_module_extend.meta.php";
+        $metaFiles['oxid_module_chain'] = "{$phpstormMetaDir}/oxid_module_chain.meta.php";
+        $metaFiles['oxid_esale'] = "{$phpstormMetaDir}/oxid_esale.meta.php";
 
         if (is_file($phpstormMetaDir)) {
             unlink($phpstormMetaDir);
@@ -189,6 +234,6 @@ EOT;
         if (!is_dir($phpstormMetaDir)) {
             mkdir($phpstormMetaDir, 0777, true);
         }
-        return $phpstormMetaFile;
+        return (object)$metaFiles;
     }
 }
