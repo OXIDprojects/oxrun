@@ -66,6 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `misc:generate:yaml:config` is now `deploy:generate:configration`
     - `misc:generate:yaml:module` is now `deploy:generate:module-activator`
     - `module:multiactivator` is now `deploy:module-activator`
+  - Change package for unzip from gbeushausen/distill to nelexa/zip
 
 ### Removed
   - `oxrun.phar` use ./vendor/bin/oe-console

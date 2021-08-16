@@ -2,6 +2,7 @@
 
 namespace Oxrun\Command\Module;
 
+use OxidEsales\Facts\Facts;
 use Oxrun\GenerateModule\CreateModule;
 use Oxrun\GenerateModule\InteractModuleForm;
 use Oxrun\GenerateModule\ModuleSpecification;
@@ -54,20 +55,22 @@ class GenerateCommand extends Command
         }
 
         $app = $this->getApplication();
+        $oxSourcePath = (new Facts())->getSourcePath();
+        $oxInstallationPath = (new Facts())->getShopRootPath();
 
         $skeletonUri = $input->getOption('skeleton');
 
         $output->writeln("Module will be create ... <info>please wait</info> ...");
         $output->writeln(" - Use Template: $skeletonUri", OutputInterface::VERBOSITY_VERBOSE);
 
-        $createModule = new CreateModule(OX_BASE_PATH, $app->getName(), $app->getVersion());
+        $createModule = new CreateModule($oxSourcePath, $app->getName(), $app->getVersion());
         $createModule->run($skeletonUri, $this->moduleSpecification);
 
-        $destinationPath = $this->moduleSpecification->getDestinationPath(OX_BASE_PATH);
+        $destinationPath = $this->moduleSpecification->getDestinationPath($oxSourcePath);
         $namespace = $this->moduleSpecification->getNamespace();
 
         $output->write("Enable new namespace <comment>`$namespace`</comment>, ");
-        $output->writeln('run <comment>`composer dumpautoload`</comment> into <comment>`'.INSTALLATION_ROOT_PATH.'`</comment>');
+        $output->writeln('run <comment>`composer dumpautoload`</comment> into <comment>`' . $oxInstallationPath . '`</comment>');
         $output->writeln("<info>Module is stored at <comment>{$destinationPath}</comment></info>");
 
         return 0;
