@@ -31,7 +31,7 @@ if [ ! -f "${DOCKER_DOCUMENT_ROOT}/source/config.inc.php" ]; then
     echo "composer require oxidprojects/oxrun:^0.1@RC"
     cd ${install_dir}
     $composer config --file=${install_dir}'/composer.json' repositories.oxrun path $workspace && \
-    php -d memory_limit=4G $composer require --no-interaction oxidprojects/oxrun:^0.1@RC
+    php -d memory_limit=4G $composer require --update-no-dev --no-interaction oxidprojects/oxrun:^0.1@RC
     cd -;
 
     echo "Configure OXID eShop ...";
