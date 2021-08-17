@@ -2,6 +2,8 @@
 
 namespace Oxrun\Command\Config;
 
+use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
+use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputOption;
@@ -35,8 +37,8 @@ class GetSetCommandTest extends TestCase
     {
         parent::setUp();
         $app = new Application();
-        $app->add(new SetCommand());
-        $app->add(new GetCommand());
+        $app->add(new SetCommand(ContainerFactory::getInstance()->getContainer()->get(QueryBuilderFactoryInterface::class)));
+        $app->add(new GetCommand(ContainerFactory::getInstance()->getContainer()->get(QueryBuilderFactoryInterface::class)));
 
         $setCommand = $app->find('config:set');
         $getCommand = $app->find('config:get');
@@ -49,7 +51,6 @@ class GetSetCommandTest extends TestCase
 
         $this->getCommand = new CommandTester($getCommand);
         $this->getCommandName = $getCommand->getName();
-
     }
 
 
@@ -65,6 +66,7 @@ class GetSetCommandTest extends TestCase
         $this->setCommand->execute(
             [
                 'command' => $this->setCommandName,
+                '--variableType' => 'arr',
                 'variableName' => 'aSortCols',
                 'variableValue' => $randomColumnsJson
             ]
@@ -87,6 +89,7 @@ class GetSetCommandTest extends TestCase
         $this->setCommand->execute(
             [
                 'command' => $this->setCommandName,
+                '--variableType' => 'bool',
                 'variableName' => 'bl_perfLoadAktion',
                 'variableValue' => false
             ]
@@ -109,6 +112,7 @@ class GetSetCommandTest extends TestCase
         $this->setCommand->execute(
             [
                 'command' => $this->setCommandName,
+                '--variableType' => 'bool',
                 'variableName' => 'bl_perfLoadAktion',
                 'variableValue' => true
             ]
@@ -152,5 +156,4 @@ class GetSetCommandTest extends TestCase
 
         $this->assertEquals($expect, $this->getCommand->getDisplay());
     }
-
 }

@@ -147,7 +147,7 @@ class DebugTest extends TestCase
             )
         );
 
-        $this->assertStringContainsString('Class classdontexists does not exist', $this->commandTester->getDisplay());
+        $this->assertStringContainsString('EXCEPTION_SYSTEMCOMPONENT_CLASSNOTFOUND', $this->commandTester->getDisplay());
     }
 
     public function testMethodInClassDontExists()

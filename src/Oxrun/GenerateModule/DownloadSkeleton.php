@@ -11,6 +11,7 @@ namespace Oxrun\GenerateModule;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Utils;
 use GuzzleHttp\RequestOptions;
 use PhpZip\ZipFile;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
@@ -64,7 +65,7 @@ class DownloadSkeleton
             throw new FileNotFoundException("Can't open the resource at: " . $this->tempnam);
         }
 
-        $stream = stream_for($resource);
+        $stream = Utils::streamFor($resource);
 
         $options = [
             RequestOptions::SINK => $stream, // the body of a response

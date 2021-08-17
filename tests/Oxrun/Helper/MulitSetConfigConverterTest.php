@@ -8,6 +8,8 @@
 
 namespace Oxrun\Helper;
 
+use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
+use OxidEsales\EshopCommunity\Internal\Framework\Config\Utility\ShopSettingEncoderInterface;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -23,7 +25,8 @@ class MulitSetConfigConverterTest extends TestCase
     public function testConvert($expect, $config)
     {
         //Arrange
-        $mulitSetConfigConverter = new MulitSetConfigConverter();
+        $container = ContainerFactory::getInstance()->getContainer();
+        $mulitSetConfigConverter = new MulitSetConfigConverter($container->get(ShopSettingEncoderInterface::class));
 
         //Act
         $actual = $mulitSetConfigConverter->convert($config);

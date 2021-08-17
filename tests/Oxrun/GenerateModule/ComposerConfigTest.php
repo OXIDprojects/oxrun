@@ -64,7 +64,7 @@ class ComposerConfigTest extends TestCase
         $composerConfig = new ComposerConfig();
 
         $this->expectException(FileNotFoundException::class);
-        $this->expectExceptionMessageRegExp("/^Composer.json not found/");
+        $this->expectErrorMessageMatches("/^Composer.json not found/");
 
         //Act
         $composerConfig
@@ -83,7 +83,7 @@ class ComposerConfigTest extends TestCase
         $composerConfig = new ComposerConfig();
 
         $this->expectException(FileNotFoundException::class);
-        $this->expectExceptionMessageRegExp('/^Module is not installed/');
+        $this->expectErrorMessageMatches('/^Module is not installed/');
 
         //Act
         $composerConfig

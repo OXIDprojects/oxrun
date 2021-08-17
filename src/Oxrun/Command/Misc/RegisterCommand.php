@@ -97,7 +97,7 @@ class RegisterCommand extends Command
                 'service-yaml',
                 's',
                 InputOption::VALUE_REQUIRED,
-                'The service.yaml file that will be updated (default: var/configuration/configurable_services.yaml)',
+                'The service.yaml file that will be updated (default: var/configuration/configurable_services.yaml)'
             )
             ->addOption(
                 'yaml-inline',
