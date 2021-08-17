@@ -31,16 +31,16 @@ jobs:
         OXID_SHOP_URL: "http://localhost"
     services:
       oxid_db:
-      image: mysql:5.7
-      env:
-        MYSQL_DATABASE: oxid
-        MYSQL_USER: oxid
-        MYSQL_PASSWORD: oxid
-        MYSQL_ROOT_PASSWORD: oxid
-        TZ: Europe/Berlin
-      ports:
-        - 3306:3306
-      options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        image: mysql:5.7
+        env:
+          MYSQL_DATABASE: oxid
+          MYSQL_USER: oxid
+          MYSQL_PASSWORD: oxid
+          MYSQL_ROOT_PASSWORD: oxid
+          TZ: Europe/Berlin
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
       - uses: actions/checkout@v1
