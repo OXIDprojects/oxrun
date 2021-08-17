@@ -30,7 +30,7 @@ if [ ! -f "${DOCKER_DOCUMENT_ROOT}/source/config.inc.php" ]; then
 
     echo "composer require oxidprojects/oxrun:^0.1@RC"
     cd ${install_dir}
-    $composer --no-plugins config --file=${install_dir}'/composer.json' repositories.oxrun path $workspace && \
+    $composer config --file=${install_dir}'/composer.json' repositories.oxrun path $workspace && \
     php -d memory_limit=4G $composer require --no-interaction oxidprojects/oxrun:^0.1@RC
     cd -;
 
@@ -56,6 +56,13 @@ if [ ! -f "${DOCKER_DOCUMENT_ROOT}/source/config.inc.php" ]; then
 
     echo "Create OXID views ...";
     ${install_dir}/vendor/bin/oe-eshop-db_views_generate
+
+    echo "Install PHPUnit and Co."
+    cd ${workspace};
+    $composer remove --no-scripts --no-plugins oxid-esales/oxideshop-ce
+
+    echo "reset composer.json"
+    git checkout composer.json
 fi
 
 echo "";

@@ -48,15 +48,8 @@ jobs:
         run: set
       - name: setup oxid
         run: bash ./docker/bin/installOxid.sh
-#      - name: try to install phpstan-phpunit
-#        run: composer require --working-dir=/var/www/oxideshop --dev phpstan/phpstan-phpunit
-#        continue-on-error: true
-#      - name: phpstan
-#        continue-on-error: true
-#        run: |
-#          MD=$(pwd)
-#          cd /var/www/oxideshop/
-#          vendor/bin/phpstan analys --configuration phpstan.neon $MD
+      - name: PHPUnit
+        run: ./vendor/bin/phpunit --debug --stop-on-error --stop-on-failure
 #      - name: phpstan loose
 #        continue-on-error: true
 #        run: |
