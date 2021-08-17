@@ -26,9 +26,6 @@ services:
   Oxrun\Command\Database\QueryCommand:
     tags:
       - { name: console.command, command: 'db:query' }
-  Oxrun\Command\Misc\GenerateDocumentationCommand:
-    tags:
-      - { name: console.command, command: 'misc:generate:documentation' }
   Oxrun\Command\Misc\PhpstormMetadataCommand:
     tags:
       - { name: console.command, command: 'misc:phpstorm:metadata' }
