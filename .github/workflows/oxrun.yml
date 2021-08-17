@@ -3,21 +3,21 @@ name: oxrun tests
 on: [push]
 
 jobs:
-  stand_alone_checks:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - name: Validate composer.json
-        run: composer validate
-      - name: validate php syntax
-        run: find . -not -path "./vendor/*" -name "*.php" -print0 | xargs -0 -n1 -P8 php -l
+#  stand_alone_checks:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v1
+#      - name: Validate composer.json
+#        run: composer validate
+#      - name: validate php syntax
+#        run: find . -not -path "./vendor/*" -name "*.php" -print0 | xargs -0 -n1 -P8 php -l
 
   tests:
-    needs: stand_alone_checks
+#    needs: stand_alone_checks
     strategy:
       matrix:
-        php: [7.3, 7.4, 8.0]
-        oxid: [6.2, 6.3]
+        php: ["8.0"] # [7.3, 7.4, 8.0]
+        oxid: ["6.3"] # [6.2, 6.3]
     runs-on: ubuntu-latest
     container:
       image: oxidesales/oxideshop-docker-php:${{matrix.php}}
