@@ -12,8 +12,11 @@ if [ ! -f "${DOCKER_DOCUMENT_ROOT}/source/config.inc.php" ]; then
     workspace=${GITHUB_WORKSPACE:-/oxrun}
     composer=$(which composer)
 
-    echo "Download 'oxid-esales/oxideshop-project:${COMPILATION_VERSION}'";
+    if [[ ! -d ${install_dir}]]; then
+        mkdir -p ${install_dir};
+    fi
 
+    echo "Download 'oxid-esales/oxideshop-project:${COMPILATION_VERSION}'";
     php -d memory_limit=4G $composer create-project --no-dev --keep-vcs --working-dir=${install_dir}/.. \
         oxid-esales/oxideshop-project ${oxidfolder} \
         ${COMPILATION_VERSION}
