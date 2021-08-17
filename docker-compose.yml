@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   oxid_php:
-    image: oxidesales/oxideshop-docker-php:7.3
+    image: oxidesales/oxideshop-docker-php:8.0
     restart: always
     container_name: oxid_php
     command: installOxid
@@ -14,7 +14,7 @@ services:
     links:
       - oxid_db
     environment:
-      COMPILATION_VERSION: "dev-b-6.2-ce"
+      COMPILATION_VERSION: "dev-b-6.3-ce"
       DOCKER_DOCUMENT_ROOT: /var/www/oxid-esale
       MYSQL_HOST: oxid_db
       MYSQL_DATABASE: 'oxid'

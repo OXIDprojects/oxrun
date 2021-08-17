@@ -4,3 +4,4 @@ vendor
 ./oxid-esale
 /build
 composer.lock
+.phpunit.result.cache

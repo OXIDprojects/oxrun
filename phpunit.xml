@@ -11,8 +11,12 @@
         <include>
             <directory suffix=".php">src</directory>
         </include>
+        <exclude>
+            <file>src/Oxrun/Application/oxrun-light.php</file>
+        </exclude>
         <report>
             <clover outputFile="build/logs/clover.xml"/>
+<!--            <html outputDirectory="build/logs/html-coverage" lowUpperBound="50" highLowerBound="90"/>-->
         </report>
     </coverage>
     <testsuites>
@@ -20,7 +24,4 @@
             <directory suffix="Test.php">tests</directory>
         </testsuite>
     </testsuites>
-    <logging>
-        <!--<log type="coverage-html" target="build/logs/html" lowUpperBound="35" highLowerBound="70"/>-->
-    </logging>
 </phpunit>
