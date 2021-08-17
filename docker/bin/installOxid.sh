@@ -9,23 +9,21 @@ if [ ! -f "${DOCKER_DOCUMENT_ROOT}/source/config.inc.php" ]; then
 
     install_dir=${DOCKER_DOCUMENT_ROOT}
     source_dir=${DOCKER_DOCUMENT_ROOT}"/source"
-    composer=$(which composer1)
+    composer=$(which composer)
 
     echo "Download 'oxid-esales/oxideshop-project:${COMPILATION_VERSION}'";
 
     php -d memory_limit=4G $composer create-project --no-dev --keep-vcs --working-dir=/tmp \
-        oxid-esales/oxideshop-project /tmp/preinstall \
+        oxid-esales/oxideshop-project ${DOCKER_DOCUMENT_ROOT} \
         ${COMPILATION_VERSION}
 
     echo "Install ${install_dir}"
-    chown -R www-data: "/tmp/preinstall" && \
-    rsync -ap /tmp/preinstall/ ${install_dir} && \
-    rm -rf /tmp/preinstall
+    chown -R www-data: ${DOCKER_DOCUMENT_ROOT} && \
 
     echo "composer require oxidprojects/oxrun:^0.1@RC"
     cd ${install_dir}
     $composer --no-plugins config --file=${install_dir}'/composer.json' repositories.oxrun path '/oxrun' && \
-    php -d memory_limit=4G  $composer require --no-interaction oxidprojects/oxrun:^0.1@RC
+    php -d memory_limit=4G $composer require --no-interaction oxidprojects/oxrun:^0.1@RC
     cd -;
 
     echo "Configure OXID eShop ...";

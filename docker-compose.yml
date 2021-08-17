@@ -2,11 +2,11 @@ version: '3.7'
 
 services:
   oxid_php:
-    image: oxidesales/oxideshop-docker-php:7.2
+    image: oxidesales/oxideshop-docker-php:7.3
     restart: always
     container_name: oxid_php
     command: installOxid
-    working_dir: /var/www/oxideshop
+    working_dir: /var/www/oxid-esale
     volumes:
       - ./oxid-esale:/var/www/oxideshop:cached
       - ./:/oxrun
@@ -15,12 +15,12 @@ services:
       - oxid_db
     environment:
       COMPILATION_VERSION: "dev-b-6.2-ce"
-      DOCKER_DOCUMENT_ROOT: /var/www/oxideshop
+      DOCKER_DOCUMENT_ROOT: /var/www/oxid-esale
       MYSQL_HOST: oxid_db
       MYSQL_DATABASE: 'oxid'
       MYSQL_USER: "oxid"
       MYSQL_PASSWORD: "oxid"
-      OXID_SHOP_URL: "http://oxideshop.local:8082"
+      OXID_SHOP_URL: "http://oxid-esale.local:8082"
       WITH_XDEBUG: "0"
 #     COMPOSER_AUTH: '{"http-basic": {"enterprise-edition.packages.oxid-esales.com": {"username": "XXXX", "password": "XXXX"}}}'
     networks:
@@ -50,7 +50,7 @@ services:
     depends_on:
       - oxid_php
     volumes:
-      - ./oxid-esale:/var/www/oxideshop
+      - ./oxid-esale:/var/www/oxid-esale
       - ./docker/httpd.conf:/usr/local/apache2/conf/httpd.conf
     ports:
       - 8082:80
