@@ -44,12 +44,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
-      - name: Wo sind wir
-        run: pwd -P
       - name: paramertees
         run: set
       - name: setup oxid
-        run: bash /docker/bin/installOxid.sh
+        run: bash ./docker/bin/installOxid.sh
 #      - name: try to install phpstan-phpunit
 #        run: composer require --working-dir=/var/www/oxideshop --dev phpstan/phpstan-phpunit
 #        continue-on-error: true

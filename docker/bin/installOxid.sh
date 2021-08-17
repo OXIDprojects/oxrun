@@ -2,27 +2,32 @@ cd #!/usr/bin/env bash
 
 ln -fs ${DOCKER_DOCUMENT_ROOT}"/vendor/bin/oe-console" /usr/local/bin
 
-
 if [ ! -f "${DOCKER_DOCUMENT_ROOT}/source/config.inc.php" ]; then
 
     echo "Install Shop";
 
     install_dir=${DOCKER_DOCUMENT_ROOT}
     source_dir=${DOCKER_DOCUMENT_ROOT}"/source"
+    oxidfolder=$(basename $install_dir)
+    workspace=${GITHUB_WORKSPACE:-/oxrun}
     composer=$(which composer)
 
     echo "Download 'oxid-esales/oxideshop-project:${COMPILATION_VERSION}'";
 
-    php -d memory_limit=4G $composer create-project --no-dev --keep-vcs --working-dir=/tmp \
-        oxid-esales/oxideshop-project ${DOCKER_DOCUMENT_ROOT} \
+    php -d memory_limit=4G $composer create-project --no-dev --keep-vcs --working-dir=${install_dir}/.. \
+        oxid-esales/oxideshop-project ${oxidfolder} \
         ${COMPILATION_VERSION}
 
     echo "Install ${install_dir}"
-    chown -R www-data: ${DOCKER_DOCUMENT_ROOT} && \
+    chown -R www-data: ${DOCKER_DOCUMENT_ROOT}
+
+    echo "set oxrun a version"
+    cd ${workspace};
+    $composer config version "0.1@RC"
 
     echo "composer require oxidprojects/oxrun:^0.1@RC"
     cd ${install_dir}
-    $composer --no-plugins config --file=${install_dir}'/composer.json' repositories.oxrun path '/oxrun' && \
+    $composer --no-plugins config --file=${install_dir}'/composer.json' repositories.oxrun path $workspace && \
     php -d memory_limit=4G $composer require --no-interaction oxidprojects/oxrun:^0.1@RC
     cd -;
 
@@ -54,4 +59,6 @@ echo "";
 echo "WebSeite: ${OXID_SHOP_URL}";
 echo "";
 
-docker-php-entrypoint php-fpm
+if [[ $CI != 'true' ]]; then
+ docker-php-entrypoint php-fpm
+fi
