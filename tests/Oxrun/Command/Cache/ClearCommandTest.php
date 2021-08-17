@@ -32,9 +32,6 @@ class ClearCommandTest extends TestCase
         $this->assertStringContainsString('Cache cleared.', (string)$actual);
     }
 
-    /**
-     * @expectedException \Exception
-     */
     public function testDontClearCompileFolderIfIsNotSameOwner()
     {
         $app = new Application();
@@ -50,6 +47,8 @@ class ClearCommandTest extends TestCase
         if ($current_owner == $owner) {
             $this->markTestSkipped('Test can\'t be testet, becouse the compileDir has the same owner ');
         }
+
+        $this->expectErrorMessage('Please run command as `www-data` user');
 
         $command = $app->find('cache:clear');
 

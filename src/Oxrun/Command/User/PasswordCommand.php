@@ -3,7 +3,7 @@
 namespace Oxrun\Command\User;
 
 use OxidEsales\Eshop\Application\Model\User;
-use OxidEsales\EshopProfessional\Core\DatabaseProvider;
+use OxidEsales\Eshop\Core\DatabaseProvider;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

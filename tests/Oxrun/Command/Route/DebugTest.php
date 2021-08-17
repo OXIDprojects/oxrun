@@ -147,7 +147,7 @@ class DebugTest extends TestCase
             )
         );
 
-        $this->assertStringContainsString('Class classdontexists does not exist', $this->commandTester->getDisplay());
+        $this->assertStringContainsString('EXCEPTION_SYSTEMCOMPONENT_CLASSNOTFOUND', $this->commandTester->getDisplay());
     }
 
     public function testMethodInClassDontExists()
@@ -163,7 +163,10 @@ class DebugTest extends TestCase
             )
         );
 
-        $this->assertStringContainsString('Method nameXYX does not exist', $this->commandTester->getDisplay());
+        $this->assertMatchesRegularExpression(
+            '/Method (?:[^:]+::nameXYX\(\)|nameXYX) does not exist/',
+            $this->commandTester->getDisplay()
+        );
     }
 
     /**

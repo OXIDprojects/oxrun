@@ -9,13 +9,12 @@
 namespace Oxrun\Command\Database;
 
 use OxidEsales\Eshop\Core\Registry;
-use OxidEsales\EshopProfessional\Core\DatabaseProvider;
+use OxidEsales\Eshop\Core\DatabaseProvider;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-
 
 class ListCommand extends Command
 {
