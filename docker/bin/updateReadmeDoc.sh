@@ -2,12 +2,17 @@
 
 cd $(dirname $0);
 
-BASE_DIR=$(pwd -P);
+BASE_DIR=${GITHUB_WORKSPACE};
 README="$BASE_DIR/README.md";
 oxrun_light=${1:-"/var/www/oxid-esale/vendor/bin/oxrun-light"};
 
-if [[ ! -f $oe_console ]]; then
-    echo "$oe_console not found" >&2
+if [[ ! -f $oxrun_light ]]; then
+    echo "$oxrun_light not found" >&2
+    exit 2
+fi
+
+if [[ ! -f $README ]]; then
+    echo "$README not found" >&2
     exit 2
 fi
 

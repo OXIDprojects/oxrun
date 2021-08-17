@@ -1,28 +1,32 @@
-name: oxrun tests
+name: oxrun ci
 
-on: [push]
+on: ["push"] # "pull_request"
 
 jobs:
-#  stand_alone_checks:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v1
-#      - name: Validate composer.json
-#        run: composer validate
-#      - name: validate php syntax
-#        run: find . -not -path "./vendor/*" -name "*.php" -print0 | xargs -0 -n1 -P8 php -l
+  stand_alone_checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Validate composer.json
+        run: composer validate
+      - name: validate php syntax
+        run: find . -not -path "./vendor/*" -name "*.php" -print0 | xargs -0 -n1 -P8 php -l
 
   tests:
-#    needs: stand_alone_checks
+    needs: stand_alone_checks
     strategy:
       matrix:
-        php: ["8.0"] # [7.3, 7.4, 8.0]
-        oxid: ["6.3"] # [6.2, 6.3]
+        oxid:
+          - metapackage: "6.3"
+            php: "8.0"
+          - metapackage: "6.2"
+            php: "7.4"
+
     runs-on: ubuntu-latest
     container:
-      image: oxidesales/oxideshop-docker-php:${{matrix.php}}
+      image: oxidesales/oxideshop-docker-php:${{matrix.oxid.php}}
       env:
-        COMPILATION_VERSION: dev-b-${{matrix.oxid}}-ce
+        COMPILATION_VERSION: dev-b-${{matrix.oxid.metapackage}}-ce
         DOCKER_DOCUMENT_ROOT: /var/www/oxid-esale
         MYSQL_HOST: oxid_db
         MYSQL_DATABASE: 'oxid'
@@ -44,58 +48,79 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
-      - name: paramertees
-        run: set
-      - name: setup oxid
+      - name: Setup Oxid eSale
         run: bash ./docker/bin/installOxid.sh
       - name: PHPUnit
         run: ./vendor/bin/phpunit --debug --stop-on-error --stop-on-failure
-#      - name: phpstan loose
-#        continue-on-error: true
-#        run: |
-#          MD=$(pwd)
-#          cd /var/www/oxideshop/
-#          composer remove phpstan/phpstan-strict-rules --dev
-#          composer remove phpstan/phpstan-deprecation-rules --dev
-#          vendor/bin/phpstan analys  --level 2 --configuration phpstan.neon $MD
-#      - name: psalm
-#        run: |
-#          MD=$(pwd)
-#          cd /var/www/oxideshop/
-#          cat autoload.oxid.php
-#          curl -OL https://circleci.com/api/v1.1/project/github/weirdan/psalm/232/artifacts/0/home/docker/project/build/psalm.phar
-#          php psalm.phar --stats --debug-by-line --show-info=true $MD
-#      - name: run tests
-#        run: |
-#          cd /var/www/oxideshop/
-#          vendor/bin/runtests
-#          ls -al source/log
-#      - name: run oxid console list
-#        run: |
-#          cd /var/www/oxideshop
-#          vendor/bin/oxid
-#      - name: run in oxid console for all shops
-#        run: |
-#          cd /var/www/oxideshop
-#          vendor/bin/oxid -vvv fix:states -a
-#      - name: oxrun list
-#        continue-on-error: ${{matrix.oxid != 6.1}}
-#        run: |
-#          cd /var/www/oxideshop
-#          php oxrun.phar list
-#      - name: oxrun fix
-#        continue-on-error: ${{matrix.oxid != 6.1}}
-#        run: |
-#          cd /var/www/oxideshop
-#          php oxrun.phar -vvv fix:states -a
-#      - name: oxid console list
-#        if: matrix.oxid != 6.1
-#        run: |
-#          cd /var/www/oxideshop
-#          vendor/bin/oe-console list
-#      - name: oxid console fix
-#        if: matrix.oxid != 6.1
-#        run: |
-#          cd /var/www/oxideshop
-#          vendor/bin/oe-console -vvv fix:states -a
-#
+      - name: run oe-console
+        run: ${DOCKER_DOCUMENT_ROOT}/vendor/bin/oe-console
+      - name: run oxrun-light
+        run: ${DOCKER_DOCUMENT_ROOT}/vendor/bin/oxrun-light
+      - name: save coverage report
+        if: ${{ github.ref == 'refs/heads/master' }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: code-coverage-report
+          path: build/logs/clover.xml
+          retention-days: 1
+      - name: create new readme
+        run: |
+          rm -Rf ${DOCKER_DOCUMENT_ROOT}/source/tmp/*
+          rm -Rf ${GITHUB_WORKSPACE}/vendor
+          bash ./docker/bin/updateReadmeDoc.sh "${DOCKER_DOCUMENT_ROOT}/vendor/bin/oxrun-light"
+      - name: save oxrun-description
+        if: ${{ github.ref == 'refs/heads/master' }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: oxrun-description
+          path: README.md
+          retention-days: 1
+
+  finish-code-coverage:
+    if: ${{ github.ref == 'refs/heads/master' }}
+    needs: tests
+    runs-on: ubuntu-latest
+    container:
+      image: composer:latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: download coverage report
+        uses: actions/download-artifact@v2
+        with:
+          name: code-coverage-report
+      - name: remove artifact coverage report
+        uses: geekyeggo/delete-artifact@v1
+        with:
+          name: code-coverage-report
+      - name: Install Coveralls
+        run: composer global require php-coveralls/php-coveralls
+      - name: Coveralls Finished
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p ./build/logs/
+          mv ./clover.xml ./build/logs/
+          ${COMPOSER_HOME}/vendor/bin/php-coveralls -v
+
+  finish-reademe:
+    if: ${{ github.ref == 'refs/heads/master' }}
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: download oxrun-description
+        uses: actions/download-artifact@v2
+        with:
+          name: oxrun-description
+      - name: remove artifact oxrun-description
+        uses: geekyeggo/delete-artifact@v1
+        with:
+          name: oxrun-description
+      - name: commit readme
+        run: |
+          git config --global user.name "Github Action"
+          git config --global user.email 'tumtum@users.noreply.github.com'
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git add ${GITHUB_WORKSPACE}/README.md
+          git commit --message "Updated commands docu in README.md. (#$GITHUB_RUN_NUMBER) [ci skip]"
+          git push -u origin HEAD:${{ github.ref }}
