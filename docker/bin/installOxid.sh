@@ -12,7 +12,7 @@ if [ ! -f "${DOCKER_DOCUMENT_ROOT}/source/config.inc.php" ]; then
     workspace=${GITHUB_WORKSPACE:-/oxrun}
     composer=$(which composer)
 
-    if [[ ! -d ${install_dir} ]]; then
+    if [ ! -d ${install_dir} ]; then
         mkdir -p ${install_dir};
     fi
 
@@ -69,6 +69,8 @@ echo "";
 echo "WebSeite: ${OXID_SHOP_URL}";
 echo "";
 
-if [[ $CI != 'true' ]]; then
+isRunCi=${CI:-"no"};
+
+if [ $isRunCi == "no" ]; then
  docker-php-entrypoint php-fpm
 fi
