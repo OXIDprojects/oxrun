@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-package_dir=$(dirname $(realpath $0));
-oe_console=$(realpath "${package_dir}/../../../bin/oe-console")
+package_dir=$(dirname $0);
+oe_console=$(realpath "${package_dir}/oe-console")
 
 if [[ ! -f $oe_console ]]; then
   echo "${oe_console} not found" >&2
