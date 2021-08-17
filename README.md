@@ -9,7 +9,7 @@ Thanks to the [netz98 magerun](https://github.com/netz98/n98-magerun) project wh
 
 Copyright (c) 2015 Marc Harding http://www.marcharding.de (https://github.com/marcharding/oxrun)
 
-Copyright (c) 2019 Tobias Matthaiou http://www.tobimat.eu
+Copyright (c) 2021 Tobias Matthaiou http://www.tobimat.eu
 
 Copyright (c) 2018 Stefan Moises https://www.rent-a-hero.de/
 

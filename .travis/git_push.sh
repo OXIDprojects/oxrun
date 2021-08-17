@@ -18,7 +18,7 @@ upload_files() {
 
 cd $(dirname $0);
 BASE_DIR=$(pwd -P);
-README="$BASE_DIR/../README.md";
+README="$BASE_DIR/README.md";
 cd -;
 
 

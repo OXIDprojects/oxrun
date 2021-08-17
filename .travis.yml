@@ -1,7 +1,6 @@
 language: php
 
 php:
-  - 7.2
   - 7.3
   - 7.4
   - 8.0
@@ -14,27 +13,34 @@ env:
 
 cache:
   directories:
-  - $HOME/.composer/cache
+  - $HOME/.composer/
 
-#before_script:
-#  - mkdir -p build/logs
-#  - composer install
-#  - mysql -e 'CREATE DATABASE IF NOT EXISTS `oxid`;'
-#  - composer create-project --keep-vcs oxid-esales/oxideshop-project oxid-esale ${OXID_VERSION}
-#  - echo "include __DIR__ . '/../../.travis/oxid_config.inc.php';" >> oxid-esale/source/config.inc.php
-#  - mysql -e 'CREATE DATABASE IF NOT EXISTS `oxid`;'
-#  - mysql oxid < oxid-esale/source/Setup/Sql/database_schema.sql
-#  - mysql oxid < oxid-esale/vendor/oxid-esales/oxideshop-demodata-ce/src/demodata.sql
-#  - rm -rf oxid-esale/source/Setup
-#  - oxid-esale/vendor/bin/oe-eshop-db_views_generate
-#  - rm -rf oxid-esale/source/tmp/*
-#  - cd oxid-esale/source
-#
-#script:
-#  - ../../vendor/bin/phpunit -c ../../phpunit.xml --debug --stop-on-error --stop-on-failure
-#
-#after_success:
-# - cd ../../
-# - .travis/updateReadmeDoc.sh && .travis/git_push.sh
-# - if [[ $TRAVIS_TAG != '' ]]; then php -d phar.readonly=0 build-phar -v"${TRAVIS_TAG}"; fi
-# - travis_retry php vendor/bin/php-coveralls -v
+before_script:
+  - export OXRUN=${TRAVIS_BUILD_DIR:-$(pwd -P)}
+  - composer global require phpunit/phpunit:^9 phpspec/prophecy-phpunit:^2 php-coveralls/php-coveralls:^2 symfony/var-dumper mikey179/vfsstream
+  - composer config version 0.1@RC
+  - mkdir -p build/logs
+  - mkdir -p /var/www/
+  - cd /var/www/
+  - composer create-project --keep-vcs --no-interaction --no-dev oxid-esales/oxideshop-project oxid-esale ${OXID_VERSION}
+  - echo "include '${OXRUN}/.travis/oxid_config.inc.php';" >> oxid-esale/source/config.inc.php
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS `oxid`;'
+  - mysql oxid < oxid-esale/source/Setup/Sql/database_schema.sql
+  - mysql oxid < oxid-esale/vendor/oxid-esales/oxideshop-demodata-ce/src/demodata.sql
+  - rm -rf oxid-esale/source/Setup
+  - oxid-esale/vendor/bin/oe-eshop-db_views_generate
+  - cd oxid-esale
+  - composer config repositories.oxrun path $OXRUN
+  - composer require --no-interaction oxidprojects/oxrun:0.1@RC
+  - rm -rf ./source/tmp/*
+  - cd $OXRUN
+
+script:
+  - /var/www/oxid-esale/vendor/bin/oe-console > /dev/null
+  - /var/www/oxid-esale/vendor/bin/oxrun > /dev/null
+  - /var/www/oxid-esale/vendor/bin/oxrun-light > /dev/null
+  - ~/.composer/vendor/bin/phpunit --debug --stop-on-error --stop-on-failure
+
+after_success:
+ - .travis/updateReadmeDoc.sh && .travis/git_push.sh
+ - travis_retry php ~/.composer/vendor/bin/php-coveralls -v
