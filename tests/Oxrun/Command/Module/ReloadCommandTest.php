@@ -41,8 +41,15 @@ class ReloadCommandTest extends TestCase
             )
         );
 
-        $this->assertStringContainsString('Module - "oepaypal" has been deactivated.', $commandTester->getDisplay());
-        $this->assertStringContainsString('Cache cleared', $commandTester->getDisplay());
-        $this->assertStringContainsString('Module - "oepaypal" was activated.', $commandTester->getDisplay());
+        $display = $commandTester->getDisplay();
+
+        $expectedDeactivate = array_map('preg_quote', [
+            'Module - "oepaypal" has been deactivated.',
+            'It was not possible to deactivate module - "oepaypal", maybe it was not active?'
+        ]);
+
+        $this->assertMatchesRegularExpression('/' . implode('|', $expectedDeactivate) . '/', $display);
+        $this->assertStringContainsString('Cache cleared', $display);
+        $this->assertStringContainsString('Module - "oepaypal" was activated.', $display);
     }
 }
