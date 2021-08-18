@@ -5,23 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-## [v4.3.1] 2021-02-18
-
-### Change
-
-- Command config:oxid62:modules-configuration filter exists module setting
-- Command config:oxid62:modules-configuration save variable type
-
-## [v4.3.0] 2021-02-18
-
-### Add
-
-- New command (`config:oxid62:modules-configuration`) to create modules configration files in the OXID version 6.1 in preparation to use them later in 6.2
-
-### Change
-
-- Update local docker-composer
-
+## [v5.0.0] 2021-08-18
 ### Added
   - New Command `misc:register:command` to Register Command to service.yaml files.
   - New Command `db:info` Database Table Size (Issue #37).
@@ -74,6 +58,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Command `cms:update`
   - Command `log:exceptionlog` the log - output has be changed
   - Command `list` don't show message with database errors
+
+## [v4.3.1] 2021-02-18
+
+### Change
+
+  - Command config:oxid62:modules-configuration filter exists module setting
+  - Command config:oxid62:modules-configuration save variable type
+
+## [v4.3.0] 2021-02-18
+
+### Add
+
+  - New command (`config:oxid62:modules-configuration`) to create modules configration files in the OXID version 6.1 in preparation to use them later in 6.2
+
+### Change
+
+  - Update local docker-composer
 
 ## [v4.2.1] 2020-06-19
 
