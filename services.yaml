@@ -1,40 +1,95 @@
 services:
-  oxid_community.oxrun.cache.clear:
-    class: Oxrun\Command\Cache\ClearCommand
+  Oxrun\Command\Cache\ClearCommand:
     tags:
-      - { name: 'console.command' }
-
-  oxid_community.oxrun.database.dump:
-    class: Oxrun\Command\Database\DumpCommand
+      - { name: console.command, command: 'cache:clear' }
+  Oxrun\Command\Config\ShopGetCommand:
     tags:
-      - { name: 'console.command' }
-
-  oxid_community.oxrun.database.list:
-    class: Oxrun\Command\Database\ListCommand
+      - { name: console.command, command: 'config:shop:get' }
+  Oxrun\Command\Config\ShopSetCommand:
     tags:
-      - { name: 'console.command' }
-
-  oxid_community.oxrun.module.activate:
-    class: Oxrun\Command\Module\ActivateCommand
+      - { name: console.command, command: 'config:shop:set' }
+  Oxrun\Command\Database\AnonymizeCommand:
     tags:
-      - { name: 'console.command' }
-
-  oxid_community.oxrun.module.deactivate:
-    class: Oxrun\Command\Module\DeactivateCommand
+      - { name: console.command, command: 'db:anonymize' }
+  Oxrun\Command\Database\DumpCommand:
     tags:
-      - { name: 'console.command' }
-
-  oxid_community.oxrun.module.list:
-    class: Oxrun\Command\Module\ListCommand
+      - { name: console.command, command: 'db:dump' }
+  Oxrun\Command\Database\ImportCommand:
     tags:
-      - { name: 'console.command' }
-
-  oxid_community.oxrun.module.reload:
-    class: Oxrun\Command\Module\ReloadCommand
+      - { name: console.command, command: 'db:import' }
+  Oxrun\Command\Database\Info:
     tags:
-      - { name: 'console.command' }
-
-  oxid_community.oxrun.user.Password:
-    class: Oxrun\Command\User\PasswordCommand
+      - { name: console.command, command: 'db:info' }
+  Oxrun\Command\Database\ListCommand:
     tags:
-      - { name: 'console.command' }
+      - { name: console.command, command: 'db:list' }
+  Oxrun\Command\Database\QueryCommand:
+    tags:
+      - { name: console.command, command: 'db:query' }
+  Oxrun\Command\Misc\PhpstormMetadataCommand:
+    tags:
+      - { name: console.command, command: 'misc:phpstorm:metadata' }
+  Oxrun\Command\Misc\RegisterCommand:
+    tags:
+      - { name: console.command, command: 'misc:register:command' }
+  Oxrun\Command\Module\GenerateCommand:
+    tags:
+      - { name: console.command, command: 'module:generate' }
+  Oxrun\Command\Module\ListCommand:
+    tags:
+      - { name: console.command, command: 'module:list' }
+  Oxrun\Command\Module\ReloadCommand:
+    tags:
+      - { name: console.command }
+    autowire: true
+  Oxrun\Command\Oxid\ShopListCommand:
+    tags:
+      - { name: console.command, command: 'oxid:shops' }
+  Oxrun\Command\Route\DebugCommand:
+    tags:
+      - { name: console.command, command: 'route:debug' }
+  Oxrun\Command\User\CreateUserCommand:
+    tags:
+      - { name: console.command, command: 'user:create' }
+  Oxrun\Command\User\PasswordCommand:
+    tags:
+      - { name: console.command, command: 'user:password' }
+  Oxrun\Command\Views\UpdateCommand:
+    tags:
+      - { name: console.command, command: 'views:update' }
+  Oxrun\Command\Deploy\UpdateModuleConfigCommand:
+    tags:
+      - { name: console.command }
+    autowire: true
+  Oxrun\Command\Deploy\ModuleApplyConfigurationLightCommand:
+    tags:
+      - { name: console.command }
+    autowire: true
+  Oxrun\Command\Deploy\ModuleActivatorCommand:
+    tags:
+      - { name: console.command }
+    autowire: true
+  Oxrun\Command\Config\GetCommand:
+    tags:
+      - { name: console.command }
+    autowire: true
+  Oxrun\Command\Deploy\GenerateModuleActivatorCommand:
+    tags:
+      - { name: console.command }
+    autowire: true
+  Oxrun\Command\Deploy\GenerateConfigurationCommand:
+    tags:
+      - { name: console.command }
+    autowire: true
+  Oxrun\Command\Deploy\ConfigCommand:
+    tags:
+      - { name: console.command }
+    autowire: true
+  Oxrun\Command\Config\SetCommand:
+    tags:
+      - { name: console.command }
+    autowire: true
+  Oxrun\Command\Deploy\LinkEnvironmentCommand:
+    tags:
+      - { name: console.command }
+    autowire: true

@@ -8,11 +8,8 @@
 
 namespace Oxrun\Tests\Helper;
 
-use org\bovigo\vfs\vfsStream;
-use Oxrun\Application;
 use Oxrun\Helper\MultiSetTranslator;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
 /**
  * Class MultiSetTranslatorTest
@@ -20,13 +17,7 @@ use Symfony\Component\Filesystem\Exception\FileNotFoundException;
  */
 class MultiSetTranslatorTest extends TestCase
 {
-    /**
-     * @inheritDoc
-     */
-    public static function setUpBeforeClass()
-    {
-        if (!defined('OX_BASE_PATH')) (new Application())->bootstrapOxid(false);
-    }
+
 
     public function testYamlHasNotAConfigSection()
     {

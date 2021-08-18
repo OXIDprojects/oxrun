@@ -2,9 +2,8 @@
 
 namespace Oxrun\Command\Database;
 
-use Oxrun\Traits\NeedDatabase;
+use OxidEsales\Eshop\Core\Registry;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -13,9 +12,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Class ImportCommand
  * @package Oxrun\Command\Database
  */
-class ImportCommand extends Command implements \Oxrun\Command\EnableInterface
+class ImportCommand extends Command
 {
-    use NeedDatabase;
+//    use NeedDatabase;
 
     /**
      * Configures the current command.
@@ -46,21 +45,21 @@ HELP;
         $file = $input->getArgument('file');
         if (!is_file($file)) {
             $output->writeln("<error>File $file does not exist.</error>");
-            return;
+            return 2;
         }
 
         // allow empty password
-        $dbPwd = \oxRegistry::getConfig()->getConfigParam('dbPwd');
+        $dbPwd = Registry::getConfig()->getConfigParam('dbPwd');
         if (!empty($dbPwd)) {
             $dbPwd = '-p' . $dbPwd;
         }
 
         $exec = sprintf(
             "mysql -h%s %s -u%s %s < %s 2>&1",
-            \oxRegistry::getConfig()->getConfigParam('dbHost'),
+            Registry::getConfig()->getConfigParam('dbHost'),
             $dbPwd,
-            \oxRegistry::getConfig()->getConfigParam('dbUser'),
-            \oxRegistry::getConfig()->getConfigParam('dbName'),
+            Registry::getConfig()->getConfigParam('dbUser'),
+            Registry::getConfig()->getConfigParam('dbName'),
             $file
         );
 
@@ -68,10 +67,11 @@ HELP;
 
         if ($returnValue > 0) {
             $output->writeln('<error>' . implode(PHP_EOL, $commandOutput) . '</error>');
-            return;
+            return 2;
         }
 
         $output->writeln("<info>File $file is imported.</info>");
+        return 0;
     }
 
     /**

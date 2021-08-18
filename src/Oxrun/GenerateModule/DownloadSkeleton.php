@@ -1,22 +1,23 @@
 <?php
 /**
  * Created by oxrun.
- * Autor: Tobias Matthaiou <tm@loberon.de>
+ * Autor: Tobias Matthaiou <225997+TumTum@users.noreply.github.com>
  * Date: 10.11.18
  * Time: 16:26
  */
 
 namespace Oxrun\GenerateModule;
 
-use Distill\Distill;
-use Distill\Format;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Utils;
 use GuzzleHttp\RequestOptions;
+use PhpZip\ZipFile;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
+
 use function GuzzleHttp\Psr7\stream_for;
 
 /**
@@ -64,7 +65,7 @@ class DownloadSkeleton
             throw new FileNotFoundException("Can't open the resource at: " . $this->tempnam);
         }
 
-        $stream = stream_for($resource);
+        $stream = Utils::streamFor($resource);
 
         $options = [
             RequestOptions::SINK => $stream, // the body of a response
@@ -93,12 +94,6 @@ class DownloadSkeleton
 
     /**
      * @param $destination
-     * @throws \Distill\Exception\IO\Input\FileEmptyException
-     * @throws \Distill\Exception\IO\Input\FileFormatNotSupportedException
-     * @throws \Distill\Exception\IO\Input\FileNotFoundException
-     * @throws \Distill\Exception\IO\Input\FileNotReadableException
-     * @throws \Distill\Exception\IO\Input\FileUnknownFormatException
-     * @throws \Distill\Exception\IO\Output\TargetDirectoryNotWritableException
      * @throws \Exception
      */
     public function extractTo($destination)
@@ -116,10 +111,10 @@ class DownloadSkeleton
             @mkdir($downloadFolder, 0755, true);
         }
 
-        $distill = new Distill();
-        if (false == $distill->extract($this->tempnam, $downloadFolder, new Format\Simple\Zip())) {
-            throw new \Exception('Can not be extract.');
-        };
+        (new ZipFile())
+            ->openFile($this->tempnam)
+            ->extractTo($downloadFolder)
+        ;
 
         $filesystem = new Filesystem();
         $finder = new Finder();

@@ -3,7 +3,6 @@
 namespace Oxrun\Command\Cache;
 
 use OxidEsales\Eshop\Core\Registry;
-use Oxrun\Traits\NoNeedDatabase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -14,10 +13,10 @@ use Symfony\Component\Filesystem\Exception\FileNotFoundException;
  * Class ClearCommand
  * @package Oxrun\Command\Cache
  */
-class ClearCommand extends Command implements \Oxrun\Command\EnableInterface
+class ClearCommand extends Command
 {
 
-    use NoNeedDatabase;
+//    use NoNeedDatabase;
 
     /**
      * Configures the current command.
@@ -53,6 +52,7 @@ class ClearCommand extends Command implements \Oxrun\Command\EnableInterface
         $this->enterpriseCache($output);
 
         $output->writeln('<info>Cache cleared.</info>');
+        return 0;
     }
 
     /**
@@ -62,7 +62,7 @@ class ClearCommand extends Command implements \Oxrun\Command\EnableInterface
      */
     protected function getCompileDir()
     {
-        $oxidPath = $this->getApplication()->getShopDir();
+        $oxidPath = OX_BASE_PATH;
         $configfile = $oxidPath . DIRECTORY_SEPARATOR . 'config.inc.php';
 
         if ($oxidPath && file_exists($configfile)) {

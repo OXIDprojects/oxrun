@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by oxrun.
- * Autor: Tobias Matthaiou <tm@loberon.de>
+ * Autor: Tobias Matthaiou <225997+TumTum@users.noreply.github.com>
  * Date: 10.11.18
  * Time: 11:31
  */
@@ -16,6 +16,7 @@ use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Prophecy\PhpUnit\ProphecyTrait;
 
 /**
  * Class InteractModuleFormTest
@@ -23,6 +24,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class InteractModuleFormTest extends TestCase
 {
+    use ProphecyTrait;
+
     /**
      * This method is called before each test.
      */
@@ -48,7 +51,7 @@ class InteractModuleFormTest extends TestCase
      */
     private $inputInterface;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->moduleSpecification = $this->prophesize(ModuleSpecification::class);
 

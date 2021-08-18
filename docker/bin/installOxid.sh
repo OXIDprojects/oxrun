@@ -1,74 +1,87 @@
-cd #!/usr/bin/env bash
+#!/usr/bin/env bash
 
-ln -fs /oxrun/bin/oxrun /usr/local/bin
+ln -fs ${DOCKER_DOCUMENT_ROOT}"/vendor/bin/oe-console" /usr/local/bin
 
-composer=$(which composer)
+if [ ! -f "${DOCKER_DOCUMENT_ROOT}/source/config.inc.php" ]; then
 
-if [ ! -f "/oxrun/vendor" ]; then
-    pushd /oxrun/ && \
-    $composer install --no-interaction && \
-    popd;
-fi
+    echo "[INSTALL] Shop";
 
-if [ ! -f "${DOCKER_DOCUMENT_ROOT}/config.inc.php" ]; then
+    install_dir=${DOCKER_DOCUMENT_ROOT}
+    source_dir=${DOCKER_DOCUMENT_ROOT}"/source"
+    oxidfolder=$(basename $install_dir)
+    workspace=${GITHUB_WORKSPACE:-/oxrun}
+    composer=$(which composer)
 
-    echo "Install Shop";
+    if [ ! -d ${install_dir} ]; then
+        mkdir -p ${install_dir};
+    fi
 
-    install_dir=$(dirname ${DOCKER_DOCUMENT_ROOT})
+    echo "[INSTALL] Download 'oxid-esales/oxideshop-project:${COMPILATION_VERSION}'";
+    php -d memory_limit=4G $composer create-project --no-dev --keep-vcs --working-dir=${install_dir}/.. \
+        oxid-esales/oxideshop-project ${oxidfolder} \
+        ${COMPILATION_VERSION}
 
-    $composer selfupdate && \
-    $composer selfupdate --1
+    echo "[INSTALL] ${install_dir}"
+    chown -R www-data: ${DOCKER_DOCUMENT_ROOT}
 
-    echo "Download 'oxid-esales/oxideshop-project:${OXID_SHOP_VERSION}'";
+    echo "[INSTALL] set oxrun a version"
+    cd ${workspace};
+    $composer config version "0.1@RC"
 
-    php -d memory_limit=4G $composer create-project --no-dev --keep-vcs --working-dir=/tmp \
-        oxid-esales/oxideshop-project /tmp/preinstall \
-        ${OXID_SHOP_VERSION}
+    echo "[INSTALL] composer require oxidprojects/oxrun:^0.1@RC"
+    cd ${install_dir}
+    $composer config --file=${install_dir}'/composer.json' repositories.oxrun path $workspace && \
+    php -d memory_limit=4G $composer require --update-no-dev --no-interaction oxidprojects/oxrun:^0.1@RC
+    cd -;
 
-    chown -R www-data: "/tmp/preinstall" && \
-    rsync -ap /tmp/preinstall/ ${install_dir} && \
-    rm -rf /tmp/preinstall
+    echo "[INSTALL] Configure OXID eShop ...";
+    sed -i "s/<dbHost>/${MYSQL_HOST}/" ${source_dir}/config.inc.php && \
+    sed -i "s/<dbName>/${MYSQL_DATABASE}/" ${source_dir}/config.inc.php && \
+    sed -i "s/<dbUser>/${MYSQL_USER}/" ${source_dir}/config.inc.php && \
+    sed -i "s/<dbPwd>/${MYSQL_PASSWORD}/" ${source_dir}/config.inc.php && \
+    sed -i "s|<sShopURL>|${OXID_SHOP_URL}|" ${source_dir}/config.inc.php && \
+    sed -i "s/'<sShopDir>'/__DIR__ . '\/'/" ${source_dir}/config.inc.php && \
+    sed -i "s/'<sCompileDir>'/__DIR__ . '\/tmp'/" ${source_dir}/config.inc.php
 
-    echo "Configure OXID eShop ...";
-    sed -i "s/<dbHost>/${MYSQL_HOST}/" ${DOCKER_DOCUMENT_ROOT}/config.inc.php && \
-    sed -i "s/<dbName>/${MYSQL_DATABASE}/" ${DOCKER_DOCUMENT_ROOT}/config.inc.php && \
-    sed -i "s/<dbUser>/${MYSQL_USER}/" ${DOCKER_DOCUMENT_ROOT}/config.inc.php && \
-    sed -i "s/<dbPwd>/${MYSQL_PASSWORD}/" ${DOCKER_DOCUMENT_ROOT}/config.inc.php && \
-    sed -i "s|<sShopURL>|${OXID_SHOP_URL}|" ${DOCKER_DOCUMENT_ROOT}/config.inc.php && \
-    sed -i "s/'<sShopDir>'/__DIR__ . '\/'/" ${DOCKER_DOCUMENT_ROOT}/config.inc.php && \
-    sed -i "s/'<sCompileDir>'/__DIR__ . '\/tmp'/" ${DOCKER_DOCUMENT_ROOT}/config.inc.php
-
-    echo "Create mysql database schema ...";
-    mysql -h ${MYSQL_HOST} -u ${MYSQL_USER} -p${MYSQL_PASSWORD} ${MYSQL_DATABASE} < ${DOCKER_DOCUMENT_ROOT}/Setup/Sql/database_schema.sql && \
+    echo "[INSTALL] Create mysql database schema ...";
+    mysql -h ${MYSQL_HOST} -u ${MYSQL_USER} -p${MYSQL_PASSWORD} ${MYSQL_DATABASE} < ${install_dir}/vendor/oxid-esales/oxideshop-ce/source/Setup/Sql/database_schema.sql && \
     mysql -h ${MYSQL_HOST} -u ${MYSQL_USER} -p${MYSQL_PASSWORD} ${MYSQL_DATABASE} < ${install_dir}/vendor/oxid-esales/oxideshop-demodata-ce/src/demodata.sql && \
-    rm -Rf ${DOCKER_DOCUMENT_ROOT}/Setup
+    rm -Rf ${source_dir}/Setup
 
-    echo "Copy demo asset ...";
+    echo "[INSTALL] Copy demo asset ...";
     ${install_dir}/vendor/bin/oe-eshop-demodata_install
 
-    echo "Oxid eshop migration ...";
+    echo "[INSTALL] Oxid eshop migration ...";
     ${install_dir}/vendor/bin/oe-eshop-doctrine_migration migrations:migrate
 
-    echo "Create OXID views ...";
-    oxrun view:update --shopDir ${DOCKER_DOCUMENT_ROOT}
+    echo "[INSTALL] Create OXID views ...";
+    ${install_dir}/vendor/bin/oe-eshop-db_views_generate
 
-#   oxrun user:password --shopDir ${DOCKER_DOCUMENT_ROOT} -a ${OXID_ADMIN_PASSWORD} ${OXID_ADMIN_USERNAME}
+    echo "[INSTALL] Install PHPUnit and Co."
+    cd ${workspace};
+    $composer remove --no-scripts --no-plugins oxid-esales/oxideshop-ce
 
-#    oxrun install:shop \
-#        --oxidVersion="${OXID_SHOP_VERSION}" \
-#        --dbHost="${MYSQL_HOST}" \
-#        --dbUser="${MYSQL_USER}" \
-#        --dbPwd="${MYSQL_PASSWORD}" \
-#        --dbName=" " \
-#        --installationFolder="${DOCKER_DOCUMENT_ROOT}/" \
-#        --shopURL="${OXID_SHOP_URL}" \
-#        --adminUser="${OXID_ADMIN_PASSWORD}" \
-#        --adminPassword="${OXID_ADMIN_USERNAME}"
+    echo "[INSTALL] reset composer.json"
+    git checkout composer.json
 
+    echo "[INSTALL] coverage for ${PHP_VERSION}"
+    dpkg --compare-versions "8.0" "le" ${PHP_VERSION}
+    if [ $? == 0 ]; then
+        echo "[INSTALL] install pcov"
+        pecl install pcov > /dev/null
+        docker-php-ext-enable pcov.so
+    else
+        echo "[INSTALL] install xdebug"
+        docker-php-ext-enable xdebug.so
+    fi
 fi
 
-echo ""
+echo "";
 echo "WebSeite: ${OXID_SHOP_URL}";
-echo ""
+echo "";
 
-/usr/sbin/apache2ctl -D FOREGROUND
+isRunCi=${CI:-"no"};
+
+if [ ${isRunCi} == "no" ]; then
+ docker-php-entrypoint php-fpm
+fi

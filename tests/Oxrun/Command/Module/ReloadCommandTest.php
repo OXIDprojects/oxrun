@@ -8,10 +8,10 @@
 
 namespace Oxrun\Command\Module;
 
-use Oxrun\Application;
+use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Application;
 use Oxrun\Command\Cache\ClearCommand;
-use Oxrun\CommandCollection\EnableAdapter;
-use Oxrun\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -22,26 +22,34 @@ class ReloadCommandTest extends TestCase
 {
     public function testExecute()
     {
+        $container = ContainerFactory::getInstance()->getContainer();
         $app = new Application();
-        $app->add(new EnableAdapter(new ReloadCommand()));
-        $app->add(new EnableAdapter(new DeactivateCommand()));
-        $app->add(new EnableAdapter(new ClearCommand()));
-        $app->add(new EnableAdapter(new ActivateCommand()));
+        $app->add($container->get(ReloadCommand::class));
+        $app->add($container->get('oxid_esales.command.module_deactivate_command'));
+        $app->add(new ClearCommand());
+        $app->add($container->get('oxid_esales.command.module_activate_command'));
 
         $command = $app->find('module:reload');
+
 
         $commandTester = new CommandTester($command);
         $commandTester->execute(
             array(
                 'command' => $command->getName(),
                 'module' => 'oepaypal',
-                '--shopId' => 1,
-                '--force'  => true
+                '--force-cache'  => true
             )
         );
 
-        $this->assertContains('activated', $commandTester->getDisplay());
-        $this->assertContains('Cache cleared', $commandTester->getDisplay());
-        $this->assertContains('deactivated', $commandTester->getDisplay());
+        $display = $commandTester->getDisplay();
+
+        $expectedDeactivate = array_map('preg_quote', [
+            'Module - "oepaypal" has been deactivated.',
+            'It was not possible to deactivate module - "oepaypal", maybe it was not active?'
+        ]);
+
+        $this->assertMatchesRegularExpression('/' . implode('|', $expectedDeactivate) . '/', $display);
+        $this->assertStringContainsString('Cache cleared', $display);
+        $this->assertStringContainsString('Module - "oepaypal" was activated.', $display);
     }
 }

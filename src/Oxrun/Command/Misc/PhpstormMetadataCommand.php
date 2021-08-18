@@ -2,22 +2,30 @@
 
 namespace Oxrun\Command\Misc;
 
-use Oxrun\Traits\NeedDatabase;
+use OxidEsales\Facts\Facts;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Finder\Finder;
+use Webmozart\PathUtil\Path;
 
 /**
  * Class PhpstormMetadataCommand
  *
  * @package Oxrun\Command\Misc
  */
-class PhpstormMetadataCommand extends Command implements \Oxrun\Command\EnableInterface
+class PhpstormMetadataCommand extends Command
 {
-    use NeedDatabase;
+
+    protected $path = [];
+
+    protected $namespace = [];
+
+    /**
+     * @var Facts
+     */
+    protected $fact = null;
 
     /**
      * Configures the current command.
@@ -25,7 +33,8 @@ class PhpstormMetadataCommand extends Command implements \Oxrun\Command\EnableIn
     protected function configure()
     {
         $this->setName('misc:phpstorm:metadata')->setDescription(
-                'Generate a PhpStorm metadata file for auto-completion.'
+                'Generate a PhpStorm metadata file for auto-completion and a oxid module chain.' .
+                'Ideal for psalm or phpstan'
             )->addOption(
                 'output-dir',
                 'o',
@@ -35,88 +44,152 @@ class PhpstormMetadataCommand extends Command implements \Oxrun\Command\EnableIn
     }
 
     /**
+     * @return Facts
+     */
+    public function getFact(): Facts
+    {
+        if ($this->fact === null) {
+            $this->fact = new Facts();
+        }
+
+        return $this->fact;
+    }
+
+    /**
      * Executes the current command.
      *
      * @param InputInterface  $input  An InputInterface instance
-     * @param OutputInterface $output An OutputInterface instance
-     *
-     * @return void
+     * @param ConsoleOutput $output An OutputInterface instance
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $searchDirs = [
-            OX_BASE_PATH . '/application/components',
-            OX_BASE_PATH . '/application/controllers',
-            OX_BASE_PATH . '/application/models',
-            OX_BASE_PATH . '/core',
-            OX_BASE_PATH . '/modules',
-        ];
-        $finder     = new Finder();
-        $finder
-            ->name('*.php')
-            ->notPath('tcpdf')
-            ->notPath('smarty')
-            ->notPath('wysiwigpro')
-            ->notPath('phpmailer')
-            ->notPath('adodblite')
-            ->notName('*_lang.php')
-            ->in($searchDirs)
+        $modulePath = Path::join($this->getFact()->getSourcePath(), 'modules');
+        $metadates = (new \Symfony\Component\Finder\Finder())
+            ->in($modulePath)
+            ->name('/metadata.php/')
+            ->depth(2)
             ->files();
 
-        try {
-            $extendedOxidClasses = \oxRegistry::get('oxModuleInstaller')->getModulesWithExtendedClass();
-        } catch (\oxSystemComponentException $e) {
-            $extendedOxidClasses = \oxRegistry::getConfig()->getAllModules();
-        }
 
-        $classes = array();
+        foreach ($metadates as $file) {
+            $realPath = $file->getRealPath();
 
-        $classExtensions = [];
+            try {
+                @include $realPath;
+                $output->writeln("<info>" . str_replace($modulePath, '', $realPath) . '</info>');
+            } catch (\Throwable $throwable) {
+                $output->getErrorOutput()->writeln(sprintf(
+                    '<comment>[WARN]</comment> <info>%s</info> could not be read',
+                    str_replace($modulePath, '', $realPath)
+                ));
+                $output->getErrorOutput()->writeln(sprintf(
+                    "<comment>[WARN]</comment> <error>%s</error> %s:%s",
+                    $throwable->getMessage(),
+                    str_replace($modulePath, '', $throwable->getFile()),
+                    $throwable->getLine()
+                ));
+            }
 
-        foreach ($finder as $file) {
-            $output->writeln("Processing {$file}...");
-            $fileContents = file_get_contents($file);
-            if (false === strpos($fileContents, 'class ')) {
+            if (!isset($aModule['extend'])) {
                 continue;
             }
-            $tokens      = token_get_all($fileContents);
-            $class_token = false;
-            foreach ($tokens as $token) {
-                if (is_array($token)) {
-                    if ($token[0] == T_CLASS) {
-                        $class_token = true;
-                    } else {
-                        if ($class_token && $token[0] == T_STRING) {
-                            $className           = $token[1];
-                            $classes[$className] = $className;
-                            $normalizedClassName = strtolower($className);
 
-                            if (isset($extendedOxidClasses[$normalizedClassName])) {
-                                $oldExtendedClass = $className;
-                                foreach ($extendedOxidClasses[$normalizedClassName] as $moduleClass) {
-                                    $extendedClassName   = basename($moduleClass);
-                                    $classExtensions[]   =
-                                        "    class {$extendedClassName}_parent extends \\{$oldExtendedClass} {}";
-                                    $oldExtendedClass    = $extendedClassName;
-                                    $classes[$className] = $oldExtendedClass;
-                                }
-                            }
-
-                            $class_token = false;
-                        }
-                    }
+            foreach ($aModule['extend'] as $originClass => $moduleClass) {
+                if (strpos($moduleClass, '/') !== false) {
+                    $this->classic($originClass, $moduleClass);
+                } else {
+                    $this->namespace($originClass, $moduleClass);
                 }
             }
         }
 
-        $STATIC_METHOD_TYPES = '';
+        $metaFiles = $this->createSavePlace($input);
 
-        foreach ($classes as $baseClass => $class) {
-            $classLowerCase = strtolower($baseClass);
-            $STATIC_METHOD_TYPES .= "                '{$classLowerCase}' => \\{$class}::class,\n";
+        $this->saveDataInto($metaFiles->oxid_module_chain);
+        $this->saveOxideShop($metaFiles->oxid_esale);
+
+        $output->writeln("OXID eShop Cheats is saved: $metaFiles->oxid_esale");
+        $output->writeln("OXID Module Chain is saved: $metaFiles->oxid_module_chain");
+
+        return 0;
+    }
+
+    /**
+     * @param string $originClass
+     * @param string $moduleClass
+     */
+    private function classic($originClass, $moduleClass)
+    {
+        $explode = explode('/', $moduleClass);
+        $moduleClass = array_pop($explode);
+
+        $this->addChain('', $moduleClass, $originClass);
+    }
+
+    /**
+     * @param string $namespace
+     * @param string $className
+     * @param string $originClass
+     */
+    private function addChain(string $namespace, string $className, string $originClass)
+    {
+        $this->addNamespace($namespace, "class {$className}_parent extends \\$originClass {}");
+    }
+
+    /**
+     * @param string $namespace
+     * @param string $code
+     */
+    private function addNamespace(string $namespace, string $code)
+    {
+        $this->namespace[$namespace][] = $code;
+    }
+
+    /**
+     * @param string $originClass
+     * @param string $moduleClass
+     */
+    private function namespace(string $originClass, string $moduleClass)
+    {
+        $explode = explode('\\', $moduleClass);
+        $moduleClass = array_pop($explode);
+        $namespace = implode('\\', $explode);
+
+        $this->addChain($namespace, $moduleClass, $originClass);
+    }
+
+    private function saveDataInto($phpFile)
+    {
+        $script = [
+            '<?php',
+            '/**',
+             '* Builds the module chain that the OXID eShop framework creates at runtime.',
+             '* ideal for phpstan.',
+             '*',
+             '* @generated oxidprojects/oxrun command: ' . $this->getName(),
+             '*/',
+            '',
+        ];
+
+        unset($this->namespace['']); // legasy Klassen müssen raus
+
+        foreach ($this->namespace as $namespace => $codes) {
+            $script[] = "namespace {$namespace} {";
+            foreach ($codes as $code) {
+                $script[] = "    {$code}";
+            }
+            $script[] = "}";
         }
+        $script[] = '';
 
-        $metaContent = <<<'EOT'
+        (new \Symfony\Component\Filesystem\Filesystem())
+            ->dumpFile($phpFile, implode(PHP_EOL, $script));
+    }
+
+    private function saveOxideShop($phpFile)
+    {
+        (new \Symfony\Component\Filesystem\Filesystem())
+            ->dumpFile($phpFile, <<<'EOT'
 <?php
 
 /**
@@ -129,50 +202,38 @@ class PhpstormMetadataCommand extends Command implements \Oxrun\Command\EnableIn
  */
 
 namespace PHPSTORM_META {
-    override(
-        \oxNew(0),
-        map(
-            [
-                CLASSES_PLACEHOLDER
-            ]
-        )
-    );
-    override(
-        \oxRegistry::get(0),
-        map(
-            [
-                CLASSES_PLACEHOLDER
-            ]
-        )
-    );
+    override(\oxNew(0), type(0));
+
+    override(Registry::get(0),type(0));
 }
 
-namespace {
+EOT
+            );
+    }
 
-EXTENDS_PLACEHOLDER
+    /**
+     * @param InputInterface $input
+     * @return string
+     */
+    private function createSavePlace(InputInterface $input): \stdClass
+    {
+        $outputDir = $this->getFact()->getShopRootPath();
 
-}
-EOT;
-
-        $metaContent = str_replace('CLASSES_PLACEHOLDER', trim($STATIC_METHOD_TYPES), $metaContent);
-        $metaContent = str_replace('EXTENDS_PLACEHOLDER', implode("\n\n", $classExtensions), $metaContent);
-
-        if ($input->hasOption('output-dir') && (null !== ($outputDir = $input->getOption('output-dir')))) {
-            $phpstormMetaDir = "{$outputDir}/.phpstorm.meta.php";
-            $phpstormMetaFile = "{$phpstormMetaDir}/oxid.meta.php";
-
-            if (is_file($phpstormMetaDir)) {
-                unlink($phpstormMetaDir);
-            }
-
-            if (!is_dir($phpstormMetaDir)) {
-                mkdir($phpstormMetaDir, 0777, true);
-            }
-
-            file_put_contents($phpstormMetaFile, $metaContent);
-            return;
+        if ($input->hasOption('output-dir') && (null !== $input->getOption('output-dir'))) {
+            $outputDir = $input->getOption('output-dir');
         }
 
-        $output->writeln($metaContent);
+        $phpstormMetaDir = "{$outputDir}/.phpstorm.meta.php";
+        $metaFiles['oxid_module_chain'] = "{$phpstormMetaDir}/oxid_module_chain.meta.php";
+        $metaFiles['oxid_esale'] = "{$phpstormMetaDir}/oxid_esale.meta.php";
+
+        if (is_file($phpstormMetaDir)) {
+            unlink($phpstormMetaDir);
+        }
+
+        if (!is_dir($phpstormMetaDir)) {
+            mkdir($phpstormMetaDir, 0777, true);
+        }
+        return (object)$metaFiles;
     }
 }

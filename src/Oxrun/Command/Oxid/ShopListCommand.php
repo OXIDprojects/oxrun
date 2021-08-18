@@ -8,23 +8,23 @@
 
 namespace Oxrun\Command\Oxid;
 
-use Oxrun\Traits\NeedDatabase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class ShopListCommands
  * @package Oxrun\Command\Misc
  */
-class ShopListCommand extends Command implements \Oxrun\Command\EnableInterface
+class ShopListCommand extends Command
 {
-    use NeedDatabase;
 
     protected function configure()
     {
         $this->setName('oxid:shops')
+            ->addOption('only-ids', 'i', InputOption::VALUE_NONE, 'show only Shop id\'s. eg. "oe-console oxid:shops --only-ids | xargs -tn1 oe-console ... --shop-id "')
             ->setDescription('Lists the shops');
     }
 
@@ -37,7 +37,6 @@ class ShopListCommand extends Command implements \Oxrun\Command\EnableInterface
     {
         $table = new Table($output);
 
-        /** @var \oxShopList $oxShopList */
         $oxShopList = oxNew(\OxidEsales\Eshop\Application\Model\ShopList::class);
         $oxShopList->getAll();
 
@@ -45,6 +44,10 @@ class ShopListCommand extends Command implements \Oxrun\Command\EnableInterface
                      $output->getVerbosity() & OutputInterface::VERBOSITY_VERY_VERBOSE ||
                      $output->getVerbosity() & OutputInterface::VERBOSITY_DEBUG;
 
+        if ($input->getOption('only-ids')) {
+            $this->displayShopIds($output, $oxShopList);
+            return 0;
+        }
         if ($isVerbose) {
             $this->displayVerbose($oxShopList, $table);
         } else {
@@ -52,6 +55,18 @@ class ShopListCommand extends Command implements \Oxrun\Command\EnableInterface
         }
 
         $table->render();
+        return 0;
+    }
+
+    /**
+     * @param OutputInterface $output
+     * @param \OxidEsales\Eshop\Application\Model\ShopList $oxShopList
+     */
+    protected function displayShopIds(OutputInterface $output, \OxidEsales\Eshop\Application\Model\ShopList $oxShopList)
+    {
+        foreach ($oxShopList as $oxShop) {
+            $output->writeln($oxShop->getId());
+        }
     }
 
     /**

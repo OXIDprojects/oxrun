@@ -19,7 +19,7 @@ class AnalyzeModuleMetadatasTest extends TestCase
 
     private $analyzeModuleMetadata = null;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         if ($this->analyzeModuleMetadata === null) {

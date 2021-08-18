@@ -1,0 +1,38 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Created by PhpStorm.
+ * Autor: Tobias Matthaiou
+ * Date: 27.01.21
+ * Time: 16:25
+ */
+
+/**
+ * Is a command line tool that no need a running OXID eSale Database
+ */
+
+namespace Oxrun;
+
+
+$search_autoloader = [
+    "/var/www/oxid-esale/vendor/autoload.php", //Docker of Deployment Repo
+    __DIR__ . "/../vendor/autoload.php",
+    __DIR__ . "/../../vendor/autoload.php",
+    __DIR__ . "/../../../vendor/autoload.php",
+    __DIR__ . "/../../../../vendor/autoload.php",
+];
+
+$isAutoloaderFound = null;
+
+foreach ($search_autoloader as $autoloader) {
+    if (file_exists($autoloader)) {
+        $isAutoloaderFound = include $autoloader;
+    }
+}
+
+if ($isAutoloaderFound === null) {
+    echo "Please run `composer install`" . PHP_EOL;
+    exit(2);
+}
+
+include __DIR__ . '/../src/Oxrun/Application/oxrun-light.php';

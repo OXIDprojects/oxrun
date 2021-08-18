@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by oxrun.
- * Autor: Tobias Matthaiou <tm@loberon.de>
+ * Autor: Tobias Matthaiou <225997+TumTum@users.noreply.github.com>
  * Date: 12.11.18
  * Time: 17:22
  */
@@ -64,7 +64,7 @@ class ComposerConfigTest extends TestCase
         $composerConfig = new ComposerConfig();
 
         $this->expectException(FileNotFoundException::class);
-        $this->expectExceptionMessageRegExp("/^Composer.json not found/");
+        $this->expectErrorMessageMatches("/^Composer.json not found/");
 
         //Act
         $composerConfig
@@ -83,14 +83,14 @@ class ComposerConfigTest extends TestCase
         $composerConfig = new ComposerConfig();
 
         $this->expectException(FileNotFoundException::class);
-        $this->expectExceptionMessageRegExp('/^Module is not installed/');
+        $this->expectErrorMessageMatches('/^Module is not installed/');
 
         //Act
         $composerConfig
             ->addAutoload($shopRoot,'', $shopRoot.'/modules/tm/OxidModule');
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->io_hd = vfsStream::setup('root', 444, [
             'oxid' => [

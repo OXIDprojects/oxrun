@@ -8,9 +8,8 @@
 
 namespace Oxrun\Command\Misc;
 
-use Oxrun\Application;
-use Oxrun\CommandCollection\EnableAdapter;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -22,7 +21,7 @@ class GenerateDocumentationCommandTest extends TestCase
     public function testExcute()
     {
         $app = new Application();
-        $app->add(new EnableAdapter(new GenerateDocumentationCommand()));
+        $app->add(new GenerateDocumentationCommand());
 
         $command = $app->find('misc:generate:documentation');
 
@@ -33,6 +32,6 @@ class GenerateDocumentationCommandTest extends TestCase
             )
         );
 
-        $this->assertContains('Available commands', $commandTester->getDisplay());
+        $this->assertStringContainsString('Available commands', $commandTester->getDisplay());
     }
 }

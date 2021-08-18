@@ -2,29 +2,29 @@
   "name": "oxidprojects/oxrun",
   "description": "Oxrun provides a cli toolset for the OXID eShop v6.x",
   "license": "MIT",
+  "type": "oxideshop-component",
   "support": {
     "issues": "https://github.com/oxidprojects/oxrun/issues"
   },
   "homepage": "https://github.com/oxidprojects/oxrun",
   "keywords": [
     "oxid",
-    "installer",
-    "cli"
+    "eshop",
+    "cli",
+    "pimp",
+    "oe-console"
   ],
   "require": {
-    "symfony/console": "^2",
-    "symfony/finder": "^2",
-    "symfony/dependency-injection": "^3",
-    "symfony/yaml": "^2",
-    "symfony/config": "^3",
-    "guzzlehttp/guzzle": "^6.0",
-    "raulfraile/distill": "0.9.*"
+    "oxid-esales/oxideshop-ce": "^v6.5",
+    "guzzlehttp/guzzle": "*",
+    "nelexa/zip": "*"
   },
   "require-dev": {
-    "phpunit/phpunit": "^6",
+    "phpunit/phpunit": "^9",
+    "phpspec/prophecy-phpunit": "^2",
     "php-coveralls/php-coveralls": "^2",
-    "symfony/var-dumper": "^3",
-    "mikey179/vfsstream": "^1.6"
+    "symfony/var-dumper": "*",
+    "mikey179/vfsstream": "*"
   },
   "autoload": {
     "psr-4": {
@@ -36,25 +36,25 @@
   },
   "authors": [
     {
+        "name":"Tobias Matthaiou",
+        "email":"github@tobimat.de"
+    },
+    {
+        "name": "Stefan Moises",
+        "email": "beffy@proudcommerce.com"
+    },
+    {
       "name": "Marc Harding",
       "email": "info@marcharding.de"
     },
     {
       "name":"Stefan Krenz",
       "email":"info@kyoya.de"
-    },
-    {
-      "name":"Tobias Matthaiou",
-      "email":"github@tobimat.de"
-    },
-    {
-      "name": "Stefan Moises",
-      "email": "beffy@proudcommerce.com"
     }
   ],
-  "suggest": {
-    "oxid-community/moduleinternals": "To has more command",
-    "oxid-professional-services/oxid-console": "a other console cli"
-  },
-  "bin": ["bin/oxrun"]
+  "suggest": {},
+  "bin": [
+      "bin/oxrun",
+      "bin/oxrun-light"
+  ]
 }

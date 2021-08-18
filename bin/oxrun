@@ -1,48 +1,11 @@
-#!/usr/bin/env php
-<?php
+#!/usr/bin/env bash
 
-namespace Oxrun;
+package_dir=$(dirname $0);
+oe_console=$(realpath "${package_dir}/oe-console")
 
-use Oxrun\CommandCollection\Aggregator;
-use Oxrun\CommandCollection\CommandFinder;
-use Oxrun\CommandCollection\ContainerCollection;
-use Oxrun\Helper\OxrunErrorHandling;
-use Symfony\Component\Console\Output\ConsoleOutput;
+if [[ ! -f $oe_console ]]; then
+  echo "${oe_console} not found" >&2
+  exit 2;
+fi
 
-// composer bin autoload
-if (is_file(__DIR__ . '/../../../autoload.php')) {
-    $OXRUN_VENDOR_PATH = __DIR__ . '/../../../';
-}
-
-// default autoload
-if (is_file(__DIR__ . '/../vendor/autoload.php')) {
-    $OXRUN_VENDOR_PATH = __DIR__ . '/../vendor/';
-} elseif (is_file(__DIR__ . '/../autoload.php')) {
-    $OXRUN_VENDOR_PATH = __DIR__ . '/../';
-}
-
-$autoloader = require_once $OXRUN_VENDOR_PATH . 'autoload.php';
-
-$application = new \Oxrun\Application($autoloader, 'oxrun', '@package_version@');
-
-register_shutdown_function([OxrunErrorHandling::class, 'shutdown']);
-set_exception_handler([OxrunErrorHandling::class, 'handleUncaughtException']);
-
-try {
-    $commandFinder = (new CommandFinder())
-        ->addRegister(new Aggregator\CommunityPass(), true)
-        ->addRegister(new Aggregator\ModulePass(), true)
-        ->addRegister(new Aggregator\CustomPass(), true)
-        ->addRegister(new Aggregator\OxrunPass());
-
-    (new ContainerCollection($commandFinder))
-        ->addCommandTo($application);
-} catch (\Exception $e) {
-    $consoleOutput = new ConsoleOutput();
-    $consoleOutput->writeln('<error>Command Collection: '.$e->getMessage().'</error>');
-}
-
-$application->run();
-
-
-__halt_compiler();
+$oe_console $@

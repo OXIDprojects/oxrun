@@ -2,44 +2,43 @@
 
 namespace Oxrun\Command\Cache;
 
+use Composer\Console\Application;
 use OxidEsales\Eshop\Core\Registry;
-use Oxrun\Application;
-use Oxrun\CommandCollection\EnableAdapter;
-use Oxrun\TestCase;
+use PHPUnit\Framework\TestCase;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Symfony\Component\Console\Tester\CommandTester;
 
 class ClearCommandTest extends TestCase
 {
+    use ProphecyTrait;
 
     public function testExecute()
     {
         $app = new Application();
-        $app->add(new EnableAdapter(new ClearCommand()));
+        $app->add(new ClearCommand());
 
         $command = $app->find('cache:clear');
 
         $commandTester = new CommandTester($command);
         $commandTester->execute(
-            array(
+            [
                 'command' => $command->getName(),
                 '--force' => 1
-            )
+            ]
         );
 
-        $this->assertContains('Cache cleared.', $commandTester->getDisplay());
+        $actual = $commandTester->getDisplay();
+
+        $this->assertStringContainsString('Cache cleared.', (string)$actual);
     }
 
-    /**
-     * @expectedException \Exception
-     */
     public function testDontClearCompileFolderIfIsNotSameOwner()
     {
         $app = new Application();
         $clearCommand = new ClearCommand();
         $app->add($clearCommand);
-        $app->bootstrapOxid($clearCommand->needDatabaseConnection());
 
-        $oxconfigfile = new \oxConfigFile($app->getShopDir() . DIRECTORY_SEPARATOR . 'config.inc.php');
+        $oxconfigfile = new \OxidEsales\Eshop\Core\ConfigFile(OX_BASE_PATH . DIRECTORY_SEPARATOR . 'config.inc.php');
         $compileDir   = $oxconfigfile->getVar('sCompileDir');
 
         $owner = fileowner($compileDir);
@@ -48,6 +47,8 @@ class ClearCommandTest extends TestCase
         if ($current_owner == $owner) {
             $this->markTestSkipped('Test can\'t be testet, becouse the compileDir has the same owner ');
         }
+
+        $this->expectErrorMessage('Please run command as `www-data` user');
 
         $command = $app->find('cache:clear');
 
@@ -62,7 +63,7 @@ class ClearCommandTest extends TestCase
     public function testItClearCacheOnEnterpriseEdtion()
     {
         $app = new Application();
-        $app->add(new EnableAdapter(new ClearCommand()));
+        $app->add(new ClearCommand());
         $command = $app->find('cache:clear');
 
         if ((new \OxidEsales\Facts\Facts)->isEnterprise() == false) {
@@ -79,14 +80,14 @@ class ClearCommandTest extends TestCase
         );
 
         $display = $commandTester->getDisplay();
-        $this->assertContains('Generic\\Cache is cleared', $display);
-        $this->assertContains('DynamicContent\\Cache is cleared', $display);
+        $this->assertStringContainsString('Generic\\Cache is cleared', $display);
+        $this->assertStringContainsString('DynamicContent\\Cache is cleared', $display);
     }
 
     public function testCatchExcetionByEE()
     {
         $app = new Application();
-        $app->add(new EnableAdapter(new ClearCommand()));
+        $app->add(new ClearCommand());
         $command = $app->find('cache:clear');
 
         list($facts, $genericCache) = $this->mockEEGenericCacheClass();
@@ -102,16 +103,16 @@ class ClearCommandTest extends TestCase
         );
 
         $display = $commandTester->getDisplay();
-        $this->assertContains('Only enterprise cache could', $display);
+        $this->assertStringContainsString('Only enterprise cache could', $display);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
-        parent::tearDown();
         Registry::set(\OxidEsales\Facts\Facts::class, null);
         Registry::set('\OxidEsales\Eshop\Core\Cache\Generic\Cache', null);
         Registry::set('\OxidEsales\Eshop\Core\Cache\DynamicContent\ContentCache', null);
     }
+
 
     /**
      * @return array

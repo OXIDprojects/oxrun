@@ -2,8 +2,8 @@
 
 namespace Oxrun\Command\Database;
 
-use Oxrun\Application;
-use Oxrun\TestCase;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Application;
 use Oxrun\Command\Database\ListCommand as TestListCommand;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -23,8 +23,8 @@ class ListCommandTest extends TestCase
             )
         );
 
-        $this->assertContains('Table', $commandTester->getDisplay());
-        $this->assertContains('Type', $commandTester->getDisplay());
+        $this->assertStringContainsString('Table', $commandTester->getDisplay());
+        $this->assertStringContainsString('Type', $commandTester->getDisplay());
     }
 
 }

@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by oxrun.
- * Autor: Tobias Matthaiou <tm@loberon.de>
+ * Autor: Tobias Matthaiou <225997+TumTum@users.noreply.github.com>
  * Date: 12.11.18
  * Time: 10:32
  */
@@ -57,13 +57,6 @@ class CreateModule
     /**
      * @param string $skeletonUri
      * @param ModuleSpecification $moduleSpecification
-     *
-     * @throws \Distill\Exception\IO\Input\FileEmptyException
-     * @throws \Distill\Exception\IO\Input\FileFormatNotSupportedException
-     * @throws \Distill\Exception\IO\Input\FileNotFoundException
-     * @throws \Distill\Exception\IO\Input\FileNotReadableException
-     * @throws \Distill\Exception\IO\Input\FileUnknownFormatException
-     * @throws \Distill\Exception\IO\Output\TargetDirectoryNotWritableException
      */
     public function run($skeletonUri, ModuleSpecification $moduleSpecification)
     {
