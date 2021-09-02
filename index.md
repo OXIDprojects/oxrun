@@ -1,5 +1,6 @@
-# Welcome to OXRUN (DE)
+---
+layout: page
+---
+# OXRUN Documentation
 
-oxrun hat hilfreiche command für den OXID eSale Shop.
-Von simpel Cache löschen bis zu analysieren von DB.
-
+[currently only in German](/de/)
