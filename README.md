@@ -20,6 +20,8 @@ Copyright (c) 2018 Stefan Moises https://www.rent-a-hero.de/
 - PHP >=7.1 is required.
 - OXID eShop >= CE v6.5 is required.
 
+After installation manually clear the cache via `rm -rf source/tmp/*` to make all oxrun commands available.
+
 # Usage
 
 In your Installation Direction `./vendor/bin/oe-console`
