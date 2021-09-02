@@ -26,31 +26,11 @@ After installation manually clear the cache via `rm -rf source/tmp/*` to make al
 
 In your Installation Direction `./vendor/bin/oe-console`
 
-# Defining your own command
+# Documentation
 
-OXID has now published the [service container](https://docs.oxid-esales.com/developer/en/6.2/development/tell_me_about/service_container.html).
-In a `services.yaml` can a commands be registered.
-
-There are several ways to do this.
-
-1. create your own [OXID eShop Component](https://docs.oxid-esales.com/developer/en/6.2/development/modules_components_themes/component.html),
-1. or use the `services.yaml` in your module,
-1. or in the `var/configuration/configurable_services.yaml`
-
-With the command `misc:register:command` you can edit the service yaml.
-
-That's how looks
-
-```yaml
-    services:
-      OxidEsales\DemoComponent\Command\HelloWorldCommand:
-        tags:
-          - { name: 'console.command' }
-```
-
-[Template for your command](example/HelloWorldCommand.php)
-
-Example: [services.yaml](services.yaml)
+* [Fully Documentation](http://oxidprojects.github.io/oxrun/)
+* Documentation for [contributing](README_DEV.md)
+* [Changelog](READY_CONVERED_TO_v6.2.md) of command between v4.x to v5.x
 
 Available commands
 ==================

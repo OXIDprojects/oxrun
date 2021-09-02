@@ -18,7 +18,7 @@ Commands that are successfully tested in the oxide v6.2.3.
 |`db:list`                     |  [x]        |                                   |
 |`db:query`                    |  [x]        |                                   |
 |`log:exceptionlog`            |  [removed]  | need refactoring                  |
-|`misc:generate:documentation` |  [x]        |                                   |
+|`misc:generate:documentation` |  [moved]    | find in ./vendor/bin/oxrun-light  |
 |`misc:generate:yaml:config`   |  [rename]   | deploy:generate:configration      |
 |`misc:generate:yaml:module`   |  [rename]   | deploy:generate:module-activator  |
 |`misc:phpstorm:metadata`      |  [x]        |                                   |
