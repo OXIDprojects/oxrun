@@ -1,6 +1,7 @@
 ---
-layout: page
+title: 
 ---
+
 # OXRUN Documentation
 
-[currently only in German](/de/)
+[currently only in German](de/)
