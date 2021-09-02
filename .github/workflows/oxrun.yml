@@ -117,6 +117,7 @@ jobs:
         with:
           name: oxrun-description
       - name: commit readme
+        continue-on-error: true
         run: |
           git config --global user.name "Github Action"
           git config --global user.email 'tumtum@users.noreply.github.com'
