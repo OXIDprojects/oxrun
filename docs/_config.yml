@@ -2,3 +2,7 @@ theme: minima
 ignore_theme_config: true
 header_pages:
   - de/5.0/index.md
+
+plugins:
+  - jekyll-gist
+

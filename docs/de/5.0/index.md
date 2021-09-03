@@ -9,4 +9,5 @@ Von einfachem cache löschen bis zu CI Deployment prozesse.
 
 ## Anleitungen:
 
+* [Wie wird ein neuer Befehl erstellt?](wie_macht_man/einen_neuen_befehl.html)
 * [Wie richtet man PHPStan ein?](wie_macht_man/PHPStan.html)
