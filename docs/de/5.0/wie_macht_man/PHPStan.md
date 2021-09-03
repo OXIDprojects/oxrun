@@ -1,9 +1,10 @@
 ---
+layout: post
 title: Wie richtet man PHPStan ein?
 ---
 
-Damit PHPStan funktioniert muss dieses Tool wissen wie die `_parent` klassen lauten von den
-Modulen
+Damit PHPStan funktioniert muss dieses Tool wissen, von den
+Modulen, wie die `_parent` Klassen erweitert werden. 
 
 ## Befehl
 
@@ -11,19 +12,19 @@ Modulen
 
 #### Erklärung
 
-Dieser Befehl liest alle `metadata.php` und baut die Klassen zusammen. Diese werden gespeichert
+Dieser Befehl liest alle `metadata.php` und baut die Klassen zusammen. Dies wird gespeichert
 in `.phpstorm.meta.php/oxid_module_chain.meta.php`
 
-Neben Effect: die Autocompletion von der IDE funktioniert bei diesen Klassen.
+Neben Effect: die Autocompletion von der IDE funktioniert beim Schreiben der Klassen.
 
-#### Tip: `./vendor/bin/oxid-ligth misc:phpstorm:metadata` funktioniert ohne Datenbank.
+#### Tip: `./vendor/bin/oxrun-light misc:phpstorm:metadata` funktioniert ohne Datenbank.
 
 ## PHPStan Einrichten
 
-1. Einmal wird eine PHP Bootstrap Datei, für PHPstan, gebraucht.
-1. PHPstan muss gewisse Ordner vorher durchsuchen
+1. Erstmal wird eine PHP Bootstrap Datei, für PHPstan, gebraucht. Diese liest die vererbungen ein.
+1. Zudem muss PHPstan gewisse Ordner vorher durchsuchen.
 
-### Schritt 1.
+### Schritt 1. PHP Bootstrap Datei
 
 Dateiname: `.phpstan/oxid-module-chain.php`
 
@@ -53,11 +54,11 @@ includes:
     - "vendor/phpstan/phpstan-phpunit/rules.neon"
 
 parameters:
+    level: max
     bootstrapFiles:
         - .phpstan/oxid-module-chain.php
     paths:
         - "source/modules/"
-    level: max
     checkMissingIterableValueType: false
     checkGenericClassInNonGenericObjectType: false
     reportUnmatchedIgnoredErrors: false
@@ -69,6 +70,6 @@ parameters:
         - vendor/oxid-esales/oxideshop-ce/source/Core/Model/BaseModel.php
     scanDirectories:
         - vendor/oxid-esales/oxideshop-ce/source/Core/Smarty/Plugin
-        - vendor/oxid-esales/oxideshop-ee/Core/Smarty/Plugin
         - vendor/oxid-esales/oxideshop-unified-namespace-generator/generated/
+        # - vendor/oxid-esales/oxideshop-ee/Core/Smarty/Plugin # (Optional)
 ```

@@ -1,11 +1,12 @@
 ---
-title: OXRUN Dokumentation
-permalink: /de/
+layout: home
+title: Dokumentation
+permalink: /de/5.0/
 ---
 
 OXRUN hat hilfreiche tools für den [OXID eSale](https://www.oxid-esales.com/) Shop.
 Von einfachem cache löschen bis zu CI Deployment prozesse.
 
-## How To
+## Anleitungen:
 
-* [Wie richtet man PHPStan ein?](wie_macht_man/PHPStan/)
+* [Wie richtet man PHPStan ein?](wie_macht_man/PHPStan.html)
