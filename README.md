@@ -5,13 +5,12 @@
 
 Oxrun provides a cli toolset for the OXID eShop Community Edition.
 
-Thanks to the [netz98 magerun](https://github.com/netz98/n98-magerun) project which heavily inspired oxrun.
+# Documentation
 
-Copyright (c) 2015 Marc Harding http://www.marcharding.de (https://github.com/marcharding/oxrun)
+* [Fully Documentation](http://oxidprojects.github.io/oxrun/)
+* Documentation for [contributing](README_DEV.md)
+* [Changelog](READY_CONVERED_TO_v6.2.md) of command between v4.x to v5.x
 
-Copyright (c) 2021 Tobias Matthaiou http://www.tobimat.eu
-
-Copyright (c) 2018 Stefan Moises https://www.rent-a-hero.de/
 
 ## Installation
 
@@ -26,11 +25,11 @@ After installation manually clear the cache via `rm -rf source/tmp/*` to make al
 
 In your Installation Direction `./vendor/bin/oe-console`
 
-# Documentation
+---
 
-* [Fully Documentation](http://oxidprojects.github.io/oxrun/)
-* Documentation for [contributing](README_DEV.md)
-* [Changelog](READY_CONVERED_TO_v6.2.md) of command between v4.x to v5.x
+* Copyright (c) 2021 Tobias Matthaiou http://www.tobimat.eu/
+* Copyright (c) 2018 Stefan Moises https://www.rent-a-hero.de/
+* Copyright (c) 2015 Marc Harding http://www.marcharding.de (https://github.com/marcharding/oxrun)
 
 Available commands
 ==================
