@@ -8,7 +8,7 @@ services:
     command: installOxid
     working_dir: /var/www/oxid-esale
     volumes:
-      - ./oxid-esale:/var/www/oxideshop:cached
+      - ./oxid-esale:/var/www/oxid-esale:cached
       - ./:/oxrun
       - ./docker/bin/installOxid.sh:/usr/local/bin/installOxid
     links:
@@ -40,6 +40,8 @@ services:
       TZ: Europe/Berlin
     networks:
       - internal
+    volumes:
+      - mysql-data:/var/lib/mysql
 
   webserver:
     container_name: oxid_webserver
@@ -58,6 +60,9 @@ services:
       internal:
         aliases:
           - localhost
-          - oxideshop.local
+          - oxid-esale.local
 networks:
   internal:
+
+volumes:
+  mysql-data:
