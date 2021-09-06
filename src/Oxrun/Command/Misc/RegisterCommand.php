@@ -66,7 +66,7 @@ class RegisterCommand extends Command
     /**
      * @return BasicContextInterface
      */
-    public function getBasicContext(): mixed
+    public function getBasicContext(): BasicContextInterface
     {
         if ($this->basicContext === null) {
             $this->basicContext = ContainerFactory::getInstance()->getContainer()->get(BasicContextInterface::class);
@@ -82,14 +82,14 @@ class RegisterCommand extends Command
     {
         $this->setName('misc:register:command')
             ->setDescription(
-            'Extends the service.yaml file with the commands. So that they are found in oe-console.')
+                'Extends the service.yaml file with the commands. So that they are found in oe-console.')
             ->addArgument(
-            'command-dir',
-            InputArgument::REQUIRED,
-        'The folder where the commands are located or Module with option --isModule')
+                'command-dir',
+                InputArgument::REQUIRED,
+                'The folder where the commands are located or Module with option --isModule')
             ->addOption(
                 'isModule',
-            '',
+                '',
                 InputOption::VALUE_NONE,
                 'Just write the Module and the path and the service-yaml will be found automatically.'
             )
@@ -125,7 +125,7 @@ class RegisterCommand extends Command
 
         $commandDir = new \SplFileInfo($commandDir);
         if ($commandDir->isDir() === false) {
-            $output->writeln('<error>' . $commandDir->getPath() . ' is not a Folder </error>');
+            $output->writeln('<error>' . $commandDir . ' is not a Folder </error>');
             return 2;
         }
 
@@ -139,14 +139,19 @@ class RegisterCommand extends Command
         $this->removeContainerCacheFile();
 
         $output->writeln('<info>' . $serviceYaml->getPathname() . ' was updated</info>');
+        $output->writeln('please run: <comment>oe-console cache:clear</comment> to see the new commands');
 
         return file_put_contents($serviceYaml->getPathname(), $serviceYamlContent) !== false ? 0 : 2;
     }
 
-    private function moduleContext($commandDir)
+    private function moduleContext($modulePath): array
     {
-        $moduleDir = $this->getBasicContext()->getModulesPath() . DIRECTORY_SEPARATOR . $commandDir;
-        $serviceYaml = $moduleDir . DIRECTORY_SEPARATOR .'services.yaml';
+        $moduleDir = $this->getBasicContext()->getModulesPath() . DIRECTORY_SEPARATOR . $modulePath;
+        $serviceYaml = $moduleDir . DIRECTORY_SEPARATOR . 'services.yaml';
+
+        if (! file_exists($moduleDir . DIRECTORY_SEPARATOR . 'metadata.php' )) {
+            throw new \Exception($modulePath . ' is not a module');
+        }
 
         $moduleDirCommands = (new Finder())
             ->name('Command*')
@@ -154,8 +159,7 @@ class RegisterCommand extends Command
             ->in($moduleDir);
 
         if ($moduleDirCommands->hasResults() == false) {
-            $this->output->writeln('<error>No Commands found in Module. Has a `Commands/*Command.php`-Folder?</error>');
-            return 2;
+            throw new \Exception('No Commands found in Module. Put yout commands in Folder: `Commands/*Command.php`');
         }
 
         foreach ($moduleDirCommands as $folder) {
@@ -188,6 +192,9 @@ class RegisterCommand extends Command
 
         /** @var \SplFileInfo $item */
         foreach ($this->commandsPhps as $item) {
+            if (!preg_match('/Command\.php$/', $item->getBasename())) {
+                continue;
+            }
 
             $class = $this->extractClassName($item);
 
