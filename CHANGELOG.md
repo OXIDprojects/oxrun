@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [v5.0.1] 2021-09-06
+### Fixed
+  - Command misc:register:command had some runtime errors and tests were added.
+
 ## [v5.0.0] 2021-08-18
 ### Added
   - New Command `misc:register:command` to Register Command to service.yaml files.
