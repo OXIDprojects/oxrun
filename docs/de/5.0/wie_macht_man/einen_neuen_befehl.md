@@ -10,13 +10,18 @@ eingeführt. Darüber wird der neue Befehl registriert.
 
 `oe-console misc:register:command`
 
+### Vorlage
+
+Mit diesem Code Beispiel kann man einen neuen Befehl programmieren: [example/HelloWorldCommand.php](https://github.com/OXIDprojects/oxrun/blob/master/example/HelloWorldCommand.php)
+
+
 ### Grundlage
 
-Eine dieser möglichkeiten gibt es, um deinen Befehl zu registieren.
+Eine dieser drei möglichkeiten gibt es, um deinen neuen Befehl zu registieren.
 
-1. Im Projekt die `var/configuration/configurable_services.yaml` erweitern.
-1. oder in deinem Modul die `services.yaml` erweitern.
-1. oder eine [OXID eShop Component](https://docs.oxid-esales.com/developer/en/6.2/development/modules_components_themes/component.html) erstellen.
+1. Im Projekt die `var/configuration/configurable_services.yaml` bearbeiten.
+1. oder in deinem Modul die `services.yaml` bearbeiten.
+1. oder mit eine [OXID eShop Component](https://docs.oxid-esales.com/developer/en/6.2/development/modules_components_themes/component.html).
 
 In der passende YAML datei wird folgender code, als Beispiel, hinterlegt:
 
@@ -27,17 +32,11 @@ In der passende YAML datei wird folgender code, als Beispiel, hinterlegt:
           - { name: 'console.command' }
 ```
 
-Vorlage für einen Befehl: [HelloWorldCommand.php](https://gist.github.com/TumTum/3cc3ef5b79bbe2baca2ad4532beea592#file-helloworldcommand-php)
-
-
 ### Erklärung
 
 Dieser oxrun befehl `misc:register:command` durchsucht einen Ordner, wo die PHP Scripte hinterlegt
 sind, die als `Command` dienen.
 Dann werden die analysiert und in der Yaml hinzugefügt.
-
-**WICHTIG: Cache löschen danach, um den Command zu sehen.**
-
 
 #### Beispiel 1
 
