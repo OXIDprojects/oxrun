@@ -8,7 +8,7 @@ eingeführt. Darüber wird der neue Befehl registriert.
 
 ## Befehl
 
-`oe-console misc:register:command`
+`oe-console misc:register:command` [--help](https://github.com/OXIDprojects/oxrun#miscregistercommand)
 
 ### Vorlage
 

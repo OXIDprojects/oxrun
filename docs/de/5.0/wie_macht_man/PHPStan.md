@@ -8,7 +8,7 @@ Modulen, wie die `_parent` Klassen erweitert werden.
 
 ## Befehl
 
-`oe-console misc:phpstorm:metadata`
+`oe-console misc:phpstorm:metadata` [--help](https://github.com/OXIDprojects/oxrun#miscphpstormmetadata)
 
 #### Erklärung
 
