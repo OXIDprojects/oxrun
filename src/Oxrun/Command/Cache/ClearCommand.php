@@ -2,12 +2,13 @@
 
 namespace Oxrun\Command\Cache;
 
-use OxidEsales\Eshop\Core\Registry;
+use OxidEsales\Facts\Facts;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
+use Webmozart\PathUtil\Path;
 
 /**
  * Class ClearCommand
@@ -16,7 +17,39 @@ use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 class ClearCommand extends Command
 {
 
-//    use NoNeedDatabase;
+    /**
+     * @var Facts
+     */
+    private $facts;
+
+    /**
+     * @var ?\OxidEsales\Eshop\Core\Cache\Generic\Cache
+     */
+    private $genericCache = null;
+
+    /**
+     * @var ?\OxidEsales\Eshop\Core\Cache\DynamicContent\ContentCache
+     */
+    private $dynamicContentCache = null;
+
+    /**
+     * ClearCommand constructor.
+     * @param Facts|null $facts
+     * @param \OxidEsales\Eshop\Core\Cache\Generic\Cache|null $genericCache
+     * @param \OxidEsales\Eshop\Core\Cache\DynamicContent\ContentCache|null $dynamicContentCache
+     */
+    public function __construct(
+        Facts $facts = null,
+        $genericCache = null,
+        $dynamicContentCache = null
+    ) {
+        $this->facts = $facts ?? new Facts();
+        $this->genericCache = $genericCache;
+        $this->dynamicContentCache = $dynamicContentCache;
+
+        parent::__construct();
+    }
+
 
     /**
      * Configures the current command.
@@ -62,11 +95,11 @@ class ClearCommand extends Command
      */
     protected function getCompileDir()
     {
-        $oxidPath = OX_BASE_PATH;
-        $configfile = $oxidPath . DIRECTORY_SEPARATOR . 'config.inc.php';
+        $sourcePath = (new \OxidEsales\Facts\Facts())->getSourcePath();
+        $configfile = Path::join($sourcePath, 'config.inc.php');
 
-        if ($oxidPath && file_exists($configfile)) {
-            $oxConfigFile = new \OxConfigFile($configfile);
+        if ($sourcePath && file_exists($configfile)) {
+            $oxConfigFile = new \OxidEsales\Eshop\Core\ConfigFile($configfile);
             return $oxConfigFile->getVar('sCompileDir');
         }
 
@@ -123,7 +156,11 @@ class ClearCommand extends Command
         if ($current_owner != $owner) {
             global $argv;
             $owner = posix_getpwuid($owner);
-            throw new \Exception("Please run command as `${owner['name']}` user." . PHP_EOL . "    sudo -u ${owner['name']} " . join(' ', $argv));
+            throw new \Exception(
+                "Please run command as `${owner['name']}` user." . PHP_EOL .
+                "    sudo -u ${owner['name']} " .
+                join(' ', $argv)
+            );
         }
     }
 
@@ -132,23 +169,51 @@ class ClearCommand extends Command
      */
     protected function enterpriseCache(OutputInterface $output)
     {
-        if (class_exists('\OxidEsales\Facts\Facts') == false) {
+        if ($this->facts->isEnterprise() == false) {
             return;
         }
 
-        if ((Registry::get(\OxidEsales\Facts\Facts::class))->isEnterprise() == false) {
+        if ($this->getApplication() instanceof \Oxrun\Application\OxrunLight) {
+            $output->writeln(
+                '<comment>[Info] The enterprise cache could not be cleared. ' .
+                'Goes only via the command `oe-console cache:clear`.</comment>',
+                OutputInterface::VERBOSITY_NORMAL
+            );
             return;
         }
 
         try {
-            Registry::get('OxidEsales\Eshop\Core\Cache\Generic\Cache')->flush();
+            $this->getGenericCache()->flush();
             $output->writeln('<info>Generic\Cache is cleared</info>');
 
-            Registry::get('OxidEsales\Eshop\Core\Cache\DynamicContent\ContentCache')->reset(true);
+            $this->getDynamicContentCache()->reset(true);
             $output->writeln('<info>DynamicContent\Cache is cleared</info>');
 
         } catch (\Exception $e) {
-            $output->writeln('<error>Only enterprise cache could\'t be cleared: '.$e->getMessage().'</error>');
+            $output->writeln('<error>Only enterprise cache could\'t be cleared: ' . $e->getMessage() . '</error>');
         }
+    }
+
+    /**
+     * @return \OxidEsales\Eshop\Core\Cache\Generic\Cache
+     */
+    private function getGenericCache()
+    {
+        if ($this->genericCache === null) {
+            $this->genericCache = new \OxidEsales\Eshop\Core\Cache\Generic\Cache();
+        }
+        return $this->genericCache;
+    }
+
+    /**
+     * @return \OxidEsales\Eshop\Core\Cache\DynamicContent\ContentCache
+     */
+    private function getDynamicContentCache()
+    {
+        if ($this->dynamicContentCache === null) {
+            $this->dynamicContentCache = new \OxidEsales\Eshop\Core\Cache\DynamicContent\ContentCache();
+        }
+
+        return $this->dynamicContentCache;
     }
 }

@@ -8,10 +8,12 @@ use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * Class ClearCommandTest
+ * @package Oxrun\Command\Cache
+ */
 class ClearCommandTest extends TestCase
 {
-    use ProphecyTrait;
-
     public function testExecute()
     {
         $app = new Application();
@@ -62,13 +64,11 @@ class ClearCommandTest extends TestCase
 
     public function testItClearCacheOnEnterpriseEdtion()
     {
-        $app = new Application();
-        $app->add(new ClearCommand());
-        $command = $app->find('cache:clear');
+        [$facts, $genericCache, $dynamicContentCache] = $this->mockEEClasses();
 
-        if ((new \OxidEsales\Facts\Facts)->isEnterprise() == false) {
-            $this->mockEEGenericCacheAndDynamicContentClass();
-        }
+        $app = new Application();
+        $app->add(new ClearCommand($facts, $genericCache, $dynamicContentCache));
+        $command = $app->find('cache:clear');
 
 
         $commandTester = new CommandTester($command);
@@ -86,13 +86,15 @@ class ClearCommandTest extends TestCase
 
     public function testCatchExcetionByEE()
     {
+        [$facts, $genericCache, $dynamicContentCache] = $this->mockEEClasses();
+
         $app = new Application();
-        $app->add(new ClearCommand());
+        $app->add(new ClearCommand($facts, $genericCache, $dynamicContentCache));
         $command = $app->find('cache:clear');
 
-        list($facts, $genericCache) = $this->mockEEGenericCacheClass();
-        $genericCache->flush()->willThrow(new \Exception('PHPUnit Tests'));
-
+        $genericCache
+            ->method('flush')
+            ->will($this->returnCallback(function () { throw new \Exception('PHPUnit Tests'); }));
 
         $commandTester = new CommandTester($command);
         $commandTester->execute(
@@ -106,40 +108,19 @@ class ClearCommandTest extends TestCase
         $this->assertStringContainsString('Only enterprise cache could', $display);
     }
 
-    protected function tearDown(): void
+
+    protected function mockEEClasses(): array
     {
-        Registry::set(\OxidEsales\Facts\Facts::class, null);
-        Registry::set('\OxidEsales\Eshop\Core\Cache\Generic\Cache', null);
-        Registry::set('\OxidEsales\Eshop\Core\Cache\DynamicContent\ContentCache', null);
-    }
+        $facts = $this->createMock(\OxidEsales\Facts\Facts::class);
+        $facts
+            ->method('isEnterprise')
+            ->willReturn($this->returnValue(true));
 
-
-    /**
-     * @return array
-     */
-    protected function mockEEGenericCacheClass()
-    {
-        $facts = $this->prophesize(\OxidEsales\Facts\Facts::class);
-        $facts->isEnterprise()->willReturn(true);
-        $genericCache = $this->prophesize(GenericCache::class);
-
-        Registry::set(\OxidEsales\Facts\Facts::class, $facts->reveal());
-        Registry::set('OxidEsales\Eshop\Core\Cache\Generic\Cache', $genericCache->reveal());
-
-        return [$facts, $genericCache];
-    }
-
-    /**
-     * @return array
-     */
-    protected function mockEEGenericCacheAndDynamicContentClass()
-    {
-        list($facts, $genericCache) = $this->mockEEGenericCacheClass();
-
-        $dynamicContentCache = $this->prophesize(DynamicContentCache::class);
-        Registry::set('OxidEsales\Eshop\Core\Cache\DynamicContent\ContentCache', $dynamicContentCache->reveal());
-
-        return [$facts, $genericCache, $dynamicContentCache];
+        return [
+            $facts,
+            $this->createMock(GenericCache::class),
+            $this->createMock(DynamicContentCache::class),
+        ];
     }
 }
 

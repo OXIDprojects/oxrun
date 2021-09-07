@@ -17,7 +17,6 @@ use OxidEsales\EshopCommunity\Internal\Transition\Utility\BasicContextInterface;
 /**
  * Class RegisterCommandTest
  * @package Oxrun\Command\Misc
- * @group active
  */
 class RegisterCommandTest extends TestCase
 {

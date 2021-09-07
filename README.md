@@ -19,11 +19,14 @@ Oxrun provides a cli toolset for the OXID eShop Community Edition.
 - PHP >=7.1 is required.
 - OXID eShop >= CE v6.5 is required.
 
-After installation manually clear the cache via `rm -rf source/tmp/*` to make all oxrun commands available.
+After installation manually clear the cache via `./vendor/bin/oxrun-light cache:clear` to make all oxrun commands available.
 
 # Usage
 
-In your Installation Direction `./vendor/bin/oe-console`
+`./vendor/bin/oe-console` is standard call.
+
+* `./vendor/bin/oxrun-light` is a light version of tools that are not need an active OXID eSale database connection.
+* `./vendor/bin/oxrun` is a alias from `oe-console`
 
 ---
 
