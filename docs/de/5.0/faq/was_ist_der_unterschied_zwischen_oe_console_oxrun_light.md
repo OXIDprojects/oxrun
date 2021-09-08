@@ -15,20 +15,23 @@ Daher sind alle oxrun command in `./vendor/bin/oe-console` enthalten.
 `./vendor/bin/oxrun-light`
 
 Die `oe-console` funktioniert nur wenn eine aktive Datenbank eingerichtet und richtig konfiguriert ist.
-Sollte dies nicht der fall sein können gar keine Befehle mehr ausgeführt werden.
+Sollte dies nicht der fall sein, können gar keine Befehle mehr ausgeführt werden.
 
 `oxrun-light` beinhaltet Befehle die von der Datenbank verbindung unabhängig sind. Zum Beispiel das 
-`cache:clear` tool. Es funktioniert auch dann, wenn es fehler beim bauen des DI Container gibt und
-dieser muss neu gebaut werden.
+`cache:clear` tool. Es funktioniert auch dann, wenn es fehler beim Bauen des DI Container gibt.
+(Weil man evt. eine `__construct()` funktion verändert hat, von einem Service. 
+Ja dann muss der Cache gelehrt werden. Da in diesem Moment die `oe-console` nicht funktioniert)
 
-Daher kann es manchmal hilfreich sein `./vendor/bin/oxrun-light cache:clear` auszuführen,
-wenn `oe-console` mal nicht funktioniert.
+Daher kann es manchmal hilfreich sein `./vendor/bin/oxrun-light cache:clear` auszuführen.
+Sollte wieder mal die `oe-console` nicht funktionieren.
 
-Mit anderen worten `oxrun-light` hat tools drinnen die ohne eine aktive Datenbank funktionieren.
+Für Enterprise Setups zu wissen: ./vendor/bin/oxrun-light hat keine Verbindung zur Datenbank,
+daher kann mit diesem Tool den hauseigen EE-Cache nicht lehren. 
+Das Geht dann wieder nur über den `oe-console cache:clear`.
 
 ## oxrun
 
 `./vendor/bin/oxrun`
 
-war der frühere Befehl in <v4.x aus BC gründe, ist es nun ein alias auf `./vendor/bin/oe-console`
+war der frühere Befehl in `< v4.x.x` aus BC gründe, ist es nun ein alias auf `./vendor/bin/oe-console`
 Somit sind `oe-console` und `oxrun` identisch.
