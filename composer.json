@@ -15,7 +15,7 @@
     "oe-console"
   ],
   "require": {
-    "oxid-esales/oxideshop-ce": "^v6.5",
+    "oxid-esales/oxideshop-ce": "^v6.5 || ^7.0",
     "guzzlehttp/guzzle": "*",
     "nelexa/zip": "*"
   },
