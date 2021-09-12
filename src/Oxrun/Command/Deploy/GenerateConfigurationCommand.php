@@ -13,6 +13,7 @@ use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\EshopCommunity\Internal\Framework\Console\Executor;
 use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInterface;
 use Oxrun\Core\EnvironmentManager;
+use Oxrun\Core\OxidVersion;
 use Oxrun\Core\OxrunContext;
 use Oxrun\Helper\FileStorage;
 use Oxrun\Helper\MulitSetConfigConverter;
@@ -201,12 +202,17 @@ class GenerateConfigurationCommand extends Command
      */
     protected function getConfigFromShop($shopId)
     {
-        $decodeValueQuery = Registry::getConfig()->getDecodeValueQuery();
+        $oxvarvalueColumn = 'oxvarvalue';
+
+        OxidVersion::on61(function () use (&$oxvarvalueColumn) {
+            $decodeValueQuery = Registry::getConfig()->getDecodeValueQuery();
+            $oxvarvalueColumn = "{$decodeValueQuery} as oxvarvalue";
+        });
 
         $qb = $this->queryBuilderFactory->create();
         $queryVarnameModule = '';
 
-        $qb->select("oxvarname, oxvartype, {$decodeValueQuery} as oxvarvalue, oxmodule")
+        $qb->select("oxvarname, oxvartype, {$oxvarvalueColumn}, oxmodule")
             ->from('oxconfig')
             ->where('OXSHOPID = :oxshopid')
             ->setParameter('oxshopid', $shopId);
