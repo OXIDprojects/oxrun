@@ -189,23 +189,25 @@ HELP;
                 }
 
                 if ($moduleId) {
-                    list($devnull, $module) = explode(':', $moduleId);
-                    if (empty($module)) {
-                        $this->output->getErrorOutput()->writeln(sprintf(
-                            'ModuleId not can not be detacted ShopId: %s, ModuleId: %s, VariableName: %s, VariableValue: %s',
-                            $shopId, $moduleId, $varName, $varValue
-                        ));
-                    }
-                    $this->environments->set($shopId, $module, $varType, $varName, $varValue);
-                    $this->isChangeModuleSettings = true;
+                    list($type, $module) = explode(':', $moduleId);
+                    if ($type === 'module') {
+                        if (empty($module)) {
+                            $this->output->getErrorOutput()->writeln(sprintf(
+                                'ModuleId not can not be detacted ShopId: %s, ModuleId: %s, VariableName: %s, VariableValue: %s',
+                                $shopId, $moduleId, $varName, $varValue
+                            ));
+                        }
+                        $this->environments->set($shopId, $module, $varType, $varName, $varValue);
+                        $this->isChangeModuleSettings = true;
 
-                    $this->output->writeln(
-                        "({$shopId}) Module Config <info>" . trim(trim(Yaml::dump([$varName => $varValue], 0, 1), '{}')) . "</info> will be saved"
-                    );
+                        $this->output->writeln(
+                            "({$shopId}) Module Config <info>" . trim(trim(Yaml::dump([$varName => $varValue], 0, 1), '{}')) . "</info> will be saved"
+                        );
 
-                    //Default: Do not save module configs in the database.
-                    if ($this->input->getOption('force-db') == false) {
-                        continue;
+                        //Default: Do not save module configs in the database.
+                        if ($this->input->getOption('force-db') == false) {
+                            continue;
+                        }
                     }
                 }
 
