@@ -40,7 +40,7 @@ services:
       - { name: console.command, command: 'module:list' }
   Oxrun\Command\Module\ReloadCommand:
     tags:
-      - { name: console.command }
+      - { name: console.command, command: 'module:reload' }
     autowire: true
   Oxrun\Command\Oxid\ShopListCommand:
     tags:
@@ -59,37 +59,37 @@ services:
       - { name: console.command, command: 'views:update' }
   Oxrun\Command\Deploy\UpdateModuleConfigCommand:
     tags:
-      - { name: console.command }
+      - { name: console.command, command: 'deploy:update-module-config' }
     autowire: true
   Oxrun\Command\Deploy\ModuleApplyConfigurationLightCommand:
     tags:
-      - { name: console.command }
+      - { name: console.command, command: 'deploy:module-apply-configuration-light' }
     autowire: true
   Oxrun\Command\Deploy\ModuleActivatorCommand:
     tags:
-      - { name: console.command }
+      - { name: console.command, command: 'deploy:module-activator' }
     autowire: true
   Oxrun\Command\Config\GetCommand:
     tags:
-      - { name: console.command }
+      - { name: console.command, command: 'config:get' }
     autowire: true
   Oxrun\Command\Deploy\GenerateModuleActivatorCommand:
     tags:
-      - { name: console.command }
+      - { name: console.command, command: 'deploy:generate:module-activator' }
     autowire: true
   Oxrun\Command\Deploy\GenerateConfigurationCommand:
     tags:
-      - { name: console.command }
+      - { name: console.command, command: 'deploy:generate:configuration' }
     autowire: true
   Oxrun\Command\Deploy\ConfigCommand:
     tags:
-      - { name: console.command }
+      - { name: console.command, command: 'deploy:config' }
     autowire: true
   Oxrun\Command\Config\SetCommand:
     tags:
-      - { name: console.command }
+      - { name: console.command, command: 'config:set' }
     autowire: true
   Oxrun\Command\Deploy\LinkEnvironmentCommand:
     tags:
-      - { name: console.command }
+      - { name: console.command, command: 'deploy:link:environment' }
     autowire: true

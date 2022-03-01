@@ -5,10 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [v5.1.2] 2022-03-01
+  - Bugfix: Error on rerunning composer install [Issue #62](https://github.com/OXIDprojects/oxrun/issues/62)
+
+### Fixed
 ## [v5.1.1] 2021-10-12
 ### Fixed
   - Bugfix: configs for theme are no longer stored in the oxid configurations yaml, too. (PR #61)
- 
+
 ## [v5.1.0] 2021-09-07
 ### Changed
   - `oxrun-light` is now officially documented.
