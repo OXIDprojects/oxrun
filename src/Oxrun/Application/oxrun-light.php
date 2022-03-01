@@ -20,7 +20,7 @@ class OxrunLight extends \Symfony\Component\Console\Application
     /**
      * @inheritDoc
      */
-    public function getHelp()
+    public function getHelp(): string
     {
         $version = parent::getHelp();
         return <<<TAG
