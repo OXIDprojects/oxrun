@@ -17,6 +17,8 @@ jobs:
     strategy:
       matrix:
         oxid:
+          - metapackage: "6.5"
+            php: "8.0"
           - metapackage: "6.3"
             php: "8.0"
           - metapackage: "6.2"
