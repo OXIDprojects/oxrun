@@ -12,7 +12,7 @@ use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\Dao\ShopCo
 use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\DataObject\ModuleConfiguration;
 use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\DataObject\ShopConfiguration;
 use OxidEsales\EshopCommunity\Internal\Framework\Module\Setting\Setting;
-use OxidEsales\EshopCommunity\Internal\Framework\Module\Setting\SettingDao;
+use OxidEsales\EshopCommunity\Internal\Framework\Module\Setting\SettingDaoInterface;
 use OxidEsales\EshopCommunity\Internal\Framework\Module\State\ModuleStateServiceInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -43,7 +43,7 @@ class ModuleApplyConfigurationLightCommand extends Command
     private $moduleStateService;
 
     /**
-     * @var SettingDao
+     * @var SettingDaoInterface
      */
     private $settingDao;
 
@@ -63,7 +63,7 @@ class ModuleApplyConfigurationLightCommand extends Command
     public function __construct(
         ShopConfigurationDaoInterface $shopConfigurationDao,
         ModuleStateServiceInterface $moduleStateService,
-        SettingDao $settingDao
+        SettingDaoInterface $settingDao
     )
     {
         $this->shopConfigurationDao = $shopConfigurationDao;

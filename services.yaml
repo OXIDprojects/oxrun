@@ -1,4 +1,16 @@
 services:
+  Oxrun\Core\OxrunContext:
+    class: Oxrun\Core\OxrunContext
+  Oxrun\Core\EnvironmentManager:
+    class: Oxrun\Core\EnvironmentManager
+  Oxrun\Helper\MulitSetConfigConverter:
+    class: Oxrun\Helper\MulitSetConfigConverter
+  Oxrun\Helper\MultiSetTranslator:
+    class: Oxrun\Helper\MultiSetTranslator
+  Oxrun\Helper\FileStorage:
+    class: Oxrun\Helper\FileStorage
+  Oxrun\Helper\AnalyzeModuleMetadata:
+    class: Oxrun\Helper\AnalyzeModuleMetadata
   Oxrun\Command\Cache\ClearCommand:
     tags:
       - { name: console.command, command: 'cache:clear' }
