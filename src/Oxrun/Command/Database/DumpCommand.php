@@ -176,8 +176,7 @@ HELP;
                 $tablesNoData = array_map('escapeshellarg', $tables);
                 $tablesNoData = implode(' ', $tablesNoData);
 
-                $commandOnlyTable = $this->getMysqlDumpCommand() . ' ' . $tablesNoData;
-                $commandOnlyTable = sprintf($commandOnlyTable, ' --no-data');
+                $commandOnlyTable = $this->getMysqlDumpCommand('--no-data') . ' ' . $tablesNoData;
                 if ($file) {
                     $commandOnlyTable .= " > $file";
                 }
@@ -191,8 +190,7 @@ HELP;
 
         $ignoreTables = implode(' ', $ignoreTables);
 
-        $commandTable = $this->getMysqlDumpCommand();
-        $commandTable = sprintf($commandTable, $ignoreTables);
+        $commandTable = $this->getMysqlDumpCommand($ignoreTables);
         if (!empty($explicatedTable)) {
             $explicatedTable = array_map('escapeshellarg', $explicatedTable);
             $commandTable .= implode(' ', $explicatedTable);
@@ -224,9 +222,10 @@ HELP;
     /**
      * Get the mysqldump cli command with user credentials.
      *
+     * @param string $arguments
      * @return string
      */
-    protected function getMysqlDumpCommand()
+    protected function getMysqlDumpCommand($arguments = '')
     {
         $dbHost = \oxRegistry::getConfig()->getConfigParam('dbHost');
         $dbUser = \oxRegistry::getConfig()->getConfigParam('dbUser');
@@ -250,8 +249,8 @@ HELP;
             ' --quick' .
             ' --opt' .
             ' --hex-blob' .
-            $utfMode .
-            ' %s ' . # argumment part
+            $utfMode . ' ' .
+            $arguments . ' ' .
             $dbName .
             ' '; # bash part
 
