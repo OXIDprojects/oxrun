@@ -66,7 +66,7 @@ HELP;
         // allow empty password
         $dbPwd = \oxRegistry::getConfig()->getConfigParam('dbPwd');
         if (!empty($dbPwd)) {
-            $dbPwd = '-p ' . escapeshellarg($dbPwd);
+            $dbPwd = '-p' . escapeshellarg($dbPwd);
         }
 
         $exec = sprintf(
