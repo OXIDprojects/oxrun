@@ -234,7 +234,7 @@ HELP;
 
         $dbPwd = \oxRegistry::getConfig()->getConfigParam('dbPwd');
         if (!empty($dbPwd)) {
-            $dbPwd = ' -p' . $dbPwd;
+            $dbPwd = ' -p ' . escapeshellarg($dbPwd);
         }
 
         $utfMode = '';
