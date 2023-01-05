@@ -51,7 +51,7 @@ HELP;
         // allow empty password
         $dbPwd = Registry::getConfig()->getConfigParam('dbPwd');
         if (!empty($dbPwd)) {
-            $dbPwd = '-p ' . escapeshellarg($dbPwd);
+            $dbPwd = '-p' . escapeshellarg($dbPwd);
         }
 
         $exec = sprintf(
