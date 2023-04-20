@@ -127,6 +127,8 @@ class UpdateModuleConfigCommand extends Command
         }
 
         $this->environments->save();
+
+        return self::SUCCESS;
     }
 
     protected function addDatabaseConfig($shopId, $moduleId, $valueName)
