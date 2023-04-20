@@ -137,6 +137,8 @@ TAG
         } else {
             $this->applyModulesConfigurationForAllShops();
         }
+
+        return self::SUCCESS;
     }
 
     private function applyModulesConfigurationForOneShop(int $shopId)

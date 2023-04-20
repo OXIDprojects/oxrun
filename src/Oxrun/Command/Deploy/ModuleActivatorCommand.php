@@ -251,6 +251,8 @@ HELP;
             $this->output->writeLn("<error>No valid YAML data found!</error>");
         }
         $this->output->writeLn("<info>END module activator shop</info>");
+
+        return self::SUCCESS;
     }
 
 
