@@ -55,8 +55,9 @@ HELP;
         }
 
         $exec = sprintf(
-            "mysql -h%s %s -u%s %s < %s 2>&1",
+            "mysql -h%s -P%s %s -u%s %s < %s 2>&1",
             Registry::getConfig()->getConfigParam('dbHost'),
+            Registry::getConfig()->getConfigParam('dbPort'),
             $dbPwd,
             Registry::getConfig()->getConfigParam('dbUser'),
             Registry::getConfig()->getConfigParam('dbName'),
