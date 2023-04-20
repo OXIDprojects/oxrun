@@ -229,6 +229,7 @@ HELP;
     protected function getMysqlDumpCommand()
     {
         $dbHost = \oxRegistry::getConfig()->getConfigParam('dbHost');
+        $dbPort = \oxRegistry::getConfig()->getConfigParam('dbPort');
         $dbUser = \oxRegistry::getConfig()->getConfigParam('dbUser');
         $dbName = \oxRegistry::getConfig()->getConfigParam('dbName');
 
@@ -245,6 +246,7 @@ HELP;
         $mysqldump = 'mysqldump' .
             ' -u ' . escapeshellarg($dbUser) .
             ' -h ' . escapeshellarg($dbHost) .
+            ' -P ' . escapeshellarg($dbPort) .
             $dbPwd .
             ' --force' .
             ' --quick' .
