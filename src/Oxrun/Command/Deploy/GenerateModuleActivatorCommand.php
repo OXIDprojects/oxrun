@@ -98,6 +98,8 @@ class GenerateModuleActivatorCommand extends Command
         file_put_contents($path, Yaml::dump($yaml, 5, 2));
 
         $output->writeln("<comment>Module saved use `oe-console deploy:module-activator ".basename($path)."`</comment>");
+
+        return self::SUCCESS;
     }
 
     /**

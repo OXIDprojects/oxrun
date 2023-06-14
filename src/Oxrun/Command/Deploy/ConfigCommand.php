@@ -132,12 +132,12 @@ HELP;
             $mallValues = Yaml::parse($mallYml);
         } catch (\Exception $e) {
             $this->output->getErrorOutput()->writeln('<error>' . $e->getMessage() . '</error>');
-            return 1;
+            return self::FAILURE;
         }
 
         if (empty($mallValues)) {
             $this->output->getErrorOutput()->writeln('<error>File ' . $this->input->getArgument('configfile') . ' is broken.</error>');
-            return 1;
+            return self::FAILURE;
         }
 
         // Read Configration EnvironmentManager
@@ -153,10 +153,10 @@ HELP;
             $this->saveModuleConfigationYaml();
         } else {
             $this->output->getErrorOutput()->writeln('<error>No `config:` found in ' . $this->input->getArgument('configfile') . '</error>');
-            return 1;
+            return self::FAILURE;
         }
 
-        return 0;
+        return self::SUCCESS;
     }
 
     /**
