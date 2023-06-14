@@ -1,4 +1,15 @@
 services:
+  Oxrun\Core\OxrunContext:
+    class: Oxrun\Core\OxrunContext
+    autowire: true
+  Oxrun\Core\EnvironmentManager:
+    class: Oxrun\Core\EnvironmentManager
+    autowire: true
+  Oxrun\Helper\MulitSetConfigConverter:
+    class: Oxrun\Helper\MulitSetConfigConverter
+    autowire: true
+  Oxrun\Helper\FileStorage:
+    class: Oxrun\Helper\FileStorage
   Oxrun\Command\Cache\ClearCommand:
     tags:
       - { name: console.command, command: 'cache:clear' }
