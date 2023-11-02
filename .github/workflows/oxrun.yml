@@ -17,9 +17,7 @@ jobs:
     strategy:
       matrix:
         oxid:
-          - metapackage: "7.0-rc"
-            php: "8.0"
-          - metapackage: "6.5"
+          - metapackage: "7.0"
             php: "8.0"
 
     runs-on: ubuntu-latest
@@ -35,7 +33,7 @@ jobs:
         OXID_SHOP_URL: "http://localhost"
     services:
       oxid_db:
-        image: mysql:5.7
+        image: mysql:8.0
         env:
           MYSQL_DATABASE: oxid
           MYSQL_USER: oxid
