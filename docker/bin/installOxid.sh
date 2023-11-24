@@ -39,6 +39,7 @@ if [ ! -f "${DOCKER_DOCUMENT_ROOT}/source/config.inc.php" ]; then
     sed -i "s/<dbName>/${MYSQL_DATABASE}/" ${source_dir}/config.inc.php && \
     sed -i "s/<dbUser>/${MYSQL_USER}/" ${source_dir}/config.inc.php && \
     sed -i "s/<dbPwd>/${MYSQL_PASSWORD}/" ${source_dir}/config.inc.php && \
+    sed -i "s/<dbPort>/${MYSQL_PORT}/" ${source_dir}/config.inc.php && \
     sed -i "s|<sShopURL>|${OXID_SHOP_URL}|" ${source_dir}/config.inc.php && \
     sed -i "s/'<sShopDir>'/__DIR__ . '\/'/" ${source_dir}/config.inc.php && \
     sed -i "s/'<sCompileDir>'/__DIR__ . '\/tmp'/" ${source_dir}/config.inc.php

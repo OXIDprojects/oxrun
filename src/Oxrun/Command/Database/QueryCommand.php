@@ -66,12 +66,13 @@ HELP;
         // allow empty password
         $dbPwd = \oxRegistry::getConfig()->getConfigParam('dbPwd');
         if (!empty($dbPwd)) {
-            $dbPwd = '-p' . $dbPwd;
+            $dbPwd = '-p' . escapeshellarg($dbPwd);
         }
 
         $exec = sprintf(
-            "mysql -h%s %s -u%s %s -e '%s' 2>&1",
+            "mysql -h%s -P%s %s -u%s %s -e '%s' 2>&1",
             \oxRegistry::getConfig()->getConfigParam('dbHost'),
+            \oxRegistry::getConfig()->getConfigParam('dbPort'),
             $dbPwd,
             \oxRegistry::getConfig()->getConfigParam('dbUser'),
             \oxRegistry::getConfig()->getConfigParam('dbName'),

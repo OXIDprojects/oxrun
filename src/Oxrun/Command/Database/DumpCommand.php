@@ -129,7 +129,7 @@ HELP;
         $dbName = Registry::getConfig()->getConfigParam('dbName');
 
         if($input->getOption('ignoreViews')) {
-            $viewsResultArray = \oxDb::getDb()->getAll("SHOW FULL TABLES IN {$dbName} WHERE TABLE_TYPE LIKE 'VIEW'");
+            $viewsResultArray = \oxDb::getDb()->getAll("SHOW FULL TABLES IN `{$dbName}` WHERE TABLE_TYPE LIKE 'VIEW'");
             if (is_array($viewsResultArray)) {
                 foreach ($viewsResultArray as $sqlRow) {
                     $ignoreTables[] = $sqlRow[0];
@@ -176,8 +176,7 @@ HELP;
                 $tablesNoData = array_map('escapeshellarg', $tables);
                 $tablesNoData = implode(' ', $tablesNoData);
 
-                $commandOnlyTable = $this->getMysqlDumpCommand() . ' ' . $tablesNoData;
-                $commandOnlyTable = sprintf($commandOnlyTable, ' --no-data');
+                $commandOnlyTable = $this->getMysqlDumpCommand('--no-data') . ' ' . $tablesNoData;
                 if ($file) {
                     $commandOnlyTable .= " > $file";
                 }
@@ -191,8 +190,7 @@ HELP;
 
         $ignoreTables = implode(' ', $ignoreTables);
 
-        $commandTable = $this->getMysqlDumpCommand();
-        $commandTable = sprintf($commandTable, $ignoreTables);
+        $commandTable = $this->getMysqlDumpCommand($ignoreTables);
         if (!empty($explicatedTable)) {
             $explicatedTable = array_map('escapeshellarg', $explicatedTable);
             $commandTable .= implode(' ', $explicatedTable);
@@ -224,17 +222,19 @@ HELP;
     /**
      * Get the mysqldump cli command with user credentials.
      *
+     * @param string $arguments
      * @return string
      */
-    protected function getMysqlDumpCommand()
+    protected function getMysqlDumpCommand($arguments = '')
     {
         $dbHost = \oxRegistry::getConfig()->getConfigParam('dbHost');
+        $dbPort = \oxRegistry::getConfig()->getConfigParam('dbPort');
         $dbUser = \oxRegistry::getConfig()->getConfigParam('dbUser');
         $dbName = \oxRegistry::getConfig()->getConfigParam('dbName');
 
         $dbPwd = \oxRegistry::getConfig()->getConfigParam('dbPwd');
         if (!empty($dbPwd)) {
-            $dbPwd = ' -p' . $dbPwd;
+            $dbPwd = ' -p' . escapeshellarg($dbPwd);
         }
 
         $utfMode = '';
@@ -245,13 +245,14 @@ HELP;
         $mysqldump = 'mysqldump' .
             ' -u ' . escapeshellarg($dbUser) .
             ' -h ' . escapeshellarg($dbHost) .
+            ' -P ' . escapeshellarg($dbPort) .
             $dbPwd .
             ' --force' .
             ' --quick' .
             ' --opt' .
             ' --hex-blob' .
-            $utfMode .
-            ' %s ' . # argumment part
+            $utfMode . ' ' .
+            $arguments . ' ' .
             $dbName .
             ' '; # bash part
 
@@ -302,17 +303,17 @@ HELP;
         }
 
         $whereIN = implode("', '", $whereIN);
-        $conditionsIN = "Tables_in_{$dbName} IN ('{$whereIN}')";
+        $conditionsIN = "`Tables_in_{$dbName}` IN ('{$whereIN}')";
 
         $conditionsLIKE = '';
         if (!empty($whereLIKE)) {
-            $template = " OR Tables_in_{$dbName} LIKE ('%s')";
+            $template = " OR `Tables_in_{$dbName}` LIKE ('%s')";
             foreach ($whereLIKE as $tablename) {
                 $conditionsLIKE .= sprintf($template, $tablename);
             }
         }
 
-        $sqlstament = "SHOW FULL TABLES IN {$dbName} WHERE $conditionsIN $conditionsLIKE";
+        $sqlstament = "SHOW FULL TABLES IN `{$dbName}` WHERE $conditionsIN $conditionsLIKE";
 
         $result = \oxDb::getDb()->getAll($sqlstament);
 

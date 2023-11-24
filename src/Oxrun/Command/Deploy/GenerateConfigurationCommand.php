@@ -25,7 +25,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
-use Webmozart\PathUtil\Path;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Class GenerateYamlMultiSetCommand
@@ -152,7 +152,7 @@ class GenerateConfigurationCommand extends Command
 
         if ($input->getOption('list')) {
             $this->listfolder($output);
-            return 0;
+            return self::SUCCESS;
         }
 
         $this->environments->init($input, $output);
@@ -194,7 +194,7 @@ class GenerateConfigurationCommand extends Command
         $this->fileStorage->save($path, $yamltxt);
 
         $output->writeln("<comment>Config saved. use `oe-console deploy:config " . $input->getOption('configfile') . "`</comment>");
-        return 0;
+        return self::SUCCESS;
     }
 
     /**

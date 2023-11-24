@@ -18,6 +18,7 @@ services:
       DOCKER_DOCUMENT_ROOT: /var/www/oxid-esale
       MYSQL_HOST: oxid_db
       MYSQL_DATABASE: 'oxid'
+      MYSQL_PORT: '3306'
       MYSQL_USER: "oxid"
       MYSQL_PASSWORD: "oxid"
       OXID_SHOP_URL: "http://oxid-esale.local:8082"

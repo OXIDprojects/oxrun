@@ -17,12 +17,8 @@ jobs:
     strategy:
       matrix:
         oxid:
-          - metapackage: "7.0-rc"
+          - metapackage: "7.0"
             php: "8.0"
-          - metapackage: "6.3"
-            php: "8.0"
-          - metapackage: "6.2"
-            php: "7.4"
 
     runs-on: ubuntu-latest
     container:
@@ -32,12 +28,13 @@ jobs:
         DOCKER_DOCUMENT_ROOT: /var/www/oxid-esale
         MYSQL_HOST: oxid_db
         MYSQL_DATABASE: 'oxid'
+        MYSQL_PORT: '3306'
         MYSQL_USER: "oxid"
         MYSQL_PASSWORD: "oxid"
         OXID_SHOP_URL: "http://localhost"
     services:
       oxid_db:
-        image: mysql:5.7
+        image: mysql:8.0
         env:
           MYSQL_DATABASE: oxid
           MYSQL_USER: oxid

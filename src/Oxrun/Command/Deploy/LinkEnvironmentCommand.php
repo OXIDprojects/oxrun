@@ -11,7 +11,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
-use Webmozart\PathUtil\Path;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Class LinkEnvironmentCommand
@@ -88,13 +88,13 @@ class LinkEnvironmentCommand extends Command
 
         if ($input->getOption('rm')) {
             $this->removeLinks($shopIds);
-            return 0;
+            return self::SUCCESS;
         }
 
         $environment = $this->environments->getActiveOption();
         if (empty($environment)) {
             $this->output->getErrorOutput()->writeln('<error>Please use one option of --production, --staging, --development, --testing</error>');
-            return 1;
+            return self::FAILURE;
         }
 
         $configrationDirector = $this->oxrunContext->getEnvironmentConfigurationDirectoryPath();
@@ -120,6 +120,7 @@ class LinkEnvironmentCommand extends Command
             };
         }
 
+        return self::SUCCESS;
     }
 
     /**

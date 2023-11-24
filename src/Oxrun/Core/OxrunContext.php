@@ -9,7 +9,7 @@ namespace Oxrun\Core;
 
 use OxidEsales\EshopCommunity\Internal\Transition\Utility\BasicContextInterface;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
-use Webmozart\PathUtil\Path;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Class OxrunContext

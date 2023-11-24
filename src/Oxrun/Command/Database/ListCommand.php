@@ -99,17 +99,17 @@ HELP;
         }
 
         $whereIN = implode("', '", $whereIN);
-        $conditionsIN = "Tables_in_{$dbName} IN ('{$whereIN}')";
+        $conditionsIN = "`Tables_in_{$dbName}` IN ('{$whereIN}')";
 
         $conditionsLIKE = '';
         if (!empty($whereLIKE)) {
-            $template = " OR Tables_in_{$dbName} LIKE ('%s')";
+            $template = " OR `Tables_in_{$dbName}` LIKE ('%s')";
             foreach ($whereLIKE as $tablename) {
                 $conditionsLIKE .= sprintf($template, $tablename);
             }
         }
 
-        $sqlstament = "SHOW FULL TABLES IN {$dbName} WHERE $conditionsIN $conditionsLIKE";
+        $sqlstament = "SHOW FULL TABLES IN `{$dbName}` WHERE $conditionsIN $conditionsLIKE";
 
         $existsTable = DatabaseProvider::getDb()->getAll($sqlstament);
 
