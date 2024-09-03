@@ -87,7 +87,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: download coverage report
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4.1.7
         with:
           name: code-coverage-report
       - name: remove artifact coverage report
@@ -111,7 +111,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: download oxrun-description
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4.1.7
         with:
           name: oxrun-description
       - name: remove artifact oxrun-description
